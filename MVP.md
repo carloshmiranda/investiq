@@ -17,17 +17,16 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - React Router v6
 
 ### Backend
-- Node.js + Express (REST API)
-- PostgreSQL (user accounts + encrypted connection credentials)
-- Prisma ORM
-- JWT authentication (access token + refresh token)
+- Vercel Serverless Functions (API routes under /api — no Express server needed)
+- Supabase (PostgreSQL — free tier, no expiry, 500MB)
+- Prisma ORM (connects to Supabase Postgres)
+- JWT authentication (access token + refresh token via jose library)
 - bcrypt for password hashing
-- AES-256-GCM for encrypting API keys at rest
-- Vercel (frontend) + Railway (backend + DB)
+- Everything deployed on Vercel — one project, one pipeline
 
 ### Infrastructure
-- GitHub → Vercel (frontend auto-deploy on push to main)
-- GitHub → Railway (backend auto-deploy on push to main)
+- GitHub → Vercel (full stack auto-deploy on push to main)
+- Supabase for DB (managed separately, connection string in Vercel env vars)
 
 ## Color System
 - Background: #0a0f1e
@@ -79,6 +78,7 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - [ ] Crypto.com connects and loads spot balances + staking rewards
 - [ ] Each user sees only their own data
 - [ ] API keys encrypted at rest in DB
-- [ ] GitHub → Vercel (frontend) + GitHub → Railway (backend) pipelines live
+- [ ] GitHub → Vercel pipeline live (frontend + serverless API in one project)
+- [ ] Supabase PostgreSQL connected and Prisma migrations running
 - [ ] App works on desktop and tablet
 - [ ] No console errors in production
