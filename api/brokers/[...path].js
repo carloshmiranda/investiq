@@ -1,10 +1,9 @@
 // api/brokers/[...path].js
-// Catch-all proxy for all broker APIs
+// Catch-all proxy for all broker APIs — implemented in items 7.1 and 8.1
 // path[0] = broker name (degiro | trading212), rest = broker-specific route
-// Implemented in items 7.1 and 8.1
-import { createHandler } from '../../lib/apiHandler.js'
+import { createProtectedHandler } from '../../lib/apiHandler.js'
 
-export default createHandler({
+export default createProtectedHandler({
   GET: async (req, res) => {
     const [broker, ...rest] = req.query.path || []
     res.status(501).json({ error: `Not implemented yet: ${broker}/${rest.join('/')}` })
