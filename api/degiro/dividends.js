@@ -18,10 +18,8 @@ export default async function handler(req) {
     const data = await degiroGetDividends(sessionId, Number(intAccount));
     return edgeJson({ data });
   } catch (err) {
-    // Dividend endpoint can return 503 outside market hours — return empty gracefully
-    if (err.message.includes('503')) {
-      return edgeJson({ data: [], warning: 'DeGiro dividend endpoint temporarily unavailable' });
-    }
-    return edgeJson({ error: 'Failed to fetch dividend history from DeGiro', debug: err.message }, 502);
+    // Dividend history is supplementary — never block the sync over it.
+    // Return empty data with a warning so the frontend can still render.
+    return edgeJson({ data: [], warning: err.message });
   }
 }
