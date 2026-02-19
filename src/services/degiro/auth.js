@@ -1,11 +1,5 @@
-/**
- * Frontend DeGiro auth service — calls /api/degiro/* proxy/serverless functions.
- * Never talks directly to DeGiro (CORS would block it anyway).
- */
-
 const BASE = '/api/degiro';
 
-/** Login with username + password. Returns session data or { requiresTOTP: true }. */
 export async function login(username, password) {
   const res = await fetch(`${BASE}/login`, {
     method: 'POST',
@@ -16,13 +10,14 @@ export async function login(username, password) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new DegiroError(data.error || 'Login failed', res.status, data.code);
+    // Prefer `debug` field (the raw server-side error) for diagnosing proxy issues
+    const msg = data.debug || data.error || 'Login failed';
+    throw new DegiroError(msg, res.status, data.code);
   }
 
-  return data; // { sessionId, intAccount, username, firstName } or { requiresTOTP: true }
+  return data;
 }
 
-/** TOTP (2FA) verification — called after login returns requiresTOTP: true */
 export async function loginTOTP(username, password, oneTimePassword) {
   const res = await fetch(`${BASE}/totp`, {
     method: 'POST',
@@ -33,10 +28,11 @@ export async function loginTOTP(username, password, oneTimePassword) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new DegiroError(data.error || 'TOTP verification failed', res.status, data.code);
+    const msg = data.debug || data.error || 'TOTP verification failed';
+    throw new DegiroError(msg, res.status, data.code);
   }
 
-  return data; // { sessionId, intAccount, username, firstName }
+  return data;
 }
 
 export class DegiroError extends Error {
@@ -46,6 +42,7 @@ export class DegiroError extends Error {
     this.httpStatus = httpStatus;
     this.code = code;
     this.isSessionExpired = httpStatus === 401;
-    this.isMaintenance = httpStatus === 502 || httpStatus === 503;
+    // Only mark as "maintenance" if we explicitly cannot reach the host at all
+    this.isMaintenance = false;
   }
 }

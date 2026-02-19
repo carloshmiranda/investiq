@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { username, password } = await parseBody(req);
-
   if (!username || !password) {
     return res.status(400).json({ error: 'username and password are required' });
   }
@@ -14,7 +13,6 @@ export default async function handler(req, res) {
   try {
     const loginResult = await degiroLogin(username, password);
 
-    // 2FA required — return flag so frontend can show TOTP field
     if (loginResult.requiresTOTP) {
       return res.status(200).json({ requiresTOTP: true });
     }
@@ -23,11 +21,10 @@ export default async function handler(req, res) {
       const msg =
         loginResult.status === DEGIRO_STATUS.AUTH_FAILED
           ? 'Invalid username or password'
-          : `DeGiro login error (status ${loginResult.status})`;
+          : `DeGiro rejected login (status ${loginResult.status}: ${loginResult.statusText})`;
       return res.status(401).json({ error: msg, code: loginResult.status });
     }
 
-    // Fetch account details
     const client = await degiroGetClient(loginResult.sessionId);
 
     return res.status(200).json({
@@ -39,11 +36,21 @@ export default async function handler(req, res) {
       lastName: client.firstContact?.lastName ?? null,
       email: client.email ?? null,
     });
+
   } catch (err) {
-    console.error('[degiro/login]', err.message);
-    return res.status(502).json({
-      error: 'Could not reach DeGiro. They may be under maintenance.',
-      message: err.message,
+    console.error('[degiro/login] ERROR:', err.message);
+
+    // Surface the actual error message — never swallow it
+    const isAuthError = err.message.includes('HTTP 401') || err.message.includes('HTTP 403');
+    const isNetwork = err.message.startsWith('Network error');
+
+    return res.status(isAuthError ? 401 : 502).json({
+      error: isAuthError
+        ? 'Invalid username or password'
+        : isNetwork
+          ? `Cannot reach DeGiro: ${err.message}`
+          : err.message,          // <-- actual error, not a generic string
+      debug: err.message,
     });
   }
 }
