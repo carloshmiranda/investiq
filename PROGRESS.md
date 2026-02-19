@@ -38,7 +38,7 @@ https://github.com/carloshmiranda/investiq
 
 ### Auth System
 - [x] 1.1 — POST /api/auth/register (bcrypt hash, create user, return JWT pair)
-- [ ] 1.2 — POST /api/auth/login (verify password, return access + refresh tokens),
+- [x] 1.2 — POST /api/auth/login (verify password, return access + refresh tokens),
         POST /api/auth/refresh, POST /api/auth/logout
 - [ ] 1.3 — JWT middleware (verify access token on all protected routes, attach userId)
 - [ ] 1.4 — Client: /register page (name, email, password, confirm password)
@@ -98,3 +98,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 0.2 | Neon DB set up via Vercel Marketplace. Prisma schema migrated. 4 tables created: users, connections, portfolio_cache, sessions. DATABASE_URL injected automatically by Vercel. /api/db-check confirmed {ok:true,userCount:0} then deleted. |
 | 2026-02-19 | 0.3 | AuthContext (login/register/logout, in-memory token), ProtectedRoute, Login and Register pages. All protected routes redirect to /login when unauthenticated. |
 | 2026-02-19 | 1.1 | POST /api/auth/register live. bcrypt hash, Neon insert, jose JWT pair, httpOnly refresh cookie. Fixed vercel.json — removed /api rewrite that blocked serverless functions. |
+| 2026-02-19 | 1.2 | POST /api/auth/login + refresh + logout live. Refresh token rotation (jti+iat prevents same-second collision). Replay of rotated/logged-out tokens correctly rejected. |
