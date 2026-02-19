@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { getAllHoldings } from '../data/mockPortfolio';
 import { formatCurrency, formatPercent, formatNumber, formatDateShort } from '../utils/formatters';
+import { useDegiro } from '../context/DegiroContext';
+import { mergeHoldings } from '../services/degiro/mapper';
 
 const safetyTooltips = {
   A: 'Excellent — Strong financials, consistent payout history, low risk of cut',
@@ -36,9 +38,18 @@ const typeColors = {
 };
 
 export default function Holdings() {
-  const allHoldings = getAllHoldings();
+  const mockHoldings = getAllHoldings();
+  const { connected: degiroConnected, positions: degiroPositions, syncing: degiroSyncing, sync: degiroSync } = useDegiro();
+
+  // Merge mock + live DeGiro data (deduped by ticker/ISIN)
+  const allHoldings = useMemo(
+    () => degiroConnected ? mergeHoldings(mockHoldings, degiroPositions) : mockHoldings,
+    [mockHoldings, degiroConnected, degiroPositions]
+  );
+
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
+  const [sourceFilter, setSourceFilter] = useState('All'); // 'All' | 'mock' | 'degiro'
   const [sortField, setSortField] = useState('value');
   const [sortDir, setSortDir] = useState('desc');
 
@@ -49,7 +60,9 @@ export default function Holdings() {
       const matchSearch = h.ticker.toLowerCase().includes(search.toLowerCase()) ||
         h.name.toLowerCase().includes(search.toLowerCase());
       const matchType = typeFilter === 'All' || h.type === typeFilter;
-      return matchSearch && matchType;
+      const matchSource = sourceFilter === 'All' ||
+        (sourceFilter === 'degiro' ? h.source === 'degiro' : h.source !== 'degiro');
+      return matchSearch && matchType && matchSource;
     });
 
     data.sort((a, b) => {
@@ -107,10 +120,30 @@ export default function Holdings() {
 
   return (
     <div className="space-y-6">
+      {/* DeGiro sync banner */}
+      {degiroConnected && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#ff6600]/20 bg-[#ff6600]/5">
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black"
+            style={{ background: '#ff660022', color: '#ff6600' }}>DG</div>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm text-gray-300">
+              DeGiro connected — <span className="text-[#ff6600] font-medium">{degiroPositions.length} live positions</span> merged
+            </span>
+          </div>
+          <button
+            onClick={degiroSync}
+            disabled={degiroSyncing}
+            className="text-xs px-3 py-1 rounded-lg border border-[#ff6600]/30 text-[#ff6600] hover:bg-[#ff6600]/10 transition-colors disabled:opacity-40"
+          >
+            {degiroSyncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-500 text-sm mt-0.5">All assets unified — stocks, crypto, DeFi</p>
+          <p className="text-gray-500 text-sm mt-0.5">All assets unified — stocks, crypto, DeFi{degiroConnected ? ' + DeGiro' : ''}</p>
         </div>
         <button
           onClick={exportCSV}
@@ -163,6 +196,16 @@ export default function Holdings() {
         </div>
         {/* Type filter */}
         <div className="flex gap-1.5 flex-wrap">
+          {/* Source filter — only show when DeGiro connected */}
+          {degiroConnected && ['All', 'Mock', 'DeGiro'].map((s) => (
+            <button key={s} onClick={() => setSourceFilter(s === 'Mock' ? 'mock' : s === 'DeGiro' ? 'degiro' : 'All')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+                sourceFilter === (s === 'Mock' ? 'mock' : s === 'DeGiro' ? 'degiro' : 'All')
+                  ? s === 'DeGiro' ? 'bg-[#ff6600] text-white border-[#ff6600]' : 'bg-emerald-500 text-white border-emerald-500'
+                  : 'bg-[#1f2937] text-gray-400 hover:text-white border-white/5'
+              }`}
+            >{s}</button>
+          ))}
           {types.map((t) => (
             <button
               key={t}
@@ -212,7 +255,15 @@ export default function Holdings() {
                         {h.ticker.slice(0, 2)}
                       </div>
                       <div>
-                        <p className="font-semibold text-white text-xs">{h.ticker}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-white text-xs">{h.ticker}</p>
+                          {h.source === 'degiro' && (
+                            <span className="text-[8px] font-bold px-1 py-0.5 rounded"
+                              style={{ background: '#ff660022', color: '#ff6600', border: '1px solid #ff660033' }}>
+                              DG
+                            </span>
+                          )}
+                        </div>
                         <p className="text-gray-500 text-[10px] truncate max-w-[120px]">{h.name}</p>
                       </div>
                     </div>
