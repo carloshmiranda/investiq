@@ -41,7 +41,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 1.2 — POST /api/auth/login (verify password, return access + refresh tokens),
         POST /api/auth/refresh, POST /api/auth/logout
 - [x] 1.3 — JWT middleware (verify access token on all protected routes, attach userId)
-- [ ] 1.4 — Client: /register page (name, email, password, confirm password)
+- [x] 1.4 — Client: /register page (name, email, password, confirm password)
 - [ ] 1.5 — Client: /login page, JWT storage in memory + refresh token cookie
 - [ ] 1.6 — Client: auth context (useAuth hook), protected route redirect, silent token refresh
 - [ ] 1.7 — Client: /settings page (change name, email, password, active sessions, logout all)
@@ -100,3 +100,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 1.1 | POST /api/auth/register live. bcrypt hash, Neon insert, jose JWT pair, httpOnly refresh cookie. Fixed vercel.json — removed /api rewrite that blocked serverless functions. |
 | 2026-02-19 | 1.2 | POST /api/auth/login + refresh + logout live. Refresh token rotation (jti+iat prevents same-second collision). Replay of rotated/logged-out tokens correctly rejected. |
 | 2026-02-19 | 1.3 | createProtectedHandler added to apiHandler.js. All non-auth routes now return 401 without Bearer token, 401 with invalid token, pass through to handler with valid token. |
+| 2026-02-19 | 1.4 | Register.jsx upgraded: confirm password field, client-side validation (required fields, email format, min 8 chars, passwords match). API errors still surfaced from AuthContext. |

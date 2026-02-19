@@ -9,11 +9,23 @@ export default function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  function validate() {
+    if (!name.trim()) return 'Name is required.'
+    if (!email.trim()) return 'Email is required.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Enter a valid email address.'
+    if (password.length < 8) return 'Password must be at least 8 characters.'
+    if (password !== confirm) return 'Passwords do not match.'
+    return null
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
+    const validationError = validate()
+    if (validationError) { setError(validationError); return }
     setError(null)
     setLoading(true)
     try {
@@ -88,6 +100,21 @@ export default function Register() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                placeholder="Min. 8 characters"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white
+                  placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:bg-white/8
+                  transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5">Confirm password</label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
                 required
                 autoComplete="new-password"
                 placeholder="••••••••"
