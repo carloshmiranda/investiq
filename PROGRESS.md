@@ -33,7 +33,7 @@ https://github.com/carloshmiranda/investiq
             run first migration against Neon DB, confirm Prisma can query from a test
             /api/db-check serverless function then delete it
 
-- [ ] 0.3 — Client: add /login and /register routes to React Router,
+- [x] 0.3 — Client: add /login and /register routes to React Router,
         protected route wrapper, auth context skeleton
 
 ### Auth System
@@ -96,3 +96,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | Fix: Vercel function limit | Consolidated 14 → 7 serverless functions to stay within Hobby plan (12 max). auth/[action].js, connections/[provider].js, brokers/[...path].js. |
 | 2026-02-19 | 0.1 | GitHub repo live, Vite+React+Tailwind built, /api/health returns {ok:true} in production. Frontend live at https://investiq-nine.vercel.app. |
 | 2026-02-19 | 0.2 | Neon DB set up via Vercel Marketplace. Prisma schema migrated. 4 tables created: users, connections, portfolio_cache, sessions. DATABASE_URL injected automatically by Vercel. /api/db-check confirmed {ok:true,userCount:0} then deleted. |
+| 2026-02-19 | 0.3 | AuthContext (login/register/logout, in-memory token), ProtectedRoute, Login and Register pages. All protected routes redirect to /login when unauthenticated. |
