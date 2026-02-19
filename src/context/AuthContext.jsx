@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   async function register(name, email, password) {
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/auth/register', { name, email, password })
+      const { data } = await axios.post('/api/auth/register', { name, email, password }, { withCredentials: true })
       setUser(data.user)
       setAccessToken(data.accessToken)
     } finally {
@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password })
+      const { data } = await axios.post('/api/auth/login', { email, password }, { withCredentials: true })
       setUser(data.user)
       setAccessToken(data.accessToken)
     } finally {
@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await axios.post('/api/auth/logout')
+      await axios.post('/api/auth/logout', {}, { withCredentials: true })
     } catch {
       // clear state regardless
     }
