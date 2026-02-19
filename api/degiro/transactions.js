@@ -1,6 +1,7 @@
-import { degiroGetTransactions, setCORSHeaders } from '../_lib/degiro.js';
+export const config = { runtime: 'edge' };
 
-// Default: last 12 months
+import { degiroGetTransactions, edgeJson, edgeOptions } from '../_lib/degiro.js';
+
 function defaultDates() {
   const to = new Date();
   const from = new Date();
@@ -10,28 +11,26 @@ function defaultDates() {
   return { fromDate: fmt(from), toDate: fmt(to) };
 }
 
-export default async function handler(req, res) {
-  setCORSHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return edgeOptions();
+  if (req.method !== 'GET') return edgeJson({ error: 'Method not allowed' }, 405);
 
-  const { sessionId, intAccount } = req.query;
-  const defaults = defaultDates();
-  const fromDate = req.query.fromDate || defaults.fromDate;
-  const toDate = req.query.toDate || defaults.toDate;
+  const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get('sessionId');
+  const intAccount = searchParams.get('intAccount');
 
   if (!sessionId || !intAccount) {
-    return res.status(400).json({ error: 'sessionId and intAccount are required' });
+    return edgeJson({ error: 'sessionId and intAccount are required' }, 400);
   }
+
+  const defaults = defaultDates();
+  const fromDate = searchParams.get('fromDate') || defaults.fromDate;
+  const toDate = searchParams.get('toDate') || defaults.toDate;
 
   try {
     const data = await degiroGetTransactions(sessionId, Number(intAccount), fromDate, toDate);
-    return res.status(200).json({ data });
+    return edgeJson({ data });
   } catch (err) {
-    console.error('[degiro/transactions]', err.message);
-    return res.status(502).json({
-      error: 'Failed to fetch transactions from DeGiro',
-      message: err.message,
-    });
+    return edgeJson({ error: 'Failed to fetch transactions from DeGiro', debug: err.message }, 502);
   }
 }

@@ -1,18 +1,28 @@
-import { degiroGetProducts, setCORSHeaders, parseBody } from '../_lib/degiro.js';
+export const config = { runtime: 'edge' };
 
-export default async function handler(req, res) {
-  setCORSHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+import { degiroGetProducts, edgeJson, edgeOptions } from '../_lib/degiro.js';
 
-  const { sessionId, intAccount } = req.query;
-  const { productIds } = await parseBody(req);
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return edgeOptions();
+  if (req.method !== 'POST') return edgeJson({ error: 'Method not allowed' }, 405);
+
+  const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get('sessionId');
+  const intAccount = searchParams.get('intAccount');
 
   if (!sessionId || !intAccount) {
-    return res.status(400).json({ error: 'sessionId and intAccount are required' });
+    return edgeJson({ error: 'sessionId and intAccount are required' }, 400);
   }
+
+  let productIds;
+  try {
+    ({ productIds } = await req.json());
+  } catch {
+    return edgeJson({ error: 'Invalid JSON body' }, 400);
+  }
+
   if (!Array.isArray(productIds) || productIds.length === 0) {
-    return res.status(400).json({ error: 'productIds array is required' });
+    return edgeJson({ error: 'productIds array is required' }, 400);
   }
 
   // Batch in groups of 50 to avoid DeGiro request size limits
@@ -26,13 +36,8 @@ export default async function handler(req, res) {
     const results = await Promise.all(
       batches.map((batch) => degiroGetProducts(sessionId, Number(intAccount), batch))
     );
-    const merged = Object.assign({}, ...results);
-    return res.status(200).json(merged);
+    return edgeJson(Object.assign({}, ...results));
   } catch (err) {
-    console.error('[degiro/products]', err.message);
-    return res.status(502).json({
-      error: 'Failed to fetch product details from DeGiro',
-      message: err.message,
-    });
+    return edgeJson({ error: 'Failed to fetch product details from DeGiro', debug: err.message }, 502);
   }
 }

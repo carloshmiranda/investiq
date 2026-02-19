@@ -1,30 +1,27 @@
-import { degiroGetDividends, setCORSHeaders } from '../_lib/degiro.js';
+export const config = { runtime: 'edge' };
 
-export default async function handler(req, res) {
-  setCORSHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+import { degiroGetDividends, edgeJson, edgeOptions } from '../_lib/degiro.js';
 
-  const { sessionId, intAccount } = req.query;
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return edgeOptions();
+  if (req.method !== 'GET') return edgeJson({ error: 'Method not allowed' }, 405);
+
+  const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get('sessionId');
+  const intAccount = searchParams.get('intAccount');
 
   if (!sessionId || !intAccount) {
-    return res.status(400).json({ error: 'sessionId and intAccount are required' });
+    return edgeJson({ error: 'sessionId and intAccount are required' }, 400);
   }
 
   try {
     const data = await degiroGetDividends(sessionId, Number(intAccount));
-    return res.status(200).json({ data });
+    return edgeJson({ data });
   } catch (err) {
-    console.error('[degiro/dividends]', err.message);
-
-    // Dividend endpoint can fail outside market hours — return empty gracefully
-    if (err.message.includes('503') || err.message.includes('maintenance')) {
-      return res.status(200).json({ data: [], warning: 'DeGiro under maintenance' });
+    // Dividend endpoint can return 503 outside market hours — return empty gracefully
+    if (err.message.includes('503')) {
+      return edgeJson({ data: [], warning: 'DeGiro dividend endpoint temporarily unavailable' });
     }
-
-    return res.status(502).json({
-      error: 'Failed to fetch dividend history from DeGiro',
-      message: err.message,
-    });
+    return edgeJson({ error: 'Failed to fetch dividend history from DeGiro', debug: err.message }, 502);
   }
 }

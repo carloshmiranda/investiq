@@ -1,29 +1,32 @@
-import { degiroTOTP, degiroGetClient, DEGIRO_STATUS, parseBody, setCORSHeaders } from '../_lib/degiro.js';
+export const config = { runtime: 'edge' };
 
-export default async function handler(req, res) {
-  setCORSHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+import { degiroTOTP, degiroGetClient, DEGIRO_STATUS, edgeJson, edgeOptions } from '../_lib/degiro.js';
 
-  const { username, password, oneTimePassword } = await parseBody(req);
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return edgeOptions();
+  if (req.method !== 'POST') return edgeJson({ error: 'Method not allowed' }, 405);
+
+  let username, password, oneTimePassword;
+  try {
+    ({ username, password, oneTimePassword } = await req.json());
+  } catch {
+    return edgeJson({ error: 'Invalid JSON body' }, 400);
+  }
 
   if (!username || !password || !oneTimePassword) {
-    return res.status(400).json({ error: 'username, password, and oneTimePassword are required' });
+    return edgeJson({ error: 'username, password, and oneTimePassword are required' }, 400);
   }
 
   try {
     const result = await degiroTOTP(username, password, oneTimePassword);
 
     if (result.status !== DEGIRO_STATUS.SUCCESS || !result.sessionId) {
-      return res.status(401).json({
-        error: 'Invalid TOTP code or credentials',
-        code: result.status,
-      });
+      return edgeJson({ error: 'Invalid TOTP code or credentials', code: result.status }, 401);
     }
 
     const client = await degiroGetClient(result.sessionId);
 
-    return res.status(200).json({
+    return edgeJson({
       sessionId: result.sessionId,
       intAccount: client.intAccount,
       userId: client.id,
@@ -32,10 +35,6 @@ export default async function handler(req, res) {
       lastName: client.firstContact?.lastName ?? null,
     });
   } catch (err) {
-    console.error('[degiro/totp]', err.message);
-    return res.status(502).json({
-      error: 'TOTP verification failed',
-      message: err.message,
-    });
+    return edgeJson({ error: 'TOTP verification failed', debug: err.message }, 502);
   }
 }

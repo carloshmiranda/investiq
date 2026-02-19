@@ -1,4 +1,6 @@
-import { setCORSHeaders, DEGIRO_BASE } from '../_lib/degiro.js';
+export const config = { runtime: 'edge' };
+
+import { DEGIRO_BASE, edgeJson, edgeOptions } from '../_lib/degiro.js';
 
 /**
  * GET /api/degiro/health
@@ -6,9 +8,8 @@ import { setCORSHeaders, DEGIRO_BASE } from '../_lib/degiro.js';
  * and reports what the login endpoint returns (status code, content-type, body preview).
  * Safe to call without credentials.
  */
-export default async function handler(req, res) {
-  setCORSHeaders(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return edgeOptions();
 
   const checks = {};
 
@@ -54,9 +55,7 @@ export default async function handler(req, res) {
       contentType,
       latencyMs: Date.now() - start,
       isJson: bodyJson !== null,
-      // Show first 500 chars of body (safe — no credentials sent)
       bodyPreview: body.slice(0, 500),
-      // If JSON, show the status field (tells us what error code bad creds return)
       degiroStatus: bodyJson?.status ?? null,
       degiroStatusText: bodyJson?.statusText ?? null,
     };
@@ -64,14 +63,13 @@ export default async function handler(req, res) {
     checks.loginEndpoint = { ok: false, error: e.message };
   }
 
-  // 3. Node version (to confirm fetch is available)
+  // 3. Runtime info
   checks.runtime = {
-    nodeVersion: process.version,
+    runtime: 'edge',
     hasFetch: typeof fetch !== 'undefined',
-    platform: process.platform,
     timestamp: new Date().toISOString(),
   };
 
   const allOk = Object.values(checks).every((c) => c.ok !== false);
-  return res.status(allOk ? 200 : 502).json({ allOk, checks });
+  return edgeJson({ allOk, checks }, allOk ? 200 : 502);
 }
