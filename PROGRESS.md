@@ -37,7 +37,7 @@ https://github.com/carloshmiranda/investiq
         protected route wrapper, auth context skeleton
 
 ### Auth System
-- [ ] 1.1 — POST /api/auth/register (bcrypt hash, create user, return JWT pair)
+- [x] 1.1 — POST /api/auth/register (bcrypt hash, create user, return JWT pair)
 - [ ] 1.2 — POST /api/auth/login (verify password, return access + refresh tokens),
         POST /api/auth/refresh, POST /api/auth/logout
 - [ ] 1.3 — JWT middleware (verify access token on all protected routes, attach userId)
@@ -97,3 +97,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 0.1 | GitHub repo live, Vite+React+Tailwind built, /api/health returns {ok:true} in production. Frontend live at https://investiq-nine.vercel.app. |
 | 2026-02-19 | 0.2 | Neon DB set up via Vercel Marketplace. Prisma schema migrated. 4 tables created: users, connections, portfolio_cache, sessions. DATABASE_URL injected automatically by Vercel. /api/db-check confirmed {ok:true,userCount:0} then deleted. |
 | 2026-02-19 | 0.3 | AuthContext (login/register/logout, in-memory token), ProtectedRoute, Login and Register pages. All protected routes redirect to /login when unauthenticated. |
+| 2026-02-19 | 1.1 | POST /api/auth/register live. bcrypt hash, Neon insert, jose JWT pair, httpOnly refresh cookie. Fixed vercel.json — removed /api rewrite that blocked serverless functions. |
