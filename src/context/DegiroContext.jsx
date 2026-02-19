@@ -34,8 +34,9 @@ export function DegiroProvider({ children }) {
       const portfolioData = await fetchPortfolio(sessionId, intAccount);
 
       // 2. Extract PRODUCT positions only (not cashFunds which appear as positions too)
+      // DeGiro uses nested {name, value} arrays — positionType is NOT a top-level property
       const productPositions = portfolioData.portfolio.filter(
-        (p) => p.positionType === 'PRODUCT'
+        (p) => p.value?.find((v) => v.name === 'positionType')?.value === 'PRODUCT'
       );
 
       // 3. Fetch product details in bulk
