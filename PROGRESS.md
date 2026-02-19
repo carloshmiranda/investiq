@@ -23,7 +23,7 @@ https://github.com/carloshmiranda/investiq
 ## Backlog (in order — do one at a time)
 
 ### Foundation & Infrastructure
-- [ ] 0.1 — Create GitHub repo (single repo, not monorepo), init Vite + React + TailwindCSS,
+- [x] 0.1 — Create GitHub repo (single repo, not monorepo), init Vite + React + TailwindCSS,
             add /api folder with a health check function (GET /api/health returns {ok:true}),
             push to GitHub, connect to Vercel, confirm both frontend and /api/health are live
 
@@ -93,3 +93,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 0.1 | Monorepo restructure: client/ + server/ scaffold. Vercel root dir needs manual update to `client/`. Railway setup needed for server/. |
 | 2026-02-19 | Architecture migration | Replaced Railway+Express with Vercel Serverless Functions + Supabase. Folder structure flattened to single repo. vercel.json updated. |
 | 2026-02-19 | Fix: Vercel function limit | Consolidated 14 → 7 serverless functions to stay within Hobby plan (12 max). auth/[action].js, connections/[provider].js, brokers/[...path].js. |
+| 2026-02-19 | 0.1 | GitHub repo live, Vite+React+Tailwind built, /api/health returns {ok:true} in production. Frontend live at https://investiq-nine.vercel.app. |
