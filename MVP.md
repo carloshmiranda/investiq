@@ -18,15 +18,15 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 
 ### Backend
 - Vercel Serverless Functions (API routes under /api — no Express server needed)
-- Supabase (PostgreSQL — free tier, no expiry, 500MB)
-- Prisma ORM (connects to Supabase Postgres)
+- Neon PostgreSQL (installed via Vercel Marketplace — free tier, scales to zero, never pauses)
+- Prisma ORM (connects to Neon via DATABASE_URL + DATABASE_URL_UNPOOLED)
 - JWT authentication (access token + refresh token via jose library)
 - bcrypt for password hashing
-- Everything deployed on Vercel — one project, one pipeline
+- Everything deployed on Vercel — one project, one pipeline, one billing account
 
 ### Infrastructure
 - GitHub → Vercel (full stack auto-deploy on push to main)
-- Supabase for DB (managed separately, connection string in Vercel env vars)
+- Neon DB managed from Vercel dashboard (Storage tab) — no separate service
 
 ## Color System
 - Background: #0a0f1e
@@ -79,6 +79,6 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - [ ] Each user sees only their own data
 - [ ] API keys encrypted at rest in DB
 - [ ] GitHub → Vercel pipeline live (frontend + serverless API in one project)
-- [ ] Supabase PostgreSQL connected and Prisma migrations running
+- [ ] Neon PostgreSQL connected (via Vercel Marketplace) and Prisma migrations running
 - [ ] App works on desktop and tablet
 - [ ] No console errors in production

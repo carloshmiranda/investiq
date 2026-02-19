@@ -2,19 +2,20 @@
 
 ## Status
 🟡 In Progress
-Architecture: Vercel Serverless Functions (/api) + Supabase PostgreSQL (single repo)
+Architecture: Vercel Serverless Functions (/api) + Neon PostgreSQL via Vercel Marketplace (single repo)
 
 ## Live URLs
 - Frontend: https://investiq-nine.vercel.app
 - API: served from Vercel Serverless Functions under /api
-- Supabase project URL: (fill in after Supabase setup)
+- Database: Neon PostgreSQL via Vercel Marketplace (managed at vercel.com/storage)
 
 ## GitHub Repo
 https://github.com/carloshmiranda/investiq
 
 ## Database
-- Provider: Supabase PostgreSQL (free tier, no expiry)
-- Connection string: stored in Vercel env vars as DATABASE_URL (never in git)
+- Provider: Neon PostgreSQL (free tier, scales to zero, never pauses)
+- Installed via Vercel Marketplace — managed from vercel.com/storage
+- Connection strings: injected automatically as DATABASE_URL + DATABASE_URL_UNPOOLED (never in git)
 
 ## Completed ✅
 - [x] 0.1 — Monorepo restructured (client/ + server/), Express server scaffolded,
@@ -27,10 +28,10 @@ https://github.com/carloshmiranda/investiq
             add /api folder with a health check function (GET /api/health returns {ok:true}),
             push to GitHub, connect to Vercel, confirm both frontend and /api/health are live
 
-- [ ] 0.2 — Create Supabase project (free tier at supabase.com), copy the Postgres connection
-            string, set up Prisma with schema (users, connections, portfolio_cache, sessions),
-            run first migration against Supabase DB, add DATABASE_URL to Vercel env vars,
-            confirm Prisma can query from a test /api/db-check serverless function then delete it
+- [ ] 0.2 — Install Neon via Vercel Marketplace, pull env vars with `vercel env pull .env`,
+            set up Prisma schema (users, connections, portfolio_cache, sessions),
+            run first migration against Neon DB, confirm Prisma can query from a test
+            /api/db-check serverless function then delete it
 
 - [ ] 0.3 — Client: add /login and /register routes to React Router,
         protected route wrapper, auth context skeleton
