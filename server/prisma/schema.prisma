@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  connections Connection[]
+  cache       PortfolioCache[]
+  sessions    Session[]
+}
+
+model Connection {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider      String    // 'degiro' | 'trading212' | 'binance' | 'cryptocom'
+  status        String    @default("disconnected")
+  encryptedData String    // AES-256-GCM encrypted JSON: { apiKey, apiSecret, sessionId, ... }
+  lastSyncAt    DateTime?
+  lastError     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([userId, provider])
+}
+
+model PortfolioCache {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cacheKey  String   // 'holdings' | 'income' | 'dividends'
+  data      Json
+  cachedAt  DateTime @default(now())
+  expiresAt DateTime
+
+  @@unique([userId, cacheKey])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}

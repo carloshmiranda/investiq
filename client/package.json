@@ -1,12 +1,10 @@
 {
-  "name": "investiq",
+  "name": "investiq-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"nodemon server/server.js\" --names \"vite,proxy\" --prefix-colors \"cyan,yellow\"",
-    "dev:ui": "vite",
-    "server": "node server/server.js",
+    "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -14,8 +12,6 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "axios": "^1.13.5",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -28,12 +24,10 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.24",
-    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
     "vite": "^7.3.1"
