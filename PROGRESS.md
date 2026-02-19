@@ -43,7 +43,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 1.3 — JWT middleware (verify access token on all protected routes, attach userId)
 - [x] 1.4 — Client: /register page (name, email, password, confirm password)
 - [x] 1.5 — Client: /login page, JWT storage in memory + refresh token cookie
-- [ ] 1.6 — Client: auth context (useAuth hook), protected route redirect, silent token refresh
+- [x] 1.6 — Client: auth context (useAuth hook), protected route redirect, silent token refresh
 - [ ] 1.7 — Client: /settings page (change name, email, password, active sessions, logout all)
 
 ### Mock Data & Core UI
@@ -102,3 +102,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 1.3 | createProtectedHandler added to apiHandler.js. All non-auth routes now return 401 without Bearer token, 401 with invalid token, pass through to handler with valid token. |
 | 2026-02-19 | 1.4 | Register.jsx upgraded: confirm password field, client-side validation (required fields, email format, min 8 chars, passwords match). API errors still surfaced from AuthContext. |
 | 2026-02-19 | 1.5 | Login.jsx: client-side validation (required fields). AuthContext: withCredentials:true on all auth axios calls so httpOnly refresh cookie is sent. Created run.sh (vercel dev). |
+| 2026-02-19 | 1.6 | AuthContext: isLoading starts true, useEffect on mount calls /api/auth/refresh to restore session. authAxios instance with request interceptor (Bearer token) + response interceptor (401→refresh+retry, on refresh failure clears auth). ProtectedRoute spins while isLoading, then redirects. |
