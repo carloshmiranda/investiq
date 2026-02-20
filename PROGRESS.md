@@ -72,7 +72,7 @@ https://github.com/carloshmiranda/investiq
             via PATCH /api/user/currency on every switch.
             Wrap App.jsx with <CurrencyProvider> inside <AuthProvider>.
 
-- [ ] 2.3 — Add currency switcher UI to Header component:
+- [x] 2.3 — Add currency switcher UI to Header component:
             A compact 3-button toggle (USD | EUR | GBP) in the top-right of the header,
             next to the user avatar/settings link.
             Active currency highlighted with the emerald accent (#10b981).
@@ -140,3 +140,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 0.4 | Added currencyCode (String, default 'USD') to User model. Migration applied to Neon DB. All auth endpoints (register, login, refresh) and user endpoints (profile GET/PUT) now return currencyCode in user payload. |
 | 2026-02-20 | 0.5 | Exchange rate service: /lib/exchangeRates.js fetches USD-based rates from open.exchangerate-api.com, caches 1hr in module variable, exports getRate() and getAllRates(). GET /api/rates returns { USD, EUR, GBP, updatedAt }. PATCH /api/user/currency validates input against ['USD','EUR','GBP'], updates DB, returns user. Added PATCH to CORS allowed methods. |
 | 2026-02-20 | 2.2 | CurrencyContext created: loads rates from GET /api/rates on mount, refreshes every hour, provides activeCurrency/setActiveCurrency/convert(amount)/formatMoney(amount). Syncs user preference from DB on login, persists to localStorage, patches DB on switch. App.jsx wrapped with CurrencyProvider inside AuthProvider. Build passes clean. |
+| 2026-02-20 | 2.3 | Currency switcher added to Header: compact 3-button toggle ($ USD | € EUR | £ GBP) between income pill and date/time. Active currency highlighted with emerald accent. Clicking switches instantly via CurrencyContext — no reload. Header portfolio value and income pill now use formatMoney() for live currency conversion. Build passes clean. |

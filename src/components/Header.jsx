@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { getPortfolioSummary } from '../data/mockPortfolio';
-import { formatCurrency } from '../utils/formatters';
+import { useCurrency } from '../context/CurrencyContext';
+
+const CURRENCIES = ['USD', 'EUR', 'GBP'];
+const SYMBOLS = { USD: '$', EUR: '€', GBP: '£' };
 
 export default function Header({ collapsed, setCollapsed }) {
   const [time, setTime] = useState(new Date());
   const [pulse, setPulse] = useState(false);
   const summary = getPortfolioSummary();
+  const { activeCurrency, setActiveCurrency, formatMoney } = useCurrency();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -39,7 +43,7 @@ export default function Header({ collapsed, setCollapsed }) {
         <div className={`w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-500 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
         <span className="text-gray-500 text-sm hidden sm:inline">Total Portfolio</span>
         <span className="text-lg font-bold text-white value-pulse">
-          {formatCurrency(summary.totalValue, 0)}
+          {formatMoney(summary.totalValue)}
         </span>
       </div>
 
@@ -52,8 +56,25 @@ export default function Header({ collapsed, setCollapsed }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span className="text-xs text-emerald-400 font-medium">
-          {formatCurrency(summary.monthlyIncome, 0)}/mo
+          {formatMoney(summary.monthlyIncome)}/mo
         </span>
+      </div>
+
+      {/* Currency switcher */}
+      <div className="flex items-center rounded-lg border border-white/10 overflow-hidden">
+        {CURRENCIES.map((code) => (
+          <button
+            key={code}
+            onClick={() => setActiveCurrency(code)}
+            className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+              activeCurrency === code
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {SYMBOLS[code]} {code}
+          </button>
+        ))}
       </div>
 
       {/* Date/Time */}
