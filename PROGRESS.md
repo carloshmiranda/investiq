@@ -167,8 +167,8 @@ https://github.com/carloshmiranda/investiq
 - [x] 12.2 — POST /api/ai/chat — Claude claude-sonnet-4-6, portfolio context injected
 
 ### Polish
-- [ ] 13.1 — Loading skeletons, error boundaries, empty states
-- [ ] 13.2 — Responsive audit, production smoke test
+- [x] 13.1 — Loading skeletons, error boundaries, empty states
+- [x] 13.2 — Responsive audit, production smoke test
 
 ## Session Log
 | Date | Item | Notes |
@@ -204,3 +204,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 11.3 | Portfolio cache layer: lib/cache.js with getCache/setCache/invalidateCache using portfolio_cache table (1hr TTL). Both /api/portfolio and /api/income check cache first, support ?refresh=true bypass. POST endpoints for cache invalidation. Cache only stored on error-free fetches. Build passes clean. |
 | 2026-02-20 | 12.1 | Client AI chat UI wired to POST /api/ai/chat via authAxios. Removed mock responses. Chat UI: message bubbles, markdown rendering, typing indicator, suggested prompts (6), insight cards (3). Removed news feed section. Build passes clean. |
 | 2026-02-20 | 12.2 | POST /api/ai/chat: calls Anthropic Messages API with claude-sonnet-4-6. Portfolio+income data from cache injected into system prompt (holdings, values, sectors, income events). Full conversation history supported. Returns reply+model+usage. Graceful error for missing ANTHROPIC_API_KEY. Build passes clean. |
+| 2026-02-20 | 13.2 | Responsive audit complete. Layout: mobile drawer sidebar (off-screen by default, slide-in on hamburger tap, auto-close on nav), header full-width on mobile. Header: compact currency switcher (symbol-only on xs), portfolio value text scales, notification bell hidden on xs. AI chat: height capped to viewport via min(). CSS: touch-friendly horizontal scroll, smaller chart fonts on mobile. Desktop behavior fully preserved. Build passes clean. |
