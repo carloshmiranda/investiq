@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { getPortfolioSummary, getPortfolioHealthScore, getAllHoldings } from '../data/mockPortfolio';
-import { formatCurrency, formatPercent } from '../utils/formatters';
+import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const SUGGESTED_PROMPTS = [
   'How much passive income will I earn next year?',
@@ -11,80 +11,6 @@ const SUGGESTED_PROMPTS = [
   'How would DRIP affect my income in 10 years?',
 ];
 
-const MOCK_AI_RESPONSES = {
-  'How much passive income will I earn next year?': `Based on your current holdings, here's my projection for next year's passive income:
-
-**Annual Income Breakdown:**
-- **Dividends (Stocks/ETFs):** $4,960/year
-- **Staking Rewards (ETH, SOL, LINK):** $1,792/year
-- **DeFi Yield (USDC on Aave):** $765/year
-- **Total Projected:** ~$7,517/year or **$626/month**
-
-This assumes current holdings, no price changes, and typical payout schedules. Key drivers: JEPQ monthly dividends ($97/mo), Realty Income monthly payouts ($30.72/mo), and Ethereum staking via Lido at 4.2% APY.
-
-**Upside scenario (+8.3% growth):** ~$8,140/year
-**Conservative scenario (-5% due to rate changes):** ~$7,141/year
-
-💡 *Tip: Enabling DRIP on your monthly dividend ETFs could add ~$340 in compounded income by year-end.*`,
-
-  'Is my portfolio income diversified enough?': `Your income diversification score is **72/100** — Good, with room to improve.
-
-**Current income split:**
-- Stocks: 42% ✅
-- ETFs: 31% ✅
-- Crypto staking: 21% ⚠️
-- Stablecoin yield: 6% ✅
-
-**What's working well:**
-Your equity exposure is spread across 4 sectors (Tech, Consumer Staples, Healthcare, Real Estate) which provides solid protection against sector-specific downturns.
-
-**Areas of concern:**
-1. **AT&T (T)** — 6.53% yield but safety rating C. High payout ratio makes cuts possible.
-2. **Crypto concentration** — 21% of income from staking is exposed to APY compression and protocol risk.
-3. **Geographic concentration** — 100% US-focused. Consider adding international dividend ETFs like VXUS or SCHY.
-
-**Recommendation:** Adding 2-3 international dividend ETFs would raise your diversification score to ~85.`,
-
-  'Which holdings are at risk of a dividend cut?': `Based on my analysis of your current holdings, here are the risk levels:
-
-**🔴 High Risk:**
-- **AT&T (T)** — 6.53% yield, Safety C. Payout ratio ~65%, debt remains elevated post-WarnerMedia spin-off. Watch Q1 2024 earnings.
-
-**🟡 Moderate Watch:**
-- **JEPQ** — 10.54% yield relies on options premium income. In low-volatility markets, distributions may compress by 15-20%. Not a "cut" per se, but income may vary.
-- **T** — Already mentioned, bears repeating.
-
-**🟢 Very Safe:**
-- **AAPL, MSFT, KO, JNJ, PG** — All Dividend Kings or Aristocrats. Payout ratios well below 60%, growing free cash flow. Zero cut risk in near term.
-- **O (Realty Income)** — 30+ year dividend growth streak. Monthly payer, rated A.
-- **SCHD, VYM** — ETF structure means single-stock cut risk is pooled.
-
-**Overall portfolio dividend safety: A-**`,
-
-  default: `I've analyzed your portfolio and here's my assessment:
-
-Your portfolio consists of **$${Math.round(getPortfolioSummary().totalValue).toLocaleString()}** across stocks, ETFs, and crypto assets, generating approximately **$${Math.round(getPortfolioSummary().annualIncome).toLocaleString()}/year** in passive income.
-
-**Key observations:**
-- Your overall portfolio yield is **${getPortfolioSummary().overallYield.toFixed(2)}%**, which is competitive relative to the S&P 500's ~1.5% average
-- You have good income frequency (monthly payers via O, JEPQ help smooth cash flow)
-- Crypto staking adds alpha but introduces APY volatility risk
-
-**What I'd watch:**
-1. Interest rate sensitivity — your REITs and high-yield stocks may face headwinds if rates stay elevated
-2. AT&T's debt trajectory in 2024
-3. Ethereum staking yield compression as more validators join the network
-
-Feel free to ask me about any specific aspect of your portfolio!`,
-};
-
-function getAIResponse(prompt) {
-  const key = Object.keys(MOCK_AI_RESPONSES).find((k) =>
-    prompt.toLowerCase().includes(k.toLowerCase().slice(0, 20))
-  );
-  return MOCK_AI_RESPONSES[key] ?? MOCK_AI_RESPONSES.default;
-}
-
 function MarkdownText({ text }) {
   const lines = text.split('\n');
   return (
@@ -92,7 +18,6 @@ function MarkdownText({ text }) {
       {lines.map((line, i) => {
         if (!line.trim()) return <div key={i} className="h-1" />;
 
-        // Bold (**text**)
         const renderBold = (str) => {
           const parts = str.split(/\*\*(.*?)\*\*/g);
           return parts.map((p, j) => j % 2 === 1 ? <strong key={j} className="text-white font-semibold">{p}</strong> : p);
@@ -121,48 +46,35 @@ const insightCards = [
     type: 'opportunity',
     icon: '💡',
     title: 'Income Opportunity',
-    content: 'SCHD has increased its dividend for 12 consecutive years. Adding 50 more shares at current prices would add ~$131/year in income at 3.45% yield.',
+    content: 'Ask AI to analyze your highest-yield positions and find opportunities to increase your passive income.',
     tag: 'Growth',
     tagColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
   },
   {
     type: 'risk',
     icon: '⚠️',
-    title: 'Risk Alert',
-    content: "AT&T's Q4 earnings showed FCF below dividend coverage threshold. Monitor February 2024 earnings call for guidance on dividend sustainability.",
+    title: 'Risk Analysis',
+    content: 'Ask AI to identify holdings at risk of dividend cuts or significant drawdowns based on your portfolio.',
     tag: 'Watch',
     tagColor: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
   },
   {
     type: 'diversification',
     icon: '⚖️',
-    title: 'Diversification Tip',
-    content: 'Your portfolio has zero international exposure. Adding SCHY (Schwab International Dividend) would improve geographic diversification and add 4.1% yield.',
+    title: 'Diversification Check',
+    content: 'Ask AI to evaluate your income diversification and suggest improvements across sectors and geographies.',
     tag: 'Optimize',
     tagColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
   },
 ];
 
-const newsFeed = [
-  { headline: 'Realty Income completes Spirit Realty merger, expanding monthly dividend base', time: '2h ago', sentiment: 'Bullish', ticker: 'O' },
-  { headline: 'Federal Reserve signals rates to remain elevated through mid-2024', time: '4h ago', sentiment: 'Bearish', ticker: 'MACRO' },
-  { headline: 'Ethereum staking ratio reaches 25%, Lido maintains 4.2% APY guidance', time: '6h ago', sentiment: 'Neutral', ticker: 'ETH' },
-  { headline: 'JEPQ hits $10B AUM milestone, JPMorgan confirms distribution strategy unchanged', time: '1d ago', sentiment: 'Bullish', ticker: 'JEPQ' },
-  { headline: 'AT&T reaffirms $1.11 annual dividend, debt reduction on track', time: '2d ago', sentiment: 'Neutral', ticker: 'T' },
-  { headline: 'Solana network activity surges 340% YoY, staking demand increases', time: '2d ago', sentiment: 'Bullish', ticker: 'SOL' },
-];
-
-const sentimentColors = {
-  Bullish: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  Bearish: 'text-red-400 bg-red-500/10 border-red-500/20',
-  Neutral: 'text-gray-400 bg-gray-500/10 border-gray-500/20',
-};
-
 export default function AIInsights() {
+  const { authAxios } = useAuth();
+  const { formatMoney } = useCurrency();
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hello! I'm your InvestIQ AI advisor. I have full visibility into your portfolio — **${formatCurrency(getPortfolioSummary().totalValue, 0)}** across stocks, ETFs, and crypto assets generating **${formatCurrency(getPortfolioSummary().annualIncome, 0)}/year** in passive income.\n\nWhat would you like to know about your investments?`,
+      content: `Hello! I'm your InvestIQ AI advisor powered by Claude. I can analyze your connected portfolios across all brokers and exchanges.\n\nWhat would you like to know about your investments?`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -180,12 +92,23 @@ export default function AIInsights() {
     setInput('');
     setIsTyping(true);
 
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
+    try {
+      const chatHistory = [...messages, userMsg].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
 
-    const response = getAIResponse(text);
-    setIsTyping(false);
-    setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
+      const { data } = await authAxios.post('/api/ai/chat', {
+        messages: chatHistory,
+      });
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || 'Failed to get AI response. Please try again.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: `**Error:** ${errorMsg}` }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -218,7 +141,7 @@ export default function AIInsights() {
                 Online — portfolio context loaded
               </p>
             </div>
-            <div className="ml-auto text-xs text-gray-600">claude-sonnet-4</div>
+            <div className="ml-auto text-xs text-gray-600">claude-sonnet-4-6</div>
           </div>
 
           {/* Messages */}
@@ -332,30 +255,6 @@ export default function AIInsights() {
               ))}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* News feed */}
-      <div className="glass-card rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-white">Portfolio News Feed</h3>
-          <span className="text-xs text-gray-500">AI-analyzed sentiment</span>
-        </div>
-        <div className="space-y-2">
-          {newsFeed.map((item, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-white/3 transition-colors group">
-              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-gray-400 flex-shrink-0">
-                {item.ticker.slice(0, 3)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-300 leading-tight group-hover:text-white transition-colors">{item.headline}</p>
-                <p className="text-[10px] text-gray-600 mt-0.5">{item.time}</p>
-              </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded border whitespace-nowrap ${sentimentColors[item.sentiment]}`}>
-                {item.sentiment}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
     </div>
