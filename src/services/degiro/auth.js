@@ -1,38 +1,25 @@
 const BASE = '/api/degiro';
 
-export async function login(username, password) {
-  const res = await fetch(`${BASE}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    // Prefer `debug` field (the raw server-side error) for diagnosing proxy issues
+export async function login(authAxios, username, password) {
+  try {
+    const { data } = await authAxios.post(`${BASE}/login`, { username, password });
+    return data;
+  } catch (err) {
+    const data = err.response?.data || {};
     const msg = data.debug || data.error || 'Login failed';
-    throw new DegiroError(msg, res.status, data.code);
+    throw new DegiroError(msg, err.response?.status || 500, data.code);
   }
-
-  return data;
 }
 
-export async function loginTOTP(username, password, oneTimePassword) {
-  const res = await fetch(`${BASE}/totp`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, oneTimePassword }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
+export async function loginTOTP(authAxios, username, password, oneTimePassword) {
+  try {
+    const { data } = await authAxios.post(`${BASE}/totp`, { username, password, oneTimePassword });
+    return data;
+  } catch (err) {
+    const data = err.response?.data || {};
     const msg = data.debug || data.error || 'TOTP verification failed';
-    throw new DegiroError(msg, res.status, data.code);
+    throw new DegiroError(msg, err.response?.status || 500, data.code);
   }
-
-  return data;
 }
 
 export class DegiroError extends Error {
@@ -42,7 +29,6 @@ export class DegiroError extends Error {
     this.httpStatus = httpStatus;
     this.code = code;
     this.isSessionExpired = httpStatus === 401;
-    // Only mark as "maintenance" if we explicitly cannot reach the host at all
     this.isMaintenance = false;
   }
 }

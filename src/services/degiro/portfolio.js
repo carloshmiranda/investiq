@@ -1,51 +1,54 @@
-/**
- * Frontend DeGiro portfolio service
- */
-
 import { DegiroError } from './auth.js';
 
 const BASE = '/api/degiro';
 
-async function apiFetch(url, options = {}) {
-  const res = await fetch(url, options);
-  const data = await res.json();
-  if (!res.ok) {
-    throw new DegiroError(data.error || `Request failed`, res.status);
+async function apiGet(authAxios, url) {
+  try {
+    const { data } = await authAxios.get(url);
+    return data;
+  } catch (err) {
+    const msg = err.response?.data?.error || 'Request failed';
+    throw new DegiroError(msg, err.response?.status || 500);
   }
-  return data;
+}
+
+async function apiPost(authAxios, url, body) {
+  try {
+    const { data } = await authAxios.post(url, body);
+    return data;
+  } catch (err) {
+    const msg = err.response?.data?.error || 'Request failed';
+    throw new DegiroError(msg, err.response?.status || 500);
+  }
 }
 
 /** Fetch portfolio positions + cash funds */
-export async function fetchPortfolio(sessionId, intAccount) {
+export async function fetchPortfolio(authAxios, sessionId, intAccount) {
   const params = new URLSearchParams({ sessionId, intAccount: String(intAccount) });
-  return apiFetch(`${BASE}/portfolio?${params}`);
+  return apiGet(authAxios, `${BASE}/portfolio?${params}`);
 }
 
 /** Fetch product details for an array of productIds */
-export async function fetchProductDetails(sessionId, intAccount, productIds) {
+export async function fetchProductDetails(authAxios, sessionId, intAccount, productIds) {
   const params = new URLSearchParams({ sessionId, intAccount: String(intAccount) });
-  return apiFetch(`${BASE}/products?${params}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productIds }),
-  });
+  return apiPost(authAxios, `${BASE}/products?${params}`, { productIds });
 }
 
 /** Fetch dividend / corporate actions history */
-export async function fetchDividends(sessionId, intAccount) {
+export async function fetchDividends(authAxios, sessionId, intAccount) {
   const params = new URLSearchParams({ sessionId, intAccount: String(intAccount) });
-  const res = await apiFetch(`${BASE}/dividends?${params}`);
+  const res = await apiGet(authAxios, `${BASE}/dividends?${params}`);
   return res.data ?? [];
 }
 
 /** Fetch transaction history */
-export async function fetchTransactions(sessionId, intAccount, fromDate, toDate) {
+export async function fetchTransactions(authAxios, sessionId, intAccount, fromDate, toDate) {
   const params = new URLSearchParams({
     sessionId,
     intAccount: String(intAccount),
     ...(fromDate ? { fromDate } : {}),
     ...(toDate ? { toDate } : {}),
   });
-  const res = await apiFetch(`${BASE}/transactions?${params}`);
+  const res = await apiGet(authAxios, `${BASE}/transactions?${params}`);
   return res.data ?? [];
 }

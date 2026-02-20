@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { useAuth } from './AuthContext';
 import { login as apiLogin, loginTOTP as apiLoginTOTP, DegiroError } from '../services/degiro/auth.js';
 import { fetchPortfolio, fetchProductDetails, fetchDividends } from '../services/degiro/portfolio.js';
 import { mapPosition, mapDividend } from '../services/degiro/mapper.js';
@@ -22,8 +23,8 @@ const INITIAL_STATE = {
 };
 
 export function DegiroProvider({ children }) {
+  const { authAxios } = useAuth();
   const [state, setState] = useState(INITIAL_STATE);
-  // Keep sessionId/intAccount in a ref too so callbacks always have latest values
   const sessionRef = useRef({ sessionId: null, intAccount: null });
 
   // ── Internal: sync portfolio after login ────────────────────────────────────
@@ -31,10 +32,9 @@ export function DegiroProvider({ children }) {
     setState((prev) => ({ ...prev, syncing: true, error: null }));
     try {
       // 1. Fetch raw positions and cash
-      const portfolioData = await fetchPortfolio(sessionId, intAccount);
+      const portfolioData = await fetchPortfolio(authAxios, sessionId, intAccount);
 
       // 2. Extract PRODUCT positions only (not cashFunds which appear as positions too)
-      // DeGiro uses nested {name, value} arrays — positionType is NOT a top-level property
       const productPositions = portfolioData.portfolio.filter(
         (p) => p.value?.find((v) => v.name === 'positionType')?.value === 'PRODUCT'
       );
@@ -46,7 +46,7 @@ export function DegiroProvider({ children }) {
 
       let productInfo = {};
       if (productIds.length > 0) {
-        productInfo = await fetchProductDetails(sessionId, intAccount, productIds);
+        productInfo = await fetchProductDetails(authAxios, sessionId, intAccount, productIds);
       }
 
       // 4. Map to InvestIQ format
@@ -55,10 +55,9 @@ export function DegiroProvider({ children }) {
       // 5. Fetch dividend history
       let dividends = [];
       try {
-        const rawDividends = await fetchDividends(sessionId, intAccount);
+        const rawDividends = await fetchDividends(authAxios, sessionId, intAccount);
         dividends = rawDividends.map(mapDividend);
       } catch {
-        // Dividends endpoint can fail silently (maintenance, permissions)
         dividends = [];
       }
 
@@ -77,18 +76,17 @@ export function DegiroProvider({ children }) {
         ...prev,
         syncing: false,
         error: err instanceof DegiroError ? err.message : 'Portfolio sync failed',
-        // If session expired, disconnect
         ...(err instanceof DegiroError && err.isSessionExpired
           ? { connected: false, sessionId: null, intAccount: null }
           : {}),
       }));
     }
-  }, []);
+  }, [authAxios]);
 
   // ── connect: login + initial sync ──────────────────────────────────────────
   const connect = useCallback(async (username, password) => {
     setState((prev) => ({ ...prev, error: null }));
-    const result = await apiLogin(username, password);
+    const result = await apiLogin(authAxios, username, password);
 
     if (result.requiresTOTP) {
       return { requiresTOTP: true };
@@ -108,12 +106,12 @@ export function DegiroProvider({ children }) {
 
     await syncPortfolio(result.sessionId, result.intAccount);
     return { success: true };
-  }, [syncPortfolio]);
+  }, [authAxios, syncPortfolio]);
 
   // ── connectTOTP: complete 2FA login ─────────────────────────────────────────
   const connectTOTP = useCallback(async (username, password, totp) => {
     setState((prev) => ({ ...prev, error: null }));
-    const result = await apiLoginTOTP(username, password, totp);
+    const result = await apiLoginTOTP(authAxios, username, password, totp);
 
     sessionRef.current = { sessionId: result.sessionId, intAccount: result.intAccount };
     setState((prev) => ({
@@ -129,7 +127,7 @@ export function DegiroProvider({ children }) {
 
     await syncPortfolio(result.sessionId, result.intAccount);
     return { success: true };
-  }, [syncPortfolio]);
+  }, [authAxios, syncPortfolio]);
 
   // ── sync: manual refresh ────────────────────────────────────────────────────
   const sync = useCallback(() => {
