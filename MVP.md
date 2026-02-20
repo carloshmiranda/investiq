@@ -37,6 +37,17 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - Danger: #ef4444 (red)
 - Text: #f9fafb / #d1d5db
 
+### Currency Support
+- Default currency: USD
+- Supported: USD ($), EUR (€), GBP (£)
+- Currency preference stored per user in DB (users table)
+- All monetary values across every page, card, chart, and table
+  convert in real-time when the user switches currency
+- Exchange rates fetched from Open Exchange Rates free API
+  (https://open.exchangerate-api.com/v6/latest/USD — no API key required)
+- Rates cached for 1 hour in a module-level variable (no DB needed)
+- Currency switcher visible in the Header component on every page
+
 ## Pages
 - /login + /register — auth pages
 - /dashboard — portfolio summary, KPI cards, mini calendar, health score
@@ -82,3 +93,6 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - [ ] Neon PostgreSQL connected (via Vercel Marketplace) and Prisma migrations running
 - [ ] App works on desktop and tablet
 - [ ] No console errors in production
+- [ ] Currency switcher works across all pages (USD / EUR / GBP)
+- [ ] Rates auto-refresh every hour
+- [ ] User currency preference persists across sessions

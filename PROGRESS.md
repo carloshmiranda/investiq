@@ -3,6 +3,8 @@
 ## Status
 🟡 In Progress
 Architecture: Vercel Serverless Functions (/api) + Neon PostgreSQL via Vercel Marketplace (single repo)
+Currency: USD/EUR/GBP switcher. Rates from open.exchangerate-api.com (free, no key).
+Cached 1hr server-side. User preference stored in DB. Context-driven, zero page reloads.
 
 ## Live URLs
 - Frontend: https://investiq-nine.vercel.app
@@ -16,6 +18,7 @@ https://github.com/carloshmiranda/investiq
 - Provider: Neon PostgreSQL (free tier, scales to zero, never pauses)
 - Installed via Vercel Marketplace — managed from vercel.com/storage
 - Connection strings: injected automatically as DATABASE_URL + DATABASE_URL_UNPOOLED (never in git)
+- User currency preference stored in users table as a currencyCode field (default: 'USD')
 
 ## Completed ✅
 - [x] 0.1 — Monorepo restructured (client/ + server/), Express server scaffolded,
@@ -36,6 +39,16 @@ https://github.com/carloshmiranda/investiq
 - [x] 0.3 — Client: add /login and /register routes to React Router,
         protected route wrapper, auth context skeleton
 
+- [ ] 0.4 — Add currencyCode field (String, default 'USD') to User model in Prisma schema,
+            run migration, update all auth endpoints to return currencyCode in user payload
+
+- [ ] 0.5 — Create /lib/exchangeRates.js on the server: fetch USD base rates from
+            https://open.exchangerate-api.com/v6/latest/USD, cache result in module-level
+            variable with 1hr TTL, export getRate(toCurrency) helper.
+            Create GET /api/rates endpoint returning { USD: 1, EUR: x, GBP: x, updatedAt }.
+            Create PATCH /api/user/currency endpoint (body: { currencyCode }) that validates
+            input is one of ['USD','EUR','GBP'], updates users table, returns updated user.
+
 ### Auth System
 - [x] 1.1 — POST /api/auth/register (bcrypt hash, create user, return JWT pair)
 - [x] 1.2 — POST /api/auth/login (verify password, return access + refresh tokens),
@@ -48,8 +61,26 @@ https://github.com/carloshmiranda/investiq
 
 ### Mock Data & Core UI
 - [x] 2.1 — Migrate existing mock data + all 6 pages into src/ structure
-- [ ] 2.2 — Dashboard KPI cards, income sparkline, health score wired to mock data
-- [ ] 2.3 — Holdings table, Income page charts, Calendar grid wired to mock data
+
+- [ ] 2.2 — Create CurrencyContext (/src/context/CurrencyContext.jsx):
+            loads rates from GET /api/rates on mount, refreshes every hour,
+            stores { activeCurrency, setActiveCurrency, convert(amount), formatMoney(amount) }.
+            convert(amount) multiplies by the active rate.
+            formatMoney(amount) returns Intl.NumberFormat string with correct symbol and locale
+            (en-US/USD, de-DE/EUR, en-GB/GBP).
+            Persist activeCurrency to localStorage and sync with user's currencyCode in DB
+            via PATCH /api/user/currency on every switch.
+            Wrap App.jsx with <CurrencyProvider> inside <AuthProvider>.
+
+- [ ] 2.3 — Add currency switcher UI to Header component:
+            A compact 3-button toggle (USD | EUR | GBP) in the top-right of the header,
+            next to the user avatar/settings link.
+            Active currency highlighted with the emerald accent (#10b981).
+            Clicking switches instantly via setActiveCurrency from CurrencyContext.
+            No page reload required — all values re-render reactively.
+
+- [ ] 2.4 — Dashboard KPI cards, income sparkline, health score wired to mock data
+- [ ] 2.5 — Holdings table, Income page charts, Calendar grid wired to mock data
 
 ### DeGiro Integration (serverless, authenticated per user)
 - [ ] 7.1 — DeGiro auth service (migrate from old edge functions to /api/brokers/degiro/)
@@ -105,3 +136,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 1.6 | AuthContext: isLoading starts true, useEffect on mount calls /api/auth/refresh to restore session. authAxios instance with request interceptor (Bearer token) + response interceptor (401→refresh+retry, on refresh failure clears auth). ProtectedRoute spins while isLoading, then redirects. |
 | 2026-02-20 | 1.7 | Settings page: profile edit (name/email), password change (current+new+confirm), active sessions list with revoke/logout-all. Sidebar updated with Settings nav item + real user name/initials + sign-out button. AuthContext gained updateUser(). Backend API already existed at api/user/[action].js. |
 | 2026-02-20 | 2.1 | All 6 pages already in src/pages/ (Dashboard, Income, Holdings, Calendar, Connections, AIInsights) with full Recharts integration. Mock data layer (mockPortfolio.js) provides stocks, crypto, income history, projections, upcoming payments, connections + computed helpers. All routes wired in App.jsx with ProtectedRoute + Layout. Build passes clean. |
+| 2026-02-20 | Scope update | Added currency switcher feature (USD/EUR/GBP) to MVP. New backlog items: 0.4, 0.5, 2.2, 2.3. All downstream items renumbered. |
