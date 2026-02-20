@@ -5,7 +5,7 @@ import { useCurrency } from '../context/CurrencyContext';
 const CURRENCIES = ['USD', 'EUR', 'GBP'];
 const SYMBOLS = { USD: '$', EUR: '€', GBP: '£' };
 
-export default function Header({ collapsed, setCollapsed }) {
+export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileOpen, isMobile }) {
   const [time, setTime] = useState(new Date());
   const [pulse, setPulse] = useState(false);
   const summary = getPortfolioSummary();
@@ -22,16 +22,18 @@ export default function Header({ collapsed, setCollapsed }) {
   const formattedTime = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const formattedDate = time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+  const headerLeft = isMobile ? '0' : collapsed ? '4rem' : '15rem';
+
   return (
-    <header className="fixed top-0 right-0 z-20 h-16 flex items-center px-4 gap-4
+    <header className="fixed top-0 right-0 z-20 h-16 flex items-center px-3 sm:px-4 gap-2 sm:gap-4
       bg-[#0d1526]/90 backdrop-blur-md border-b border-white/5
       transition-all duration-300"
-      style={{ left: collapsed ? '4rem' : '15rem' }}
+      style={{ left: headerLeft }}
     >
       {/* Mobile hamburger */}
       <button
         className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5"
-        onClick={() => setCollapsed(!collapsed)}
+        onClick={() => setMobileOpen(!mobileOpen)}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -39,10 +41,10 @@ export default function Header({ collapsed, setCollapsed }) {
       </button>
 
       {/* Live portfolio value */}
-      <div className="flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-500 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
-        <span className="text-gray-500 text-sm hidden sm:inline">Total Portfolio</span>
-        <span className="text-lg font-bold text-white value-pulse">
+      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+        <div className={`w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-500 flex-shrink-0 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
+        <span className="text-gray-500 text-sm hidden md:inline">Total Portfolio</span>
+        <span className="text-sm sm:text-lg font-bold text-white value-pulse truncate">
           {formatMoney(summary.totalValue)}
         </span>
       </div>
@@ -61,18 +63,19 @@ export default function Header({ collapsed, setCollapsed }) {
       </div>
 
       {/* Currency switcher */}
-      <div className="flex items-center rounded-lg border border-white/10 overflow-hidden">
+      <div className="flex items-center rounded-lg border border-white/10 overflow-hidden flex-shrink-0">
         {CURRENCIES.map((code) => (
           <button
             key={code}
             onClick={() => setActiveCurrency(code)}
-            className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+            className={`px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs font-medium transition-colors ${
               activeCurrency === code
                 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            {SYMBOLS[code]} {code}
+            <span className="sm:hidden">{SYMBOLS[code]}</span>
+            <span className="hidden sm:inline">{SYMBOLS[code]} {code}</span>
           </button>
         ))}
       </div>
@@ -84,7 +87,7 @@ export default function Header({ collapsed, setCollapsed }) {
       </div>
 
       {/* Notification bell */}
-      <button className="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+      <button className="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors hidden sm:block">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />

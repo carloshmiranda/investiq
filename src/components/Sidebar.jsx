@@ -76,7 +76,7 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ collapsed, setCollapsed }) {
+export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, isMobile }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -89,13 +89,18 @@ export default function Sidebar({ collapsed, setCollapsed }) {
     ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     : 'IQ';
 
+  // On mobile: slide in/out as a drawer. On desktop: collapsed/expanded in place.
+  const sidebarWidth = isMobile ? 'w-60' : collapsed ? 'w-16' : 'w-60';
+  const sidebarTranslate = isMobile && !mobileOpen ? '-translate-x-full' : 'translate-x-0';
+  const showLabels = isMobile ? true : !collapsed;
+
   return (
     <>
       {/* Mobile overlay */}
-      {!collapsed && (
+      {isMobile && mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-          onClick={() => setCollapsed(true)}
+          className="fixed inset-0 bg-black/50 z-20"
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
@@ -105,7 +110,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           fixed top-0 left-0 h-full z-30 flex flex-col
           bg-[#0d1526] border-r border-white/5
           transition-all duration-300 ease-in-out
-          ${collapsed ? 'w-16' : 'w-60'}
+          ${sidebarWidth} ${sidebarTranslate}
         `}
       >
         {/* Logo */}
@@ -117,12 +122,12 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                   d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
-            {!collapsed && (
+            {showLabels && (
               <span className="font-bold text-lg gradient-text whitespace-nowrap">InvestIQ</span>
             )}
           </div>
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => isMobile ? setMobileOpen(false) : setCollapsed(!collapsed)}
             className="ml-auto p-1 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +155,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                   `}
                 >
                   <span className="flex-shrink-0">{item.icon}</span>
-                  {!collapsed && (
+                  {showLabels && (
                     <>
                       <span className="whitespace-nowrap">{item.label}</span>
                       {item.badge && (
@@ -161,7 +166,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                     </>
                   )}
                   {/* Tooltip on collapsed */}
-                  {collapsed && (
+                  {!showLabels && (
                     <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
                       opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
                       {item.label}
@@ -179,7 +184,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             <NavLink to="/settings" className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold flex-shrink-0 hover:ring-2 hover:ring-purple-400/40 transition-all">
               {initials}
             </NavLink>
-            {!collapsed && (
+            {showLabels && (
               <div className="min-w-0 flex-1">
                 <NavLink to="/settings" className="block text-sm font-medium text-white truncate hover:text-emerald-400 transition-colors">
                   {user?.name ?? 'User'}

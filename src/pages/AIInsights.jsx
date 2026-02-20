@@ -125,7 +125,7 @@ export default function AIInsights() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Chat interface */}
-        <div className="xl:col-span-2 flex flex-col glass-card rounded-xl overflow-hidden" style={{ height: '600px' }}>
+        <div className="xl:col-span-2 flex flex-col glass-card rounded-xl overflow-hidden" style={{ height: 'min(600px, calc(100vh - 12rem))' }}>
           {/* Chat header */}
           <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5 bg-white/[0.02]">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center">

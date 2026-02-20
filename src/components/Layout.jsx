@@ -1,23 +1,60 @@
-import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ErrorBoundary from './ErrorBoundary';
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handler = (e) => setIsMobile(!e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 export default function Layout() {
+  const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(false);
+  // On mobile, sidebar is open/closed (drawer). On desktop, collapsed/expanded.
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
+  // Close mobile drawer on navigation
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Desktop: margin based on collapsed state. Mobile: no margin (full-width).
+  const marginLeft = isMobile ? '0' : collapsed ? '4rem' : '15rem';
 
   return (
     <div className="min-h-screen bg-[#0a0f1e]">
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-      <Header collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Sidebar
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        isMobile={isMobile}
+      />
+      <Header
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        isMobile={isMobile}
+      />
 
       {/* Main content area */}
       <main
         className="pt-16 min-h-screen transition-all duration-300"
-        style={{ marginLeft: collapsed ? '4rem' : '15rem' }}
+        style={{ marginLeft }}
       >
-        <div className="p-4 md:p-6 animate-fadeIn">
+        <div className="p-3 sm:p-4 md:p-6 animate-fadeIn">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>
