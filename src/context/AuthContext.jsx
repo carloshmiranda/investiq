@@ -92,6 +92,10 @@ export function AuthProvider({ children }) {
     }
   }
 
+  function updateUser(fields) {
+    setUser(prev => prev ? { ...prev, ...fields } : prev)
+  }
+
   async function logout() {
     try {
       await axios.post('/api/auth/logout', {}, { withCredentials: true })
@@ -104,7 +108,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, authAxios, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, authAxios, isLoading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
