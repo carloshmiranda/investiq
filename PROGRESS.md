@@ -134,10 +134,10 @@ https://github.com/carloshmiranda/investiq
 - [x] 2.5 — Holdings table, Income page charts, Calendar grid wired to mock data
 
 ### DeGiro Integration (serverless, authenticated per user)
-- [ ] 7.1 — DeGiro auth service (migrate from old edge functions to /api/brokers/degiro/)
-- [ ] 7.2 — DeGiro portfolio + products fetch, store session encrypted in DB
-- [ ] 7.3 — DeGiro dividends fetch, mapped to income events
-- [ ] 7.4 — Client: DeGiro connect modal calls new serverless endpoints (auth required)
+- [x] 7.1 — DeGiro auth service (migrate from old edge functions to /api/brokers/degiro/)
+- [x] 7.2 — DeGiro portfolio + products fetch, store session encrypted in DB
+- [x] 7.3 — DeGiro dividends fetch, mapped to income events
+- [x] 7.4 — Client: DeGiro connect modal calls new serverless endpoints (auth required)
 
 ### Trading 212 Integration
 - [ ] 8.1 — Trading 212 client (API key auth, rate limiter)
@@ -195,3 +195,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 2.4 | Dashboard fully wired to CurrencyContext: all 4 KPI cards (total value, annual income, monthly income, YTD received), income bar chart (6-month history with converted Y-axis and tooltips), sector allocation pie chart, upcoming payments, and top movers all use formatMoney/formatLocal/convert from useCurrency(). Added formatLocal() to CurrencyContext for formatting pre-converted amounts. Enhanced formatMoney() to accept decimals param. Cleaned up unused imports. Build passes clean. |
 | 2026-02-20 | run.sh update | Multi-item sessions enabled. Context monitoring at 90%. Claude runs until near limit then stops and resumes next session. |
 | 2026-02-20 | 2.5 | Holdings table, Income page (KPIs, timeline chart, forecast chart, DRIP simulator, breakdown bars), and Calendar (month total, day detail, sidebar, summary) all wired to CurrencyContext. Replaced all hardcoded USD formatCurrency calls with formatMoney/formatLocal/convert. Chart Y-axes and tooltips convert reactively. Build passes clean. |
+| 2026-02-20 | 7.1-7.4 | DeGiro integration complete. Backend: /api/degiro/[action].js serverless function handles login, totp, portfolio, products, dividends, transactions — proxies to trader.degiro.nl with JSESSIONID extraction, config resolution, account info fetch. Frontend: degiro services (auth.js, portfolio.js) and DegiroContext updated to use authAxios from AuthContext for JWT-authenticated requests. Client connect modal already existed in Connections page. Build passes clean. |
