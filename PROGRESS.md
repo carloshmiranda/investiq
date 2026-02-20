@@ -146,10 +146,10 @@ https://github.com/carloshmiranda/investiq
 - [x] 8.4 — Client: T212 connect modal
 
 ### Binance Integration
-- [ ] 9.1 — Binance client (HMAC-SHA256 signing)
-- [ ] 9.2 — Spot balances + staking + Simple Earn + dividend history
-- [ ] 9.3 — Store key + secret encrypted per user
-- [ ] 9.4 — Client: Binance connect modal
+- [x] 9.1 — Binance client (HMAC-SHA256 signing)
+- [x] 9.2 — Spot balances + staking + Simple Earn + dividend history
+- [x] 9.3 — Store key + secret encrypted per user
+- [x] 9.4 — Client: Binance connect modal
 
 ### Crypto.com Integration
 - [ ] 10.1 — Crypto.com client (signed POST requests)
@@ -197,3 +197,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 2.5 | Holdings table, Income page (KPIs, timeline chart, forecast chart, DRIP simulator, breakdown bars), and Calendar (month total, day detail, sidebar, summary) all wired to CurrencyContext. Replaced all hardcoded USD formatCurrency calls with formatMoney/formatLocal/convert. Chart Y-axes and tooltips convert reactively. Build passes clean. |
 | 2026-02-20 | 7.1-7.4 | DeGiro integration complete. Backend: /api/degiro/[action].js serverless function handles login, totp, portfolio, products, dividends, transactions — proxies to trader.degiro.nl with JSESSIONID extraction, config resolution, account info fetch. Frontend: degiro services (auth.js, portfolio.js) and DegiroContext updated to use authAxios from AuthContext for JWT-authenticated requests. Client connect modal already existed in Connections page. Build passes clean. |
 | 2026-02-20 | 8.1-8.4 | Trading 212 integration complete. Backend: /api/trading212/[action].js — connect (validates API key against T212 account summary, stores AES-256-GCM encrypted key+secret in connections table), disconnect, status, positions, dividends (cursor-paginated), account. Frontend: Trading212Context (connect/sync/disconnect with auto-status-check on mount), services (api.js), mapper (mapPosition/mapDividend/mergeHoldings), Trading212Modal + Trading212Card in Connections page. CurrencyContext wired throughout. Build passes clean. |
+| 2026-02-20 | 9.1-9.4 | Binance integration complete. Backend: /api/binance/[action].js — HMAC-SHA256 signed requests, connect (validates via /api/v3/account), disconnect, status, balances (spot), earn (flexible+locked Simple Earn), dividends (asset distributions + earn rewards), prices (ticker map for USD valuation). API key+secret stored AES-256-GCM encrypted. Frontend: BinanceContext (connect/sync/disconnect), services (api.js), mapper (spot balances, earn positions, dividends/rewards with price lookup), BinanceModal + BinanceCard in Connections page. Brand color #f0b90b. Build passes clean. |
