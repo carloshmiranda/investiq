@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { DegiroProvider } from './context/DegiroContext'
+import { Trading212Provider } from './context/Trading212Context'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -19,6 +20,7 @@ export default function App() {
     <AuthProvider>
       <CurrencyProvider>
         <DegiroProvider>
+        <Trading212Provider>
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -42,6 +44,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
+        </Trading212Provider>
         </DegiroProvider>
       </CurrencyProvider>
     </AuthProvider>
