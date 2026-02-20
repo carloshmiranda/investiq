@@ -160,7 +160,7 @@ https://github.com/carloshmiranda/investiq
 ### Data Unification
 - [x] 11.1 — GET /api/portfolio — merge all connected sources per user
 - [x] 11.2 — GET /api/income — merge dividend + staking events per user
-- [ ] 11.3 — Portfolio cache layer (TTL 1hr, invalidate on manual sync)
+- [x] 11.3 — Portfolio cache layer (TTL 1hr, invalidate on manual sync)
 
 ### AI Insights
 - [ ] 12.1 — Client: chat UI + suggested prompts
@@ -201,3 +201,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 10.1-10.4 | Crypto.com integration complete. Backend: /api/cryptocom/[action].js — HMAC-SHA256 signed POST requests to Exchange v1 API. Connect (validates via private/user-balance), disconnect, status, balances (spot+staking from user-balance), history (get-trades), prices (public get-tickers for USD valuation). Key+secret stored AES-256-GCM encrypted. Frontend: CryptocomContext with price-enriched holdings+totalValue, services (api.js with getPrices), mapper (buildPriceMap, getUsdPrice, mapBalance, mapStakingPosition, mapTrade, mergeHoldings). CryptocomCard+CryptocomModal wired into Connections page grid. cryptocomConnected counted in liveSourceCount. Brand color #002d74/#1199fa. Build passes clean. |
 | 2026-02-20 | 11.1 | GET /api/portfolio — unified portfolio endpoint. Fetches holdings from all connected providers (T212, Binance, Crypto.com) in parallel with decrypted credentials. Each provider's API called server-side. Holdings normalized to common shape with price/value. Returns merged array + totalValue + sources + errors. DeGiro excluded (session-based). Build passes clean. |
 | 2026-02-20 | 11.2 | GET /api/income — unified income endpoint. Fetches dividend/reward events from T212 (paginated dividends), Binance (asset dividends + earn rewards), Crypto.com (trades). Events normalized, sorted by date desc. Returns events + totalIncome + sources + errors. Build passes clean. |
+| 2026-02-20 | 11.3 | Portfolio cache layer: lib/cache.js with getCache/setCache/invalidateCache using portfolio_cache table (1hr TTL). Both /api/portfolio and /api/income check cache first, support ?refresh=true bypass. POST endpoints for cache invalidation. Cache only stored on error-free fetches. Build passes clean. |
