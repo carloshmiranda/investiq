@@ -1,5 +1,56 @@
 # InvestIQ Progress Tracker
 
+## CRITICAL: READ THIS FIRST, EVERY SESSION
+
+Before writing a single line of code:
+
+1. Read PROGRESS.md to understand what is done and what is next
+2. Read MVP.md to remember the final goal
+3. Find the FIRST UNCHECKED item in the backlog
+4. Execute it fully
+5. Commit, push, update PROGRESS.md
+6. WITHOUT STOPPING — move to the next unchecked item
+7. Repeat until context is 90-95% full, all items done, or a blocker is hit
+
+## Autonomous Execution Contract
+
+**Rule 1 — Keep going until context is full**
+Complete backlog items sequentially without stopping between them.
+After each item: commit, push, update PROGRESS.md, then immediately
+start the next unchecked item. Only stop when ONE of these is true:
+  a) All backlog items are complete (MVP reached)
+  b) You estimate your context window is 90-95% full — finish the
+     current item cleanly, commit, push, write "STOPPING: context near
+     limit" in PROGRESS.md session log, then exit
+  c) A MANUAL STEP REQUIRED browser action is needed — print
+     instructions and stop
+  d) BLOCKED after 3 failed fix attempts — document and stop
+
+Never stop just because an item is done. Always look at the next one.
+
+## ENDING A SESSION (Claude Code does this autonomously)
+
+After EACH completed item:
+```
+git add .
+git commit -m "feat: [item id] [description]"
+git push
+# update PROGRESS.md item to ✅ and add session log row
+git add PROGRESS.md
+git commit -m "chore: update progress tracker"
+git push
+# immediately start next item — do NOT stop
+```
+
+On final stop (context limit / blocker / manual step / MVP complete):
+```
+# Add to PROGRESS.md session log:
+# "STOPPING: [reason] — resume with ./run.sh"
+git add PROGRESS.md
+git commit -m "chore: session end - [reason]"
+git push
+```
+
 ## Status
 🟡 In Progress
 Architecture: Vercel Serverless Functions (/api) + Neon PostgreSQL via Vercel Marketplace (single repo)
@@ -24,7 +75,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 0.1 — Monorepo restructured (client/ + server/), Express server scaffolded,
         Prisma schema created. **Superseded by architecture migration to Vercel Serverless + Supabase.**
 
-## Backlog (in order — do one at a time)
+## Backlog (in order — keep going until context is full)
 
 ### Foundation & Infrastructure
 - [x] 0.1 — Create GitHub repo (single repo, not monorepo), init Vite + React + TailwindCSS,
@@ -142,3 +193,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 2.2 | CurrencyContext created: loads rates from GET /api/rates on mount, refreshes every hour, provides activeCurrency/setActiveCurrency/convert(amount)/formatMoney(amount). Syncs user preference from DB on login, persists to localStorage, patches DB on switch. App.jsx wrapped with CurrencyProvider inside AuthProvider. Build passes clean. |
 | 2026-02-20 | 2.3 | Currency switcher added to Header: compact 3-button toggle ($ USD | € EUR | £ GBP) between income pill and date/time. Active currency highlighted with emerald accent. Clicking switches instantly via CurrencyContext — no reload. Header portfolio value and income pill now use formatMoney() for live currency conversion. Build passes clean. |
 | 2026-02-20 | 2.4 | Dashboard fully wired to CurrencyContext: all 4 KPI cards (total value, annual income, monthly income, YTD received), income bar chart (6-month history with converted Y-axis and tooltips), sector allocation pie chart, upcoming payments, and top movers all use formatMoney/formatLocal/convert from useCurrency(). Added formatLocal() to CurrencyContext for formatting pre-converted amounts. Enhanced formatMoney() to accept decimals param. Cleaned up unused imports. Build passes clean. |
+| 2026-02-20 | run.sh update | Multi-item sessions enabled. Context monitoring at 90%. Claude runs until near limit then stops and resumes next session. |
