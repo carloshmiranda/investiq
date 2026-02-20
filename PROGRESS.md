@@ -152,10 +152,10 @@ https://github.com/carloshmiranda/investiq
 - [x] 9.4 — Client: Binance connect modal
 
 ### Crypto.com Integration
-- [ ] 10.1 — Crypto.com client (signed POST requests)
-- [ ] 10.2 — Spot + staking balances + reward history
-- [ ] 10.3 — Store key + secret encrypted per user
-- [ ] 10.4 — Client: Crypto.com connect modal
+- [x] 10.1 — Crypto.com client (signed POST requests)
+- [x] 10.2 — Spot + staking balances + reward history
+- [x] 10.3 — Store key + secret encrypted per user
+- [x] 10.4 — Client: Crypto.com connect modal
 
 ### Data Unification
 - [ ] 11.1 — GET /api/portfolio — merge all connected sources per user
@@ -198,3 +198,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 7.1-7.4 | DeGiro integration complete. Backend: /api/degiro/[action].js serverless function handles login, totp, portfolio, products, dividends, transactions — proxies to trader.degiro.nl with JSESSIONID extraction, config resolution, account info fetch. Frontend: degiro services (auth.js, portfolio.js) and DegiroContext updated to use authAxios from AuthContext for JWT-authenticated requests. Client connect modal already existed in Connections page. Build passes clean. |
 | 2026-02-20 | 8.1-8.4 | Trading 212 integration complete. Backend: /api/trading212/[action].js — connect (validates API key against T212 account summary, stores AES-256-GCM encrypted key+secret in connections table), disconnect, status, positions, dividends (cursor-paginated), account. Frontend: Trading212Context (connect/sync/disconnect with auto-status-check on mount), services (api.js), mapper (mapPosition/mapDividend/mergeHoldings), Trading212Modal + Trading212Card in Connections page. CurrencyContext wired throughout. Build passes clean. |
 | 2026-02-20 | 9.1-9.4 | Binance integration complete. Backend: /api/binance/[action].js — HMAC-SHA256 signed requests, connect (validates via /api/v3/account), disconnect, status, balances (spot), earn (flexible+locked Simple Earn), dividends (asset distributions + earn rewards), prices (ticker map for USD valuation). API key+secret stored AES-256-GCM encrypted. Frontend: BinanceContext (connect/sync/disconnect), services (api.js), mapper (spot balances, earn positions, dividends/rewards with price lookup), BinanceModal + BinanceCard in Connections page. Brand color #f0b90b. Build passes clean. |
+| 2026-02-20 | 10.1-10.4 | Crypto.com integration complete. Backend: /api/cryptocom/[action].js — HMAC-SHA256 signed POST requests to Exchange v1 API. Connect (validates via private/user-balance), disconnect, status, balances (spot+staking from user-balance), history (get-trades), prices (public get-tickers for USD valuation). Key+secret stored AES-256-GCM encrypted. Frontend: CryptocomContext with price-enriched holdings+totalValue, services (api.js with getPrices), mapper (buildPriceMap, getUsdPrice, mapBalance, mapStakingPosition, mapTrade, mergeHoldings). CryptocomCard+CryptocomModal wired into Connections page grid. cryptocomConnected counted in liveSourceCount. Brand color #002d74/#1199fa. Build passes clean. |
