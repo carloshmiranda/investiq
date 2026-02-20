@@ -158,7 +158,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 10.4 — Client: Crypto.com connect modal
 
 ### Data Unification
-- [ ] 11.1 — GET /api/portfolio — merge all connected sources per user
+- [x] 11.1 — GET /api/portfolio — merge all connected sources per user
 - [ ] 11.2 — GET /api/income — merge dividend + staking events per user
 - [ ] 11.3 — Portfolio cache layer (TTL 1hr, invalidate on manual sync)
 
@@ -199,3 +199,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 8.1-8.4 | Trading 212 integration complete. Backend: /api/trading212/[action].js — connect (validates API key against T212 account summary, stores AES-256-GCM encrypted key+secret in connections table), disconnect, status, positions, dividends (cursor-paginated), account. Frontend: Trading212Context (connect/sync/disconnect with auto-status-check on mount), services (api.js), mapper (mapPosition/mapDividend/mergeHoldings), Trading212Modal + Trading212Card in Connections page. CurrencyContext wired throughout. Build passes clean. |
 | 2026-02-20 | 9.1-9.4 | Binance integration complete. Backend: /api/binance/[action].js — HMAC-SHA256 signed requests, connect (validates via /api/v3/account), disconnect, status, balances (spot), earn (flexible+locked Simple Earn), dividends (asset distributions + earn rewards), prices (ticker map for USD valuation). API key+secret stored AES-256-GCM encrypted. Frontend: BinanceContext (connect/sync/disconnect), services (api.js), mapper (spot balances, earn positions, dividends/rewards with price lookup), BinanceModal + BinanceCard in Connections page. Brand color #f0b90b. Build passes clean. |
 | 2026-02-20 | 10.1-10.4 | Crypto.com integration complete. Backend: /api/cryptocom/[action].js — HMAC-SHA256 signed POST requests to Exchange v1 API. Connect (validates via private/user-balance), disconnect, status, balances (spot+staking from user-balance), history (get-trades), prices (public get-tickers for USD valuation). Key+secret stored AES-256-GCM encrypted. Frontend: CryptocomContext with price-enriched holdings+totalValue, services (api.js with getPrices), mapper (buildPriceMap, getUsdPrice, mapBalance, mapStakingPosition, mapTrade, mergeHoldings). CryptocomCard+CryptocomModal wired into Connections page grid. cryptocomConnected counted in liveSourceCount. Brand color #002d74/#1199fa. Build passes clean. |
+| 2026-02-20 | 11.1 | GET /api/portfolio — unified portfolio endpoint. Fetches holdings from all connected providers (T212, Binance, Crypto.com) in parallel with decrypted credentials. Each provider's API called server-side. Holdings normalized to common shape with price/value. Returns merged array + totalValue + sources + errors. DeGiro excluded (session-based). Build passes clean. |
