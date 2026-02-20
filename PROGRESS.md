@@ -62,7 +62,7 @@ https://github.com/carloshmiranda/investiq
 ### Mock Data & Core UI
 - [x] 2.1 — Migrate existing mock data + all 6 pages into src/ structure
 
-- [ ] 2.2 — Create CurrencyContext (/src/context/CurrencyContext.jsx):
+- [x] 2.2 — Create CurrencyContext (/src/context/CurrencyContext.jsx):
             loads rates from GET /api/rates on mount, refreshes every hour,
             stores { activeCurrency, setActiveCurrency, convert(amount), formatMoney(amount) }.
             convert(amount) multiplies by the active rate.
@@ -139,3 +139,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | Scope update | Added currency switcher feature (USD/EUR/GBP) to MVP. New backlog items: 0.4, 0.5, 2.2, 2.3. All downstream items renumbered. |
 | 2026-02-20 | 0.4 | Added currencyCode (String, default 'USD') to User model. Migration applied to Neon DB. All auth endpoints (register, login, refresh) and user endpoints (profile GET/PUT) now return currencyCode in user payload. |
 | 2026-02-20 | 0.5 | Exchange rate service: /lib/exchangeRates.js fetches USD-based rates from open.exchangerate-api.com, caches 1hr in module variable, exports getRate() and getAllRates(). GET /api/rates returns { USD, EUR, GBP, updatedAt }. PATCH /api/user/currency validates input against ['USD','EUR','GBP'], updates DB, returns user. Added PATCH to CORS allowed methods. |
+| 2026-02-20 | 2.2 | CurrencyContext created: loads rates from GET /api/rates on mount, refreshes every hour, provides activeCurrency/setActiveCurrency/convert(amount)/formatMoney(amount). Syncs user preference from DB on login, persists to localStorage, patches DB on switch. App.jsx wrapped with CurrencyProvider inside AuthProvider. Build passes clean. |

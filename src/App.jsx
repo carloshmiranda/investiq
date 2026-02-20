@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { CurrencyProvider } from './context/CurrencyContext'
 import { DegiroProvider } from './context/DegiroContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
@@ -16,7 +17,8 @@ import Settings from './pages/Settings'
 export default function App() {
   return (
     <AuthProvider>
-      <DegiroProvider>
+      <CurrencyProvider>
+        <DegiroProvider>
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -40,7 +42,8 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
-      </DegiroProvider>
+        </DegiroProvider>
+      </CurrencyProvider>
     </AuthProvider>
   )
 }
