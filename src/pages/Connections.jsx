@@ -3,6 +3,7 @@ import { connections } from '../data/mockPortfolio';
 import { useCurrency } from '../context/CurrencyContext';
 import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
+import { useBinance } from '../context/BinanceContext';
 import { DegiroError } from '../services/degiro/auth';
 import { timeAgo } from '../utils/formatters';
 
@@ -665,15 +666,227 @@ function Trading212Card({ onOpenModal }) {
   );
 }
 
+// ── Binance modal ────────────────────────────────────────────────────────────
+function BinanceModal({ onClose }) {
+  const { connect, syncing, connected, assetCount, account } = useBinance();
+  const [apiKey, setApiKey] = useState('');
+  const [apiSecret, setApiSecret] = useState('');
+  const [step, setStep] = useState('credentials');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleConnect = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await connect(apiKey, apiSecret);
+      setStep('done');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const brand = '#f0b90b';
+
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm"
+              style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
+              BN
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">Connect Binance</h3>
+              <p className="text-[10px] text-gray-500">Crypto exchange — HMAC-signed API</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {step === 'credentials' && (
+          <form onSubmit={handleConnect} className="space-y-4">
+            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300">
+              <span className="font-semibold">Read-only API.</span>{' '}
+              Create keys from Binance → API Management. Enable <strong>only</strong> "Enable Reading" — disable trading and withdrawals.
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Key</label>
+              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter your Binance API key…" required
+                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
+                  placeholder-gray-600 focus:outline-none focus:border-[#f0b90b]/50 font-mono" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Secret</label>
+              <input type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)}
+                placeholder="Enter your API secret…" required
+                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
+                  placeholder-gray-600 focus:outline-none focus:border-[#f0b90b]/50 font-mono" />
+            </div>
+
+            <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+              <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <p className="text-[11px] text-amber-400">Restrict API key to read-only. IP whitelist recommended.</p>
+            </div>
+
+            <button type="submit" disabled={loading || !apiKey || !apiSecret}
+              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-black
+                bg-[#f0b90b] hover:bg-[#d9a60a] disabled:opacity-40 disabled:cursor-not-allowed
+                flex items-center justify-center gap-2">
+              {loading ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Validating…
+                </>
+              ) : 'Connect Securely'}
+            </button>
+          </form>
+        )}
+
+        {(step === 'done' || syncing) && (
+          <div className="text-center py-6 space-y-3">
+            {syncing ? (
+              <>
+                <div className="w-14 h-14 rounded-full bg-[#f0b90b]/20 flex items-center justify-center mx-auto">
+                  <svg className="animate-spin w-7 h-7 text-[#f0b90b]" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                </div>
+                <p className="text-white font-semibold">Syncing your Binance portfolio…</p>
+              </>
+            ) : (
+              <>
+                <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
+                  <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-emerald-400 font-semibold">Binance Connected!</p>
+                {account && <p className="text-xs text-gray-500">{assetCount} assets found</p>}
+                <button onClick={onClose}
+                  className="mt-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                  View Portfolio
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Binance card ─────────────────────────────────────────────────────────────
+function BinanceCard({ onOpenModal }) {
+  const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useBinance();
+  const { formatMoney } = useCurrency();
+  const brand = '#f0b90b';
+
+  return (
+    <div className={`glass-card rounded-xl p-5 border transition-all ${connected ? 'border-[#f0b90b]/20' : 'border-white/5'}`}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black"
+            style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
+            BN
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Binance</p>
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+              Exchange
+            </span>
+          </div>
+        </div>
+        <div className={`w-2 h-2 rounded-full mt-1 ${connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+      </div>
+
+      {connected ? (
+        <div className="mb-4 space-y-1.5">
+          {totalValue > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Portfolio</span>
+              <span className="text-emerald-400 font-semibold">{formatMoney(totalValue, 0)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-500">Assets</span>
+            <span className="text-emerald-400 font-semibold">{assetCount}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-500">Last sync</span>
+            <span className="text-gray-400">{lastSync ? timeAgo(lastSync) : '—'}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-500">Status</span>
+            <span className="text-emerald-400 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+              {syncing ? 'Syncing…' : 'Active'}
+            </span>
+          </div>
+          {error && (
+            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400">{error}</div>
+          )}
+        </div>
+      ) : (
+        <div className="mb-4 py-3 text-center">
+          <p className="text-xs text-gray-600">Not connected</p>
+          <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — HMAC-signed API</p>
+        </div>
+      )}
+
+      {connected ? (
+        <div className="flex gap-2">
+          <button onClick={sync} disabled={syncing}
+            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40">
+            {syncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+          <button onClick={disconnect}
+            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <button onClick={onOpenModal}
+          className="w-full py-2 text-xs font-semibold text-black rounded-lg transition-colors"
+          style={{ background: brand }}>
+          Connect Binance
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Connections() {
   const { formatMoney } = useCurrency();
   const { connected: degiroConnected, positionCount } = useDegiro();
   const { connected: t212Connected, positionCount: t212PositionCount } = useTrading212();
+  const { connected: binanceConnected, assetCount: binanceAssetCount } = useBinance();
   const [conns, setConns] = useState(connections);
   const [modal, setModal] = useState(null);
   const [showDegiroModal, setShowDegiroModal] = useState(false);
   const [showT212Modal, setShowT212Modal] = useState(false);
+  const [showBinanceModal, setShowBinanceModal] = useState(false);
 
   const toggleConnection = (id) => {
     setConns((prev) => prev.map((c) => c.id === id ? { ...c, connected: !c.connected } : c));
@@ -697,7 +910,7 @@ export default function Connections() {
 
   const connectedMock = conns.filter((c) => c.connected);
   const totalConnectedValue = connectedMock.reduce((s, c) => s + c.totalValue, 0);
-  const liveSourceCount = (degiroConnected ? 1 : 0) + (t212Connected ? 1 : 0);
+  const liveSourceCount = (degiroConnected ? 1 : 0) + (t212Connected ? 1 : 0) + (binanceConnected ? 1 : 0);
 
   return (
     <div className="space-y-6">
@@ -713,7 +926,7 @@ export default function Connections() {
           <p className="text-2xl font-bold text-emerald-400">
             {connectedMock.length + liveSourceCount}
           </p>
-          <p className="text-xs text-gray-500">of {conns.length + 2} available</p>
+          <p className="text-xs text-gray-500">of {conns.length + 3} available</p>
         </div>
         <div className="glass-card rounded-xl p-4">
           <p className="text-xs text-gray-500">Total Tracked Value</p>
@@ -733,6 +946,7 @@ export default function Connections() {
         {/* Real integrations first */}
         <DegiroCard onOpenModal={() => setShowDegiroModal(true)} />
         <Trading212Card onOpenModal={() => setShowT212Modal(true)} />
+        <BinanceCard onOpenModal={() => setShowBinanceModal(true)} />
 
         {conns.map((conn) => {
           const tc = typeConfig[conn.type] ?? typeConfig.broker;
@@ -821,6 +1035,7 @@ export default function Connections() {
       {/* Modals */}
       {showDegiroModal && <DegiroModal onClose={() => setShowDegiroModal(false)} />}
       {showT212Modal && <Trading212Modal onClose={() => setShowT212Modal(false)} />}
+      {showBinanceModal && <BinanceModal onClose={() => setShowBinanceModal(false)} />}
       {modal?.modalType === 'api' && (
         <APIKeyModal name={modal.name} onClose={() => setModal(null)} onConnect={() => handleConnect(modal.id)} />
       )}
