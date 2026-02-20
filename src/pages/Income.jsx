@@ -1,33 +1,35 @@
 import { useState } from 'react';
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend, Area, AreaChart, ReferenceLine,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
 import { incomeHistory, incomeProjections, getPortfolioSummary } from '../data/mockPortfolio';
-import { formatCurrency, formatPercent } from '../utils/formatters';
+import { formatPercent } from '../utils/formatters';
+import { useCurrency } from '../context/CurrencyContext';
 
-const CustomTooltip = ({ active, payload, label }) => {
+function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 shadow-xl min-w-[160px]">
         <p className="text-gray-400 text-xs mb-2">{label}</p>
         {payload.map((entry) => (
           <p key={entry.dataKey} className="text-sm font-medium" style={{ color: entry.color }}>
-            {entry.name}: {formatCurrency(entry.value)}
+            {entry.name}: {formatMoney(entry.value)}
           </p>
         ))}
         {payload.length > 0 && (
           <p className="text-gray-400 text-xs mt-1 pt-1 border-t border-white/10">
-            Total: {formatCurrency(payload.reduce((s, e) => s + (e.value || 0), 0))}
+            Total: {formatMoney(payload.reduce((s, e) => s + (e.value || 0), 0))}
           </p>
         )}
       </div>
     );
   }
   return null;
-};
+}
 
 function DRIPSimulator() {
+  const { formatMoney, formatLocal, convert } = useCurrency();
   const [drip, setDrip] = useState(true);
   const [growthRate, setGrowthRate] = useState(5);
   const [years, setYears] = useState(10);
@@ -123,12 +125,12 @@ function DRIPSimulator() {
       <div className="flex flex-wrap gap-4 mb-4">
         <div className="flex-1 min-w-[120px] p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
           <p className="text-xs text-gray-500">Current Annual Income</p>
-          <p className="text-lg font-bold text-emerald-400">{formatCurrency(baseIncome, 0)}</p>
+          <p className="text-lg font-bold text-emerald-400">{formatMoney(baseIncome, 0)}</p>
         </div>
         <div className="flex items-center text-gray-600 text-xl font-thin">→</div>
         <div className="flex-1 min-w-[120px] p-3 rounded-lg bg-cyan-500/5 border border-cyan-500/10">
           <p className="text-xs text-gray-500">Projected in {years} Years</p>
-          <p className="text-lg font-bold text-cyan-400">{formatCurrency(finalIncome, 0)}</p>
+          <p className="text-lg font-bold text-cyan-400">{formatMoney(finalIncome, 0)}</p>
         </div>
         <div className="flex-1 min-w-[120px] p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
           <p className="text-xs text-gray-500">Total Growth</p>
@@ -149,8 +151,8 @@ function DRIPSimulator() {
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
           <XAxis dataKey="year" tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false} interval={Math.floor(years / 4)} />
           <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false}
-            tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v) => formatCurrency(v, 0)} contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
+            tickFormatter={(v) => formatLocal(convert(v), 0)} />
+          <Tooltip formatter={(v) => formatMoney(v, 0)} contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
           <Area type="monotone" dataKey="income" name="Annual Income" stroke="#10b981" fill="url(#incomeGrad)" strokeWidth={2} dot={false} />
         </AreaChart>
       </ResponsiveContainer>
@@ -159,6 +161,7 @@ function DRIPSimulator() {
 }
 
 export default function Income() {
+  const { formatMoney, formatLocal, convert } = useCurrency();
   const summary = getPortfolioSummary();
 
   // Income by type (pie data)
@@ -181,8 +184,8 @@ export default function Income() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Annual Income', value: formatCurrency(summary.annualIncome, 0), color: 'text-emerald-400' },
-          { label: 'Monthly Avg', value: formatCurrency(summary.monthlyIncome, 0), color: 'text-cyan-400' },
+          { label: 'Annual Income', value: formatMoney(summary.annualIncome, 0), color: 'text-emerald-400' },
+          { label: 'Monthly Avg', value: formatMoney(summary.monthlyIncome, 0), color: 'text-cyan-400' },
           { label: 'Portfolio Yield', value: formatPercent(summary.overallYield), color: 'text-amber-400' },
           { label: 'Income Sources', value: '4 Types', color: 'text-purple-400' },
         ].map((k) => (
@@ -197,15 +200,15 @@ export default function Income() {
       <div className="glass-card rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-white">Income Timeline — Last 12 Months</h3>
-          <span className="text-xs text-gray-500">{formatCurrency(incomeHistory.reduce((s, m) => s + m.total, 0), 0)} total</span>
+          <span className="text-xs text-gray-500">{formatMoney(incomeHistory.reduce((s, m) => s + m.total, 0), 0)} total</span>
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={incomeHistory} barSize={20}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
             <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false}
-              tickFormatter={(v) => `$${v}`} />
-            <Tooltip content={<CustomTooltip />} />
+              tickFormatter={(v) => formatLocal(convert(v), 0)} />
+            <Tooltip content={<CustomTooltip formatMoney={formatMoney} />} />
             <Bar dataKey="dividends" name="Dividends" stackId="a" fill="#10b981" />
             <Bar dataKey="staking" name="Staking" stackId="a" fill="#06b6d4" />
             <Bar dataKey="yield" name="Yield" stackId="a" fill="#f59e0b" />
@@ -245,8 +248,8 @@ export default function Income() {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
             <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false}
-              tickFormatter={(v) => `$${v}`} />
-            <Tooltip formatter={(v) => formatCurrency(v, 0)} contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
+              tickFormatter={(v) => formatLocal(convert(v), 0)} />
+            <Tooltip formatter={(v) => formatMoney(v, 0)} contentStyle={{ background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
             <Area type="monotone" dataKey="optimistic" name="Optimistic" stroke="#06b6d4" fill="url(#optGrad)" strokeWidth={2} strokeDasharray="6 3" dot={false} />
             <Area type="monotone" dataKey="conservative" name="Conservative" stroke="#10b981" fill="url(#consGrad)" strokeWidth={2} dot={false} />
           </AreaChart>
@@ -264,7 +267,7 @@ export default function Income() {
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-300">{item.name}</span>
                   <span className="font-medium" style={{ color: item.color }}>
-                    {formatCurrency(item.value, 0)} ({((item.value / totalAnnual) * 100).toFixed(0)}%)
+                    {formatMoney(item.value, 0)} ({((item.value / totalAnnual) * 100).toFixed(0)}%)
                   </span>
                 </div>
                 <div className="h-2 bg-[#1f2937] rounded-full overflow-hidden">
@@ -289,7 +292,7 @@ export default function Income() {
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-300">{item.name}</span>
                   <span className="font-medium" style={{ color: item.color }}>
-                    {formatCurrency(item.value, 0)} ({item.percent}%)
+                    {formatMoney(item.value, 0)} ({item.percent}%)
                   </span>
                 </div>
                 <div className="h-2 bg-[#1f2937] rounded-full overflow-hidden">

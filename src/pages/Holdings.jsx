@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import { getAllHoldings } from '../data/mockPortfolio';
-import { formatCurrency, formatPercent, formatNumber, formatDateShort } from '../utils/formatters';
+import { formatPercent, formatNumber, formatDateShort } from '../utils/formatters';
 import { useDegiro } from '../context/DegiroContext';
 import { mergeHoldings } from '../services/degiro/mapper';
+import { useCurrency } from '../context/CurrencyContext';
 
 const safetyTooltips = {
   A: 'Excellent — Strong financials, consistent payout history, low risk of cut',
@@ -38,6 +39,7 @@ const typeColors = {
 };
 
 export default function Holdings() {
+  const { formatMoney } = useCurrency();
   const mockHoldings = getAllHoldings();
   const { connected: degiroConnected, positions: degiroPositions, syncing: degiroSyncing, sync: degiroSync } = useDegiro();
 
@@ -165,11 +167,11 @@ export default function Holdings() {
         </div>
         <div className="glass-card rounded-xl p-4">
           <p className="text-xs text-gray-500">Total Value</p>
-          <p className="text-xl font-bold text-emerald-400">{formatCurrency(totalValue, 0)}</p>
+          <p className="text-xl font-bold text-emerald-400">{formatMoney(totalValue, 0)}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
           <p className="text-xs text-gray-500">Annual Income</p>
-          <p className="text-xl font-bold text-cyan-400">{formatCurrency(totalAnnualIncome, 0)}</p>
+          <p className="text-xl font-bold text-cyan-400">{formatMoney(totalAnnualIncome, 0)}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
           <p className="text-xs text-gray-500">Avg Yield</p>
@@ -280,15 +282,15 @@ export default function Holdings() {
                   </td>
                   {/* Price */}
                   <td className="px-4 py-3 text-gray-300 text-xs font-mono">
-                    {formatCurrency(h.price)}
+                    {formatMoney(h.price)}
                   </td>
                   {/* Value */}
                   <td className="px-4 py-3 text-white font-semibold text-xs font-mono">
-                    {formatCurrency(h.value, 0)}
+                    {formatMoney(h.value, 0)}
                   </td>
                   {/* Annual Income */}
                   <td className="px-4 py-3 text-emerald-400 font-semibold text-xs font-mono">
-                    {h.annualIncome > 0 ? formatCurrency(h.annualIncome, 0) : <span className="text-gray-600">—</span>}
+                    {h.annualIncome > 0 ? formatMoney(h.annualIncome, 0) : <span className="text-gray-600">—</span>}
                   </td>
                   {/* Yield */}
                   <td className="px-4 py-3">
@@ -327,8 +329,8 @@ export default function Holdings() {
         <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between text-xs bg-white/[0.02]">
           <span className="text-gray-500">{filtered.length} holdings shown</span>
           <div className="flex gap-6">
-            <span className="text-gray-400">Total: <span className="text-white font-bold">{formatCurrency(totalValue, 0)}</span></span>
-            <span className="text-gray-400">Annual: <span className="text-emerald-400 font-bold">{formatCurrency(totalAnnualIncome, 0)}</span></span>
+            <span className="text-gray-400">Total: <span className="text-white font-bold">{formatMoney(totalValue, 0)}</span></span>
+            <span className="text-gray-400">Annual: <span className="text-emerald-400 font-bold">{formatMoney(totalAnnualIncome, 0)}</span></span>
           </div>
         </div>
       </div>

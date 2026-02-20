@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { upcomingPayments } from '../data/mockPortfolio';
-import { formatCurrency, formatDateShort } from '../utils/formatters';
+import { useCurrency } from '../context/CurrencyContext';
 
 const typeColors = {
   Dividend: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', dot: 'bg-emerald-400', border: 'border-emerald-500/20' },
@@ -82,6 +82,7 @@ function CalendarGrid({ year, month, payments, onDayClick, selectedDay }) {
 }
 
 export default function Calendar() {
+  const { formatMoney } = useCurrency();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -136,7 +137,7 @@ export default function Calendar() {
             <div className="text-center">
               <h3 className="text-base font-bold text-white">{MONTHS[viewMonth]} {viewYear}</h3>
               <p className="text-xs text-gray-500">
-                {monthTotal > 0 ? `${formatCurrency(monthTotal, 0)} expected` : 'No payments this month'}
+                {monthTotal > 0 ? `${formatMoney(monthTotal, 0)} expected` : 'No payments this month'}
               </p>
             </div>
             <button onClick={() => navigateMonth(1)}
@@ -190,7 +191,7 @@ export default function Calendar() {
                         <span className={`text-xs font-bold ${c.text}`}>{p.ticker}</span>
                         <span className={`text-[10px] ${c.text} opacity-70`}>{p.type}</span>
                       </div>
-                      <span className={`text-sm font-semibold ${c.text}`}>{formatCurrency(p.amount)}</span>
+                      <span className={`text-sm font-semibold ${c.text}`}>{formatMoney(p.amount)}</span>
                     </div>
                   );
                 })}
@@ -204,7 +205,7 @@ export default function Calendar() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-white">Upcoming — Next 30 Days</h3>
             <span className="text-xs text-emerald-400 font-semibold">
-              {formatCurrency(filteredPayments.reduce((s, p) => s + p.amount, 0), 0)}
+              {formatMoney(filteredPayments.reduce((s, p) => s + p.amount, 0), 0)}
             </span>
           </div>
 
@@ -231,7 +232,7 @@ export default function Calendar() {
                     <p className="text-[10px] text-gray-500 truncate">{p.name}</p>
                   </div>
                   <span className={`text-sm font-semibold ${c.text} flex-shrink-0`}>
-                    {formatCurrency(p.amount)}
+                    {formatMoney(p.amount)}
                   </span>
                 </div>
               );
@@ -249,7 +250,7 @@ export default function Calendar() {
                     <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
                     {type}
                   </span>
-                  <span className={c.text}>{formatCurrency(typeTotal)}</span>
+                  <span className={c.text}>{formatMoney(typeTotal)}</span>
                 </div>
               );
             })}
