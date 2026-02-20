@@ -1,32 +1,33 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell,
 } from 'recharts';
 import {
   getPortfolioSummary, incomeHistory, upcomingPayments,
-  stocks, cryptoAssets, getPortfolioHealthScore,
+  getPortfolioHealthScore,
 } from '../data/mockPortfolio';
-import { formatCurrency, formatPercent, formatDateShort } from '../utils/formatters';
+import { formatPercent, formatDateShort } from '../utils/formatters';
+import { useCurrency } from '../context/CurrencyContext';
 import KpiCard from '../components/KpiCard';
 
 const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#8b5cf6', '#ef4444', '#f97316'];
 
-const CustomTooltip = ({ active, payload, label }) => {
+function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 shadow-xl">
         <p className="text-gray-400 text-xs mb-2">{label}</p>
         {payload.map((entry) => (
           <p key={entry.dataKey} className="text-sm font-medium" style={{ color: entry.color }}>
-            {entry.name}: {formatCurrency(entry.value)}
+            {entry.name}: {formatMoney(entry.value)}
           </p>
         ))}
       </div>
     );
   }
   return null;
-};
+}
 
 function HealthGauge({ score }) {
   const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
@@ -55,12 +56,6 @@ function HealthGauge({ score }) {
   );
 }
 
-function SafetyBadge({ rating }) {
-  return (
-    <span className={`badge-${rating} text-xs font-bold px-1.5 py-0.5 rounded`}>{rating}</span>
-  );
-}
-
 const typeColors = {
   Dividend: '#10b981',
   Staking: '#06b6d4',
@@ -71,15 +66,24 @@ const typeColors = {
 export default function Dashboard() {
   const summary = getPortfolioSummary();
   const health = getPortfolioHealthScore();
+  const { formatMoney, formatLocal, convert } = useCurrency();
 
-  // Sector allocation for pie chart
+  // Sector allocation for pie chart — convert sector values
   const sectorData = Object.entries(health.sectors).map(([name, value]) => ({
     name,
-    value: Math.round(value),
+    value: Math.round(convert(value)),
   }));
 
-  // Last 6 months for mini chart
-  const recentIncome = incomeHistory.slice(-6);
+  // Last 6 months for mini chart — pre-convert for correct bar heights
+  const recentIncome = useMemo(() =>
+    incomeHistory.slice(-6).map((m) => ({
+      month: m.month,
+      dividends: convert(m.dividends),
+      staking: convert(m.staking),
+      yield: convert(m.yield),
+      interest: convert(m.interest),
+    })),
+  [convert]);
 
   // Top movers (mock)
   const topMovers = [
@@ -105,7 +109,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard
           title="Total Portfolio Value"
-          value={formatCurrency(summary.totalValue, 0)}
+          value={formatMoney(summary.totalValue, 0)}
           subtitle="Stocks + Crypto + DeFi"
           trendValue="+2.4% today"
           trend="up"
@@ -119,7 +123,7 @@ export default function Dashboard() {
         />
         <KpiCard
           title="Annual Passive Income"
-          value={formatCurrency(summary.annualIncome, 0)}
+          value={formatMoney(summary.annualIncome, 0)}
           subtitle={`${formatPercent(summary.overallYield)} avg yield`}
           trendValue="+8.3% YoY"
           trend="up"
@@ -132,7 +136,7 @@ export default function Dashboard() {
         />
         <KpiCard
           title="Monthly Income"
-          value={formatCurrency(summary.monthlyIncome, 0)}
+          value={formatMoney(summary.monthlyIncome, 0)}
           subtitle="Avg across all sources"
           trendValue="+5.1% vs last month"
           trend="up"
@@ -146,8 +150,8 @@ export default function Dashboard() {
         />
         <KpiCard
           title="YTD Income Received"
-          value={formatCurrency(summary.ytdIncome, 0)}
-          subtitle={`${formatCurrency(summary.ytdProjected, 0)} projected this month`}
+          value={formatMoney(summary.ytdIncome, 0)}
+          subtitle={`${formatMoney(summary.ytdProjected, 0)} projected this month`}
           accentColor="purple"
           icon={
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,8 +175,8 @@ export default function Dashboard() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false}
-                tickFormatter={(v) => `$${v}`} />
-              <Tooltip content={<CustomTooltip />} />
+                tickFormatter={(v) => formatLocal(v, 0)} />
+              <Tooltip content={<CustomTooltip formatMoney={(v) => formatLocal(v)} />} />
               <Bar dataKey="dividends" name="Dividends" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
               <Bar dataKey="staking" name="Staking" stackId="a" fill="#06b6d4" />
               <Bar dataKey="yield" name="Yield" stackId="a" fill="#f59e0b" />
@@ -228,7 +232,7 @@ export default function Dashboard() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v) => formatCurrency(v, 0)} contentStyle={{
+                <Tooltip formatter={(v) => formatLocal(v, 0)} contentStyle={{
                   background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
                 }} />
               </PieChart>
@@ -265,7 +269,7 @@ export default function Dashboard() {
                   <p className="text-xs text-gray-500">{payment.type}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-emerald-400">{formatCurrency(payment.amount)}</p>
+                  <p className="text-sm font-semibold text-emerald-400">{formatMoney(payment.amount)}</p>
                   <p className="text-xs text-gray-500">{formatDateShort(payment.date)}</p>
                 </div>
               </div>
@@ -275,7 +279,7 @@ export default function Dashboard() {
             <div className="flex justify-between text-xs">
               <span className="text-gray-500">7-day total</span>
               <span className="text-emerald-400 font-semibold">
-                {formatCurrency(next7Days.reduce((s, p) => s + p.amount, 0))}
+                {formatMoney(next7Days.reduce((s, p) => s + p.amount, 0))}
               </span>
             </div>
           </div>
@@ -297,7 +301,7 @@ export default function Dashboard() {
                   <span className="text-sm font-medium text-white">{m.ticker}</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-300">{formatCurrency(m.price)}</p>
+                  <p className="text-sm text-gray-300">{formatMoney(m.price)}</p>
                   <p className={`text-xs font-semibold ${m.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     {m.change >= 0 ? '+' : ''}{m.change}%
                   </p>

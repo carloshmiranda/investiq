@@ -62,16 +62,27 @@ export function CurrencyProvider({ children }) {
     return amountUSD * (rates[activeCurrency] || 1)
   }, [activeCurrency, rates])
 
-  // Format a USD amount as a localized currency string
-  const formatMoney = useCallback((amountUSD) => {
+  // Format a USD amount as a localized currency string (converts then formats)
+  // decimals: number of fraction digits (default 2)
+  const formatMoney = useCallback((amountUSD, decimals = 2) => {
     const converted = convert(amountUSD)
     return new Intl.NumberFormat(LOCALE_MAP[activeCurrency], {
       style: 'currency',
       currency: activeCurrency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     }).format(converted)
   }, [activeCurrency, convert])
+
+  // Format an already-converted amount with the active currency symbol (no conversion)
+  const formatLocal = useCallback((amount, decimals = 2) => {
+    return new Intl.NumberFormat(LOCALE_MAP[activeCurrency], {
+      style: 'currency',
+      currency: activeCurrency,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(amount)
+  }, [activeCurrency])
 
   return (
     <CurrencyContext.Provider value={{
@@ -79,6 +90,7 @@ export function CurrencyProvider({ children }) {
       setActiveCurrency,
       convert,
       formatMoney,
+      formatLocal,
       rates,
       ratesLoaded,
     }}>
