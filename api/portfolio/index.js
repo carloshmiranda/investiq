@@ -3,6 +3,7 @@
 import { createProtectedHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
 import { decrypt } from '../../lib/encryption.js'
+import { getCache, setCache, invalidateCache } from '../../lib/cache.js'
 import { createHmac } from 'crypto'
 
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
@@ -241,53 +242,81 @@ async function fetchCryptocomHoldings(apiKey, apiSecret) {
   return holdings
 }
 
+// ─── Fetch fresh portfolio data from all providers ─────────────────────────
+async function fetchFreshPortfolio(userId) {
+  const connections = await prisma.connection.findMany({
+    where: { userId, status: 'connected' },
+    select: { provider: true, encryptedData: true },
+  })
+
+  const results = { holdings: [], errors: [], sources: [] }
+
+  const fetchers = connections.map(async (conn) => {
+    try {
+      const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
+      let holdings = []
+
+      switch (conn.provider) {
+        case 'trading212':
+          holdings = await fetchT212Holdings(apiKey, apiSecret)
+          break
+        case 'binance':
+          holdings = await fetchBinanceHoldings(apiKey, apiSecret)
+          break
+        case 'cryptocom':
+          holdings = await fetchCryptocomHoldings(apiKey, apiSecret)
+          break
+        default:
+          return
+      }
+
+      results.holdings.push(...holdings)
+      results.sources.push(conn.provider)
+    } catch (err) {
+      results.errors.push({ provider: conn.provider, error: err.message })
+    }
+  })
+
+  await Promise.all(fetchers)
+
+  const totalValue = results.holdings.reduce((sum, h) => sum + (h.value || 0), 0)
+
+  return {
+    holdings: results.holdings,
+    totalValue,
+    sources: results.sources,
+    errors: results.errors,
+    count: results.holdings.length,
+    fetchedAt: new Date().toISOString(),
+  }
+}
+
 // ─── Main handler ──────────────────────────────────────────────────────────
 export default createProtectedHandler({
   GET: async (req, res) => {
-    const connections = await prisma.connection.findMany({
-      where: { userId: req.userId, status: 'connected' },
-      select: { provider: true, encryptedData: true },
-    })
+    const refresh = req.query.refresh === 'true'
 
-    const results = { holdings: [], errors: [], sources: [] }
-
-    const fetchers = connections.map(async (conn) => {
-      try {
-        const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
-        let holdings = []
-
-        switch (conn.provider) {
-          case 'trading212':
-            holdings = await fetchT212Holdings(apiKey, apiSecret)
-            break
-          case 'binance':
-            holdings = await fetchBinanceHoldings(apiKey, apiSecret)
-            break
-          case 'cryptocom':
-            holdings = await fetchCryptocomHoldings(apiKey, apiSecret)
-            break
-          default:
-            return
-        }
-
-        results.holdings.push(...holdings)
-        results.sources.push(conn.provider)
-      } catch (err) {
-        results.errors.push({ provider: conn.provider, error: err.message })
+    // Check cache first (unless force refresh)
+    if (!refresh) {
+      const cached = await getCache(req.userId, 'portfolio')
+      if (cached) {
+        return res.json({ ...cached, cached: true })
       }
-    })
+    }
 
-    await Promise.all(fetchers)
+    // Fetch fresh data
+    const data = await fetchFreshPortfolio(req.userId)
 
-    const totalValue = results.holdings.reduce((sum, h) => sum + (h.value || 0), 0)
+    // Cache the result (only if no errors)
+    if (data.errors.length === 0) {
+      await setCache(req.userId, 'portfolio', data)
+    }
 
-    return res.json({
-      holdings: results.holdings,
-      totalValue,
-      sources: results.sources,
-      errors: results.errors,
-      count: results.holdings.length,
-      fetchedAt: new Date().toISOString(),
-    })
+    return res.json({ ...data, cached: false })
+  },
+  POST: async (req, res) => {
+    // POST /api/portfolio?action=invalidate — force cache invalidation
+    await invalidateCache(req.userId, 'portfolio')
+    return res.json({ invalidated: true })
   },
 })

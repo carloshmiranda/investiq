@@ -3,6 +3,7 @@
 import { createProtectedHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
 import { decrypt } from '../../lib/encryption.js'
+import { getCache, setCache, invalidateCache } from '../../lib/cache.js'
 import { createHmac } from 'crypto'
 
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
@@ -163,56 +164,78 @@ async function fetchCryptocomIncome(apiKey, apiSecret) {
   }))
 }
 
+// ─── Fetch fresh income data from all providers ────────────────────────────
+async function fetchFreshIncome(userId) {
+  const connections = await prisma.connection.findMany({
+    where: { userId, status: 'connected' },
+    select: { provider: true, encryptedData: true },
+  })
+
+  const results = { events: [], errors: [], sources: [] }
+
+  const fetchers = connections.map(async (conn) => {
+    try {
+      const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
+      let events = []
+
+      switch (conn.provider) {
+        case 'trading212':
+          events = await fetchT212Income(apiKey, apiSecret)
+          break
+        case 'binance':
+          events = await fetchBinanceIncome(apiKey, apiSecret)
+          break
+        case 'cryptocom':
+          events = await fetchCryptocomIncome(apiKey, apiSecret)
+          break
+        default:
+          return
+      }
+
+      results.events.push(...events)
+      results.sources.push(conn.provider)
+    } catch (err) {
+      results.errors.push({ provider: conn.provider, error: err.message })
+    }
+  })
+
+  await Promise.all(fetchers)
+
+  results.events.sort((a, b) => new Date(b.date) - new Date(a.date))
+  const totalIncome = results.events.reduce((sum, e) => sum + (e.amount || 0), 0)
+
+  return {
+    events: results.events,
+    totalIncome,
+    sources: results.sources,
+    errors: results.errors,
+    count: results.events.length,
+    fetchedAt: new Date().toISOString(),
+  }
+}
+
 // ─── Main handler ──────────────────────────────────────────────────────────
 export default createProtectedHandler({
   GET: async (req, res) => {
-    const connections = await prisma.connection.findMany({
-      where: { userId: req.userId, status: 'connected' },
-      select: { provider: true, encryptedData: true },
-    })
+    const refresh = req.query.refresh === 'true'
 
-    const results = { events: [], errors: [], sources: [] }
-
-    const fetchers = connections.map(async (conn) => {
-      try {
-        const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
-        let events = []
-
-        switch (conn.provider) {
-          case 'trading212':
-            events = await fetchT212Income(apiKey, apiSecret)
-            break
-          case 'binance':
-            events = await fetchBinanceIncome(apiKey, apiSecret)
-            break
-          case 'cryptocom':
-            events = await fetchCryptocomIncome(apiKey, apiSecret)
-            break
-          default:
-            return
-        }
-
-        results.events.push(...events)
-        results.sources.push(conn.provider)
-      } catch (err) {
-        results.errors.push({ provider: conn.provider, error: err.message })
+    if (!refresh) {
+      const cached = await getCache(req.userId, 'income')
+      if (cached) {
+        return res.json({ ...cached, cached: true })
       }
-    })
+    }
 
-    await Promise.all(fetchers)
+    const data = await fetchFreshIncome(req.userId)
 
-    // Sort by date descending
-    results.events.sort((a, b) => new Date(b.date) - new Date(a.date))
+    if (data.errors.length === 0) {
+      await setCache(req.userId, 'income', data)
+    }
 
-    const totalIncome = results.events.reduce((sum, e) => sum + (e.amount || 0), 0)
-
-    return res.json({
-      events: results.events,
-      totalIncome,
-      sources: results.sources,
-      errors: results.errors,
-      count: results.events.length,
-      fetchedAt: new Date().toISOString(),
-    })
+    return res.json({ ...data, cached: false })
+  },
+  POST: async (req, res) => {
+    await invalidateCache(req.userId, 'income')
+    return res.json({ invalidated: true })
   },
 })
