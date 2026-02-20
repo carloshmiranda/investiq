@@ -39,7 +39,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 0.3 — Client: add /login and /register routes to React Router,
         protected route wrapper, auth context skeleton
 
-- [ ] 0.4 — Add currencyCode field (String, default 'USD') to User model in Prisma schema,
+- [x] 0.4 — Add currencyCode field (String, default 'USD') to User model in Prisma schema,
             run migration, update all auth endpoints to return currencyCode in user payload
 
 - [ ] 0.5 — Create /lib/exchangeRates.js on the server: fetch USD base rates from
@@ -137,3 +137,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 1.7 | Settings page: profile edit (name/email), password change (current+new+confirm), active sessions list with revoke/logout-all. Sidebar updated with Settings nav item + real user name/initials + sign-out button. AuthContext gained updateUser(). Backend API already existed at api/user/[action].js. |
 | 2026-02-20 | 2.1 | All 6 pages already in src/pages/ (Dashboard, Income, Holdings, Calendar, Connections, AIInsights) with full Recharts integration. Mock data layer (mockPortfolio.js) provides stocks, crypto, income history, projections, upcoming payments, connections + computed helpers. All routes wired in App.jsx with ProtectedRoute + Layout. Build passes clean. |
 | 2026-02-20 | Scope update | Added currency switcher feature (USD/EUR/GBP) to MVP. New backlog items: 0.4, 0.5, 2.2, 2.3. All downstream items renumbered. |
+| 2026-02-20 | 0.4 | Added currencyCode (String, default 'USD') to User model. Migration applied to Neon DB. All auth endpoints (register, login, refresh) and user endpoints (profile GET/PUT) now return currencyCode in user payload. |

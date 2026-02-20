@@ -51,7 +51,7 @@ async function handleRegister(req, res) {
 
   const user = await prisma.user.create({
     data: { name, email, passwordHash },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, currencyCode: true },
   })
 
   const [accessToken, refreshToken] = await Promise.all([
@@ -110,7 +110,7 @@ async function handleLogin(req, res) {
   setRefreshCookie(res, refreshToken)
   return res.status(200).json({
     accessToken,
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, currencyCode: user.currencyCode },
   })
 }
 
@@ -137,7 +137,7 @@ async function handleRefresh(req, res) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, currencyCode: true },
   })
   if (!user) {
     return res.status(401).json({ error: 'User not found' })

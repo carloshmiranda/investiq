@@ -14,6 +14,7 @@ model User {
   email        String       @unique
   passwordHash String
   createdAt    DateTime     @default(now())
+  currencyCode String       @default("USD")
   updatedAt    DateTime     @updatedAt
   connections  Connection[]
   cache        PortfolioCache[]

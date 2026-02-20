@@ -7,7 +7,7 @@ import { prisma } from '../../lib/prisma.js'
 async function getProfile(req, res) {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: { id: true, name: true, email: true, currencyCode: true, createdAt: true },
   })
   if (!user) return res.status(404).json({ error: 'User not found' })
   return res.status(200).json(user)
@@ -36,7 +36,7 @@ async function updateProfile(req, res) {
   const user = await prisma.user.update({
     where: { id: req.userId },
     data,
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, currencyCode: true },
   })
 
   return res.status(200).json(user)
