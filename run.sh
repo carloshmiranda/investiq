@@ -19,6 +19,7 @@ trap 'rm -f "$USAGE_FILE"' EXIT
 
 claude --dangerously-skip-permissions \
   --output-format stream-json \
+  --verbose \
   --max-turns 100 \
   -p "Read PROGRESS.md and MVP.md.
       Find the first unchecked backlog item.
