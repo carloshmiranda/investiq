@@ -52,7 +52,7 @@ git push
 ```
 
 ## Status
-🟡 In Progress
+🟢 MVP COMPLETE
 Architecture: Vercel Serverless Functions (/api) + Neon PostgreSQL via Vercel Marketplace (single repo)
 Currency: USD/EUR/GBP switcher. Rates from open.exchangerate-api.com (free, no key).
 Cached 1hr server-side. User preference stored in DB. Context-driven, zero page reloads.
@@ -205,3 +205,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 12.1 | Client AI chat UI wired to POST /api/ai/chat via authAxios. Removed mock responses. Chat UI: message bubbles, markdown rendering, typing indicator, suggested prompts (6), insight cards (3). Removed news feed section. Build passes clean. |
 | 2026-02-20 | 12.2 | POST /api/ai/chat: calls Anthropic Messages API with claude-sonnet-4-6. Portfolio+income data from cache injected into system prompt (holdings, values, sectors, income events). Full conversation history supported. Returns reply+model+usage. Graceful error for missing ANTHROPIC_API_KEY. Build passes clean. |
 | 2026-02-20 | 13.2 | Responsive audit complete. Layout: mobile drawer sidebar (off-screen by default, slide-in on hamburger tap, auto-close on nav), header full-width on mobile. Header: compact currency switcher (symbol-only on xs), portfolio value text scales, notification bell hidden on xs. AI chat: height capped to viewport via min(). CSS: touch-friendly horizontal scroll, smaller chart fonts on mobile. Desktop behavior fully preserved. Build passes clean. |
+| 2026-02-20 | MVP COMPLETE | All backlog items done (0.1–13.2). All MVP criteria checked off in MVP.md. Auth, 6 pages, 4 integrations (DeGiro, T212, Binance, Crypto.com), unified portfolio/income, AI chat, currency switcher, responsive layout, caching, error boundaries — all shipped. |

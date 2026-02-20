@@ -80,19 +80,19 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - No user can access another user's data — all queries are scoped by userId
 
 ## MVP is reached when
-- [ ] Register + login flow works with JWT
-- [ ] All 6 main pages render without errors
-- [ ] Mock data flows through every chart and table for new users
-- [ ] DeGiro connects and loads real positions + dividends
-- [ ] Trading 212 connects and loads real positions + dividends
-- [ ] Binance connects and loads spot balances + staking rewards + trade history
-- [ ] Crypto.com connects and loads spot balances + staking rewards
-- [ ] Each user sees only their own data
-- [ ] API keys encrypted at rest in DB
-- [ ] GitHub → Vercel pipeline live (frontend + serverless API in one project)
-- [ ] Neon PostgreSQL connected (via Vercel Marketplace) and Prisma migrations running
-- [ ] App works on desktop and tablet
-- [ ] No console errors in production
-- [ ] Currency switcher works across all pages (USD / EUR / GBP)
-- [ ] Rates auto-refresh every hour
-- [ ] User currency preference persists across sessions
+- [x] Register + login flow works with JWT
+- [x] All 6 main pages render without errors
+- [x] Mock data flows through every chart and table for new users
+- [x] DeGiro connects and loads real positions + dividends
+- [x] Trading 212 connects and loads real positions + dividends
+- [x] Binance connects and loads spot balances + staking rewards + trade history
+- [x] Crypto.com connects and loads spot balances + staking rewards
+- [x] Each user sees only their own data
+- [x] API keys encrypted at rest in DB
+- [x] GitHub → Vercel pipeline live (frontend + serverless API in one project)
+- [x] Neon PostgreSQL connected (via Vercel Marketplace) and Prisma migrations running
+- [x] App works on desktop and tablet
+- [x] No console errors in production
+- [x] Currency switcher works across all pages (USD / EUR / GBP)
+- [x] Rates auto-refresh every hour
+- [x] User currency preference persists across sessions
