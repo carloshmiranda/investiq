@@ -47,7 +47,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 1.7 — Client: /settings page (change name, email, password, active sessions, logout all)
 
 ### Mock Data & Core UI
-- [ ] 2.1 — Migrate existing mock data + all 6 pages into src/ structure
+- [x] 2.1 — Migrate existing mock data + all 6 pages into src/ structure
 - [ ] 2.2 — Dashboard KPI cards, income sparkline, health score wired to mock data
 - [ ] 2.3 — Holdings table, Income page charts, Calendar grid wired to mock data
 
@@ -104,3 +104,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 1.5 | Login.jsx: client-side validation (required fields). AuthContext: withCredentials:true on all auth axios calls so httpOnly refresh cookie is sent. Created run.sh (vercel dev). |
 | 2026-02-19 | 1.6 | AuthContext: isLoading starts true, useEffect on mount calls /api/auth/refresh to restore session. authAxios instance with request interceptor (Bearer token) + response interceptor (401→refresh+retry, on refresh failure clears auth). ProtectedRoute spins while isLoading, then redirects. |
 | 2026-02-20 | 1.7 | Settings page: profile edit (name/email), password change (current+new+confirm), active sessions list with revoke/logout-all. Sidebar updated with Settings nav item + real user name/initials + sign-out button. AuthContext gained updateUser(). Backend API already existed at api/user/[action].js. |
+| 2026-02-20 | 2.1 | All 6 pages already in src/pages/ (Dashboard, Income, Holdings, Calendar, Connections, AIInsights) with full Recharts integration. Mock data layer (mockPortfolio.js) provides stocks, crypto, income history, projections, upcoming payments, connections + computed helpers. All routes wired in App.jsx with ProtectedRoute + Layout. Build passes clean. |
