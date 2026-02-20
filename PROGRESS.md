@@ -42,7 +42,7 @@ https://github.com/carloshmiranda/investiq
 - [x] 0.4 — Add currencyCode field (String, default 'USD') to User model in Prisma schema,
             run migration, update all auth endpoints to return currencyCode in user payload
 
-- [ ] 0.5 — Create /lib/exchangeRates.js on the server: fetch USD base rates from
+- [x] 0.5 — Create /lib/exchangeRates.js on the server: fetch USD base rates from
             https://open.exchangerate-api.com/v6/latest/USD, cache result in module-level
             variable with 1hr TTL, export getRate(toCurrency) helper.
             Create GET /api/rates endpoint returning { USD: 1, EUR: x, GBP: x, updatedAt }.
@@ -138,3 +138,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 2.1 | All 6 pages already in src/pages/ (Dashboard, Income, Holdings, Calendar, Connections, AIInsights) with full Recharts integration. Mock data layer (mockPortfolio.js) provides stocks, crypto, income history, projections, upcoming payments, connections + computed helpers. All routes wired in App.jsx with ProtectedRoute + Layout. Build passes clean. |
 | 2026-02-20 | Scope update | Added currency switcher feature (USD/EUR/GBP) to MVP. New backlog items: 0.4, 0.5, 2.2, 2.3. All downstream items renumbered. |
 | 2026-02-20 | 0.4 | Added currencyCode (String, default 'USD') to User model. Migration applied to Neon DB. All auth endpoints (register, login, refresh) and user endpoints (profile GET/PUT) now return currencyCode in user payload. |
+| 2026-02-20 | 0.5 | Exchange rate service: /lib/exchangeRates.js fetches USD-based rates from open.exchangerate-api.com, caches 1hr in module variable, exports getRate() and getAllRates(). GET /api/rates returns { USD, EUR, GBP, updatedAt }. PATCH /api/user/currency validates input against ['USD','EUR','GBP'], updates DB, returns user. Added PATCH to CORS allowed methods. |

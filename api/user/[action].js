@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { createProtectedHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
+import { SUPPORTED } from '../../lib/exchangeRates.js'
 
 // ── GET /api/user/profile ────────────────────────────────────────────────────
 
@@ -132,6 +133,24 @@ async function revokeSession(req, res) {
   return res.status(200).json({ ok: true })
 }
 
+// ── PATCH /api/user/currency ──────────────────────────────────────────────────
+
+async function updateCurrency(req, res) {
+  const { currencyCode } = req.body ?? {}
+
+  if (!currencyCode || !SUPPORTED.includes(currencyCode)) {
+    return res.status(400).json({ error: `currencyCode must be one of: ${SUPPORTED.join(', ')}` })
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.userId },
+    data: { currencyCode },
+    select: { id: true, name: true, email: true, currencyCode: true },
+  })
+
+  return res.status(200).json(user)
+}
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function parseCookie(header, name) {
@@ -158,6 +177,11 @@ export default createProtectedHandler({
   POST: async (req, res) => {
     const { action } = req.query
     if (action === 'logout-all') return logoutAll(req, res)
+    return res.status(404).json({ error: `Unknown action: ${action}` })
+  },
+  PATCH: async (req, res) => {
+    const { action } = req.query
+    if (action === 'currency') return updateCurrency(req, res)
     return res.status(404).json({ error: `Unknown action: ${action}` })
   },
   DELETE: async (req, res) => {
