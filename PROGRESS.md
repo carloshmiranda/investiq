@@ -131,7 +131,7 @@ https://github.com/carloshmiranda/investiq
             No page reload required — all values re-render reactively.
 
 - [x] 2.4 — Dashboard KPI cards, income sparkline, health score wired to mock data
-- [ ] 2.5 — Holdings table, Income page charts, Calendar grid wired to mock data
+- [x] 2.5 — Holdings table, Income page charts, Calendar grid wired to mock data
 
 ### DeGiro Integration (serverless, authenticated per user)
 - [ ] 7.1 — DeGiro auth service (migrate from old edge functions to /api/brokers/degiro/)
@@ -194,3 +194,4 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-20 | 2.3 | Currency switcher added to Header: compact 3-button toggle ($ USD | € EUR | £ GBP) between income pill and date/time. Active currency highlighted with emerald accent. Clicking switches instantly via CurrencyContext — no reload. Header portfolio value and income pill now use formatMoney() for live currency conversion. Build passes clean. |
 | 2026-02-20 | 2.4 | Dashboard fully wired to CurrencyContext: all 4 KPI cards (total value, annual income, monthly income, YTD received), income bar chart (6-month history with converted Y-axis and tooltips), sector allocation pie chart, upcoming payments, and top movers all use formatMoney/formatLocal/convert from useCurrency(). Added formatLocal() to CurrencyContext for formatting pre-converted amounts. Enhanced formatMoney() to accept decimals param. Cleaned up unused imports. Build passes clean. |
 | 2026-02-20 | run.sh update | Multi-item sessions enabled. Context monitoring at 90%. Claude runs until near limit then stops and resumes next session. |
+| 2026-02-20 | 2.5 | Holdings table, Income page (KPIs, timeline chart, forecast chart, DRIP simulator, breakdown bars), and Calendar (month total, day detail, sidebar, summary) all wired to CurrencyContext. Replaced all hardcoded USD formatCurrency calls with formatMoney/formatLocal/convert. Chart Y-axes and tooltips convert reactively. Build passes clean. |
