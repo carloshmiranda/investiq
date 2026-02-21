@@ -5,8 +5,83 @@ import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
 import { useBinance } from '../context/BinanceContext';
 import { useCryptocom } from '../context/CryptocomContext';
+import { useDebugContext } from '../context/DebugContext';
+import { useAuth } from '../context/AuthContext';
 import { DegiroError } from '../services/degiro/auth';
 import { timeAgo } from '../utils/formatters';
+
+function useTestConnection() {
+  const { authAxios } = useAuth();
+  const debug = useDebugContext();
+  const [testing, setTesting] = useState({});
+  const [results, setResults] = useState({});
+
+  const test = async (provider) => {
+    setTesting((p) => ({ ...p, [provider]: true }));
+    setResults((p) => ({ ...p, [provider]: null }));
+    const start = Date.now();
+    try {
+      const { data } = await authAxios.get(`/api/${provider}/test`);
+      const result = { ...data, latency: data.latency || (Date.now() - start) };
+      setResults((p) => ({ ...p, [provider]: result }));
+      debug?.log(provider, 'test', { status: result.reachable ? 'ok' : 'error', latency: result.latency, error: result.error });
+      return result;
+    } catch (err) {
+      const result = { reachable: false, error: err.message, latency: Date.now() - start };
+      setResults((p) => ({ ...p, [provider]: result }));
+      debug?.log(provider, 'test', { status: 'error', latency: result.latency, error: err.message });
+      return result;
+    } finally {
+      setTesting((p) => ({ ...p, [provider]: false }));
+    }
+  };
+
+  return { test, testing, results };
+}
+
+function TestButton({ provider, testing, result, onTest }) {
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => onTest(provider)}
+        disabled={testing}
+        className="w-full py-1.5 text-[10px] font-medium text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/5 transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+      >
+        {testing ? (
+          <>
+            <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Testing…
+          </>
+        ) : (
+          <>
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Test Connection
+          </>
+        )}
+      </button>
+      {result && (
+        <div className={`mt-1.5 p-2 rounded text-[10px] ${result.reachable ? 'bg-emerald-500/5 border border-emerald-500/20 text-emerald-400' : 'bg-red-500/5 border border-red-500/20 text-red-400'}`}>
+          {result.reachable ? (
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+              Reachable — {result.latency}ms
+            </span>
+          ) : (
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+              {result.error || 'Unreachable'}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Type config ───────────────────────────────────────────────────────────────
 const typeConfig = {
@@ -375,7 +450,7 @@ function WalletModal({ name, onClose, onConnect }) {
 }
 
 // ── DeGiro card ───────────────────────────────────────────────────────────────
-function DegiroCard({ onOpenModal }) {
+function DegiroCard({ onOpenModal, onTest, testing, testResult }) {
   const { connected, username, intAccount, positionCount, lastSync, syncing, sync, disconnect, error } = useDegiro();
   const brand = '#ff6600';
 
@@ -441,20 +516,23 @@ function DegiroCard({ onOpenModal }) {
       )}
 
       {connected ? (
-        <div className="flex gap-2">
-          <button
-            onClick={sync}
-            disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40"
-          >
-            {syncing ? 'Syncing…' : 'Sync Now'}
-          </button>
-          <button
-            onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors"
-          >
-            Disconnect
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <button
+              onClick={sync}
+              disabled={syncing}
+              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40"
+            >
+              {syncing ? 'Syncing…' : 'Sync Now'}
+            </button>
+            <button
+              onClick={disconnect}
+              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors"
+            >
+              Disconnect
+            </button>
+          </div>
+          <TestButton provider="degiro" testing={testing} result={testResult} onTest={onTest} />
         </div>
       ) : (
         <button
@@ -591,7 +669,7 @@ function Trading212Modal({ onClose }) {
 }
 
 // ── Trading 212 card ──────────────────────────────────────────────────────────
-function Trading212Card({ onOpenModal }) {
+function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
   const { connected, positionCount, lastSync, syncing, sync, disconnect, error, account } = useTrading212();
   const { formatMoney } = useCurrency();
   const brand = '#1a56db';
@@ -652,15 +730,18 @@ function Trading212Card({ onOpenModal }) {
       )}
 
       {connected ? (
-        <div className="flex gap-2">
-          <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-            {syncing ? 'Syncing…' : 'Sync Now'}
-          </button>
-          <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-            Disconnect
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <button onClick={sync} disabled={syncing}
+              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
+              {syncing ? 'Syncing…' : 'Sync Now'}
+            </button>
+            <button onClick={disconnect}
+              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
+              Disconnect
+            </button>
+          </div>
+          <TestButton provider="trading212" testing={testing} result={testResult} onTest={onTest} />
         </div>
       ) : (
         <button onClick={onOpenModal}
@@ -804,7 +885,7 @@ function BinanceModal({ onClose }) {
 }
 
 // ── Binance card ─────────────────────────────────────────────────────────────
-function BinanceCard({ onOpenModal }) {
+function BinanceCard({ onOpenModal, onTest, testing, testResult }) {
   const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useBinance();
   const { formatMoney } = useCurrency();
   const brand = '#f0b90b';
@@ -865,15 +946,18 @@ function BinanceCard({ onOpenModal }) {
       )}
 
       {connected ? (
-        <div className="flex gap-2">
-          <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-            {syncing ? 'Syncing…' : 'Sync Now'}
-          </button>
-          <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-            Disconnect
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <button onClick={sync} disabled={syncing}
+              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
+              {syncing ? 'Syncing…' : 'Sync Now'}
+            </button>
+            <button onClick={disconnect}
+              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
+              Disconnect
+            </button>
+          </div>
+          <TestButton provider="binance" testing={testing} result={testResult} onTest={onTest} />
         </div>
       ) : (
         <button onClick={onOpenModal}
@@ -1017,7 +1101,7 @@ function CryptocomModal({ onClose }) {
 }
 
 // ── Crypto.com card ──────────────────────────────────────────────────────────
-function CryptocomCard({ onOpenModal }) {
+function CryptocomCard({ onOpenModal, onTest, testing, testResult }) {
   const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useCryptocom();
   const { formatMoney } = useCurrency();
   const brand = '#1199fa';
@@ -1076,15 +1160,18 @@ function CryptocomCard({ onOpenModal }) {
       )}
 
       {connected ? (
-        <div className="flex gap-2">
-          <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-            {syncing ? 'Syncing…' : 'Sync Now'}
-          </button>
-          <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-            Disconnect
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <button onClick={sync} disabled={syncing}
+              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
+              {syncing ? 'Syncing…' : 'Sync Now'}
+            </button>
+            <button onClick={disconnect}
+              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
+              Disconnect
+            </button>
+          </div>
+          <TestButton provider="cryptocom" testing={testing} result={testResult} onTest={onTest} />
         </div>
       ) : (
         <button onClick={onOpenModal}
@@ -1104,6 +1191,7 @@ export default function Connections() {
   const { connected: t212Connected, positionCount: t212PositionCount } = useTrading212();
   const { connected: binanceConnected, assetCount: binanceAssetCount } = useBinance();
   const { connected: cryptocomConnected, assetCount: cryptocomAssetCount } = useCryptocom();
+  const { test: testConn, testing: testingMap, results: testResults } = useTestConnection();
   const [conns, setConns] = useState(connections);
   const [modal, setModal] = useState(null);
   const [showDegiroModal, setShowDegiroModal] = useState(false);
@@ -1167,10 +1255,10 @@ export default function Connections() {
       {/* Cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {/* Real integrations first */}
-        <DegiroCard onOpenModal={() => setShowDegiroModal(true)} />
-        <Trading212Card onOpenModal={() => setShowT212Modal(true)} />
-        <BinanceCard onOpenModal={() => setShowBinanceModal(true)} />
-        <CryptocomCard onOpenModal={() => setShowCryptocomModal(true)} />
+        <DegiroCard onOpenModal={() => setShowDegiroModal(true)} onTest={testConn} testing={testingMap.degiro} testResult={testResults.degiro} />
+        <Trading212Card onOpenModal={() => setShowT212Modal(true)} onTest={testConn} testing={testingMap.trading212} testResult={testResults.trading212} />
+        <BinanceCard onOpenModal={() => setShowBinanceModal(true)} onTest={testConn} testing={testingMap.binance} testResult={testResults.binance} />
+        <CryptocomCard onOpenModal={() => setShowCryptocomModal(true)} onTest={testConn} testing={testingMap.cryptocom} testResult={testResults.cryptocom} />
 
         {conns.map((conn) => {
           const tc = typeConfig[conn.type] ?? typeConfig.broker;
