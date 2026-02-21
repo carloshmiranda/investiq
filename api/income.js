@@ -6,6 +6,46 @@ import { decrypt } from '../lib/encryption.js'
 import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
+// ─── DeGiro helpers ─────────────────────────────────────────────────────────
+const DEGIRO_BASE = process.env.DEGIRO_BASE_URL || 'https://trader.degiro.nl'
+
+async function degiroFetchJSON(url, options = {}) {
+  const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } })
+  if (!res.ok) throw new Error(`DeGiro ${res.status}`)
+  const text = await res.text()
+  return text ? JSON.parse(text) : {}
+}
+
+async function fetchDegiroIncome(sessionId, intAccount) {
+  const config = await degiroFetchJSON(`${DEGIRO_BASE}/login/secure/config`, {
+    headers: { Cookie: `JSESSIONID=${sessionId};` },
+  })
+  const reportingUrl = config.reportingUrl || `${DEGIRO_BASE}/reporting/secure/`
+  const now = new Date()
+  const oneYearAgo = new Date(now)
+  oneYearAgo.setFullYear(now.getFullYear() - 1)
+  const pad = (n) => String(n).padStart(2, '0')
+  const fromDate = `${pad(oneYearAgo.getDate())}/${pad(oneYearAgo.getMonth() + 1)}/${oneYearAgo.getFullYear()}`
+  const toDate = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`
+  const data = await degiroFetchJSON(
+    `${reportingUrl}v4/accountoverview?fromDate=${fromDate}&toDate=${toDate}&intAccount=${intAccount}&sessionId=${sessionId}`
+  )
+  const cashMovements = data.cashMovements || []
+  const dividends = cashMovements.filter((m) => m.type === 'DIVIDEND' || m.type === 'DIVIDEND_TAX')
+
+  return dividends.map((d) => ({
+    id: `degiro-div-${d.id || d.date}-${d.productId}`,
+    date: d.date ? new Date(d.date).toISOString() : new Date().toISOString(),
+    ticker: d.product || '',
+    name: d.product || '',
+    amount: Math.abs(parseFloat(d.change || 0)),
+    currency: d.currency || 'EUR',
+    type: d.type === 'DIVIDEND_TAX' ? 'Dividend Tax' : 'Dividend',
+    source: 'degiro',
+    broker: 'DeGiro',
+  }))
+}
+
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
 const T212_LIVE = process.env.T212_BASE_URL || 'https://live.trading212.com/api/v0'
 
@@ -175,18 +215,21 @@ async function fetchFreshIncome(userId) {
 
   const fetchers = connections.map(async (conn) => {
     try {
-      const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
+      const creds = JSON.parse(decrypt(conn.encryptedData))
       let events = []
 
       switch (conn.provider) {
+        case 'degiro':
+          events = await fetchDegiroIncome(creds.sessionId, creds.intAccount)
+          break
         case 'trading212':
-          events = await fetchT212Income(apiKey, apiSecret)
+          events = await fetchT212Income(creds.apiKey, creds.apiSecret)
           break
         case 'binance':
-          events = await fetchBinanceIncome(apiKey, apiSecret)
+          events = await fetchBinanceIncome(creds.apiKey, creds.apiSecret)
           break
         case 'cryptocom':
-          events = await fetchCryptocomIncome(apiKey, apiSecret)
+          events = await fetchCryptocomIncome(creds.apiKey, creds.apiSecret)
           break
         default:
           return
@@ -195,6 +238,14 @@ async function fetchFreshIncome(userId) {
       results.events.push(...events)
       results.sources.push(conn.provider)
     } catch (err) {
+      if (conn.provider === 'degiro' && (err.message?.includes('401') || err.message?.includes('403'))) {
+        try {
+          await prisma.connection.update({
+            where: { userId_provider: { userId, provider: 'degiro' } },
+            data: { status: 'expired', lastError: 'Session expired — please re-login' },
+          })
+        } catch {}
+      }
       results.errors.push({ provider: conn.provider, error: err.message })
     }
   })
@@ -211,6 +262,7 @@ async function fetchFreshIncome(userId) {
     errors: results.errors,
     count: results.events.length,
     fetchedAt: new Date().toISOString(),
+    useMockData: results.events.length === 0 && results.sources.length === 0,
   }
 }
 

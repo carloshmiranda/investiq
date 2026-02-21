@@ -89,6 +89,19 @@ async function degiroLogin(req, res, { withTOTP = false } = {}) {
   const clientInfo = await degiroFetch(`${paUrl}client?sessionId=${sessionId}`)
   const data = clientInfo.data || clientInfo
 
+  // Store session in DB for unified portfolio access
+  const encryptedData = encrypt(JSON.stringify({
+    sessionId,
+    intAccount: data.intAccount,
+    username,
+    loginAt: new Date().toISOString(),
+  }))
+  await prisma.connection.upsert({
+    where: { userId_provider: { userId: req.userId, provider: 'degiro' } },
+    create: { userId: req.userId, provider: 'degiro', status: 'connected', encryptedData, lastSyncAt: new Date() },
+    update: { status: 'connected', encryptedData, lastSyncAt: new Date(), lastError: null },
+  })
+
   return res.json({
     sessionId, intAccount: data.intAccount, userId: data.id,
     username, firstName: data.firstContact?.firstName || data.displayName || username,
@@ -173,12 +186,48 @@ async function degiroTransactions(req, res) {
   return res.json({ data: data.data || [] })
 }
 
+async function degiroDisconnect(req, res) {
+  await prisma.connection.deleteMany({ where: { userId: req.userId, provider: 'degiro' } })
+  return res.json({ disconnected: true })
+}
+
+async function degiroStatus(req, res) {
+  const conn = await prisma.connection.findUnique({ where: { userId_provider: { userId: req.userId, provider: 'degiro' } } })
+  if (!conn || conn.status !== 'connected') return res.json({ connected: false })
+  return res.json({ connected: true, lastSyncAt: conn.lastSyncAt, lastError: conn.lastError })
+}
+
 async function degiroTest(req, res) {
   const start = Date.now()
+  // Check if we have a stored session
+  const conn = await prisma.connection.findUnique({ where: { userId_provider: { userId: req.userId, provider: 'degiro' } } })
+  if (!conn || conn.status !== 'connected') {
+    // Just test reachability without auth
+    try {
+      const testRes = await fetch(`${DEGIRO_BASE}/login/secure/config`, { method: 'GET' })
+      return res.json({ provider: 'degiro', reachable: testRes.ok, status: testRes.status, latency: Date.now() - start, authenticated: false })
+    } catch (err) {
+      return res.json({ provider: 'degiro', reachable: false, error: err.message, latency: Date.now() - start })
+    }
+  }
+  // Test with stored session
   try {
-    const testRes = await fetch(`${DEGIRO_BASE}/login/secure/config`, { method: 'GET' })
+    const { sessionId } = JSON.parse(decrypt(conn.encryptedData))
+    const testRes = await fetch(`${DEGIRO_BASE}/login/secure/config`, {
+      headers: { Cookie: `JSESSIONID=${sessionId};` },
+    })
     const latency = Date.now() - start
-    return res.json({ provider: 'degiro', reachable: testRes.ok, status: testRes.status, latency })
+    if (testRes.ok) {
+      return res.json({ provider: 'degiro', reachable: true, status: 200, latency, authenticated: true })
+    }
+    // Session expired — mark connection
+    if (testRes.status === 401) {
+      await prisma.connection.update({
+        where: { userId_provider: { userId: req.userId, provider: 'degiro' } },
+        data: { status: 'expired', lastError: 'Session expired — please re-login' },
+      })
+    }
+    return res.json({ provider: 'degiro', reachable: false, status: testRes.status, latency, authenticated: false, sessionExpired: testRes.status === 401 })
   } catch (err) {
     return res.json({ provider: 'degiro', reachable: false, error: err.message, latency: Date.now() - start })
   }
@@ -188,6 +237,8 @@ function handleDegiro(req, res, action) {
   switch (action) {
     case 'login':        return degiroLogin(req, res, { withTOTP: false })
     case 'totp':         return degiroLogin(req, res, { withTOTP: true })
+    case 'disconnect':   return degiroDisconnect(req, res)
+    case 'status':       return degiroStatus(req, res)
     case 'portfolio':    return degiroPortfolio(req, res)
     case 'products':     return degiroProducts(req, res)
     case 'dividends':    return degiroDividends(req, res)

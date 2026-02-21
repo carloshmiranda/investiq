@@ -137,10 +137,13 @@ export function DegiroProvider({ children }) {
   }, [syncPortfolio]);
 
   // ── disconnect ──────────────────────────────────────────────────────────────
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
+    try {
+      await authAxios.delete('/api/degiro/disconnect');
+    } catch {}
     sessionRef.current = { sessionId: null, intAccount: null };
     setState(INITIAL_STATE);
-  }, []);
+  }, [authAxios]);
 
   return (
     <DegiroContext.Provider value={{ ...state, connect, connectTOTP, sync, disconnect }}>

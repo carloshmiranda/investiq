@@ -5,6 +5,71 @@ import { decrypt } from '../lib/encryption.js'
 import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
+// ─── DeGiro helpers ─────────────────────────────────────────────────────────
+const DEGIRO_BASE = process.env.DEGIRO_BASE_URL || 'https://trader.degiro.nl'
+
+async function degiroFetchJSON(url, options = {}) {
+  const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } })
+  if (!res.ok) throw new Error(`DeGiro ${res.status}`)
+  const text = await res.text()
+  return text ? JSON.parse(text) : {}
+}
+
+async function fetchDegiroHoldings(sessionId, intAccount) {
+  const config = await degiroFetchJSON(`${DEGIRO_BASE}/login/secure/config`, {
+    headers: { Cookie: `JSESSIONID=${sessionId};` },
+  })
+  const tradingUrl = config.tradingUrl || `${DEGIRO_BASE}/trading/secure/`
+  const data = await degiroFetchJSON(
+    `${tradingUrl}v5/update/${intAccount};jsessionid=${sessionId}?portfolio=0&cashFunds=0`
+  )
+
+  const portfolio = data.portfolio?.value || []
+  const productPositions = portfolio.filter(
+    (p) => p.value?.find((v) => v.name === 'positionType')?.value === 'PRODUCT'
+  )
+
+  const productIds = productPositions
+    .map((p) => p.value?.find((v) => v.name === 'id')?.value)
+    .filter(Boolean)
+
+  let productInfo = {}
+  if (productIds.length > 0) {
+    const productSearchUrl = config.productSearchUrl || `${DEGIRO_BASE}/product_search/secure/`
+    const pData = await degiroFetchJSON(
+      `${productSearchUrl}v5/products/info?intAccount=${intAccount}&sessionId=${sessionId}`,
+      { method: 'POST', body: JSON.stringify(productIds.map(String)) }
+    )
+    productInfo = pData.data || pData
+  }
+
+  return productPositions.map((pos) => {
+    const vals = {}
+    for (const v of (pos.value || [])) vals[v.name] = v.value
+    const product = productInfo[String(vals.id)] || {}
+    const qty = vals.size || 0
+    const price = vals.price || 0
+    const value = qty * price
+    return {
+      id: `degiro-${vals.id}`,
+      source: 'degiro',
+      broker: 'DeGiro',
+      ticker: product.symbol || product.isin || `ID-${vals.id}`,
+      name: product.name || product.symbol || `Product ${vals.id}`,
+      type: product.productType === 'STOCK' ? 'Stock' : product.productType === 'ETF' ? 'ETF' : (product.productType || 'Stock'),
+      sector: product.category || 'Equities',
+      quantity: qty,
+      price,
+      value,
+      currency: product.currency || 'EUR',
+      costBasis: vals.breakEvenPrice ? qty * vals.breakEvenPrice : 0,
+      unrealizedPnL: vals.todayPlBase || 0,
+      unrealizedPnLPct: vals.breakEvenPrice && vals.breakEvenPrice > 0 ? ((price - vals.breakEvenPrice) / vals.breakEvenPrice) * 100 : 0,
+      logoColor: '#ff6600',
+    }
+  })
+}
+
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
 const T212_LIVE = process.env.T212_BASE_URL || 'https://live.trading212.com/api/v0'
 
@@ -204,18 +269,21 @@ async function fetchFreshPortfolio(userId) {
 
   const fetchers = connections.map(async (conn) => {
     try {
-      const { apiKey, apiSecret } = JSON.parse(decrypt(conn.encryptedData))
+      const creds = JSON.parse(decrypt(conn.encryptedData))
       let holdings = []
 
       switch (conn.provider) {
+        case 'degiro':
+          holdings = await fetchDegiroHoldings(creds.sessionId, creds.intAccount)
+          break
         case 'trading212':
-          holdings = await fetchT212Holdings(apiKey, apiSecret)
+          holdings = await fetchT212Holdings(creds.apiKey, creds.apiSecret)
           break
         case 'binance':
-          holdings = await fetchBinanceHoldings(apiKey, apiSecret)
+          holdings = await fetchBinanceHoldings(creds.apiKey, creds.apiSecret)
           break
         case 'cryptocom':
-          holdings = await fetchCryptocomHoldings(apiKey, apiSecret)
+          holdings = await fetchCryptocomHoldings(creds.apiKey, creds.apiSecret)
           break
         default:
           return
@@ -224,6 +292,15 @@ async function fetchFreshPortfolio(userId) {
       results.holdings.push(...holdings)
       results.sources.push(conn.provider)
     } catch (err) {
+      // Detect DeGiro session expiry and mark connection
+      if (conn.provider === 'degiro' && (err.message?.includes('401') || err.message?.includes('403'))) {
+        try {
+          await prisma.connection.update({
+            where: { userId_provider: { userId, provider: 'degiro' } },
+            data: { status: 'expired', lastError: 'Session expired — please re-login' },
+          })
+        } catch {}
+      }
       results.errors.push({ provider: conn.provider, error: err.message })
     }
   })
@@ -239,6 +316,7 @@ async function fetchFreshPortfolio(userId) {
     errors: results.errors,
     count: results.holdings.length,
     fetchedAt: new Date().toISOString(),
+    useMockData: results.holdings.length === 0 && results.sources.length === 0,
   }
 }
 
