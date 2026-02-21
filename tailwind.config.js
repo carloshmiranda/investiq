@@ -31,6 +31,8 @@ export default {
         },
       },
       fontFamily: {
+        display: ['Playfair Display', 'Georgia', 'serif'],
+        data: ['DM Mono', 'JetBrains Mono', 'monospace'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       backdropBlur: {

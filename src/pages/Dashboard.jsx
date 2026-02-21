@@ -16,10 +16,10 @@ const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#8b5cf6', '#ef4444', '#f97316'
 function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1f2937] border border-white/10 rounded-lg p-3 shadow-xl">
-        <p className="text-gray-400 text-xs mb-2">{label}</p>
+      <div className="glass-card rounded-lg p-3 shadow-xl !border-white/10">
+        <p className="text-gray-400 text-xs mb-2 font-medium">{label}</p>
         {payload.map((entry) => (
-          <p key={entry.dataKey} className="text-sm font-medium" style={{ color: entry.color }}>
+          <p key={entry.dataKey} className="text-sm font-data font-medium" style={{ color: entry.color }}>
             {entry.name}: {formatMoney(entry.value)}
           </p>
         ))}
@@ -31,27 +31,39 @@ function CustomTooltip({ active, payload, label, formatMoney }) {
 
 function HealthGauge({ score }) {
   const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+  const glowColor = score >= 80 ? 'rgba(16,185,129,0.3)' : score >= 60 ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)';
   const circumference = 2 * Math.PI * 40;
   const progress = (score / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-24 h-24">
-        <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#1f2937" strokeWidth="8" />
+      <div className="relative w-28 h-28">
+        <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#1f2937" strokeWidth="6" />
           <circle
             cx="50" cy="50" r="40" fill="none"
-            stroke={color} strokeWidth="8"
+            stroke={color} strokeWidth="6"
             strokeDasharray={`${progress} ${circumference}`}
             strokeLinecap="round"
-            style={{ transition: 'stroke-dasharray 1s ease' }}
+            filter="url(#glow)"
+            style={{ transition: 'stroke-dasharray 1s ease', filter: `drop-shadow(0 0 6px ${glowColor})` }}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold" style={{ color }}>{score}</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-data font-medium" style={{ color }}>{score}</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">score</span>
         </div>
       </div>
-      <span className="text-xs text-gray-400 mt-1">Health Score</span>
+      <span className="text-xs text-gray-400 mt-2 font-medium">Portfolio Health</span>
     </div>
   );
 }
@@ -62,6 +74,30 @@ const typeColors = {
   Yield: '#f59e0b',
   Interest: '#8b5cf6',
 };
+
+// Gradient definitions for the bar chart
+function ChartGradients() {
+  return (
+    <defs>
+      <linearGradient id="gradDividends" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
+        <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
+      </linearGradient>
+      <linearGradient id="gradStaking" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
+        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
+      </linearGradient>
+      <linearGradient id="gradYield" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
+        <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
+      </linearGradient>
+      <linearGradient id="gradInterest" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#a78bfa" stopOpacity={1} />
+        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.7} />
+      </linearGradient>
+    </defs>
+  );
+}
 
 export default function Dashboard() {
   const summary = getPortfolioSummary();
@@ -101,8 +137,8 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Page title */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Your investment command center</p>
+        <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
+        <p className="text-gray-500 text-sm mt-1">Your investment command center</p>
       </div>
 
       {/* KPI Row */}
@@ -171,20 +207,21 @@ export default function Dashboard() {
             <span className="text-xs text-gray-500">All sources</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={recentIncome} barSize={18}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false}
+            <BarChart data={recentIncome} barSize={20}>
+              <ChartGradients />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false}
                 tickFormatter={(v) => formatLocal(v, 0)} />
-              <Tooltip content={<CustomTooltip formatMoney={(v) => formatLocal(v)} />} />
-              <Bar dataKey="dividends" name="Dividends" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="staking" name="Staking" stackId="a" fill="#06b6d4" />
-              <Bar dataKey="yield" name="Yield" stackId="a" fill="#f59e0b" />
-              <Bar dataKey="interest" name="Interest" stackId="a" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <Tooltip content={<CustomTooltip formatMoney={(v) => formatLocal(v)} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+              <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#gradDividends)" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="staking" name="Staking" stackId="a" fill="url(#gradStaking)" />
+              <Bar dataKey="yield" name="Yield" stackId="a" fill="url(#gradYield)" />
+              <Bar dataKey="interest" name="Interest" stackId="a" fill="url(#gradInterest)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-2">
+          <div className="flex flex-wrap gap-4 mt-3">
             {[['Dividends', '#10b981'], ['Staking', '#06b6d4'], ['Yield', '#f59e0b'], ['Interest', '#8b5cf6']].map(([label, color]) => (
               <div key={label} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
@@ -209,12 +246,12 @@ export default function Dashboard() {
               <div key={label}>
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-400">{label}</span>
-                  <span className="text-white font-medium">{value}</span>
+                  <span className="text-white font-data">{value}</span>
                 </div>
                 <div className="h-1.5 bg-[#1f2937] rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${value}%`, background: color }}
+                    style={{ width: `${value}%`, background: `linear-gradient(90deg, ${color}cc, ${color})` }}
                   />
                 </div>
               </div>
@@ -227,13 +264,14 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height={120}>
               <PieChart>
                 <Pie data={sectorData} cx="50%" cy="50%" innerRadius={35} outerRadius={55}
-                  dataKey="value" paddingAngle={2}>
+                  dataKey="value" paddingAngle={2} stroke="none">
                   {sectorData.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(v) => formatLocal(v, 0)} contentStyle={{
-                  background: '#1f2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                  background: 'rgba(17, 24, 39, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                  backdropFilter: 'blur(8px)',
                 }} />
               </PieChart>
             </ResponsiveContainer>
@@ -257,10 +295,10 @@ export default function Dashboard() {
             <h3 className="text-sm font-semibold text-white">Upcoming Payments</h3>
             <span className="text-xs text-gray-500">Next 7 days</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {next7Days.map((payment, i) => (
-              <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/3 transition-colors">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+              <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/[0.03] transition-colors group">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white transition-transform group-hover:scale-105"
                   style={{ background: typeColors[payment.type] + '22', color: typeColors[payment.type], border: `1px solid ${typeColors[payment.type]}33` }}>
                   {payment.ticker.slice(0, 2)}
                 </div>
@@ -269,7 +307,7 @@ export default function Dashboard() {
                   <p className="text-xs text-gray-500">{payment.type}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-emerald-400">{formatMoney(payment.amount)}</p>
+                  <p className="text-sm font-data font-medium text-emerald-400">{formatMoney(payment.amount)}</p>
                   <p className="text-xs text-gray-500">{formatDateShort(payment.date)}</p>
                 </div>
               </div>
@@ -278,7 +316,7 @@ export default function Dashboard() {
           <div className="mt-3 pt-3 border-t border-white/5">
             <div className="flex justify-between text-xs">
               <span className="text-gray-500">7-day total</span>
-              <span className="text-emerald-400 font-semibold">
+              <span className="text-emerald-400 font-data font-medium">
                 {formatMoney(next7Days.reduce((s, p) => s + p.amount, 0))}
               </span>
             </div>
@@ -291,18 +329,18 @@ export default function Dashboard() {
             <h3 className="text-sm font-semibold text-white">Top Movers</h3>
             <span className="text-xs text-gray-500">Today</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {topMovers.map((m) => (
-              <div key={m.ticker} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-white/3 transition-colors">
+              <div key={m.ticker} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-white/[0.03] transition-colors group">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-gray-300">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-gray-300 transition-transform group-hover:scale-105">
                     {m.ticker.slice(0, 2)}
                   </div>
                   <span className="text-sm font-medium text-white">{m.ticker}</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-300">{formatMoney(m.price)}</p>
-                  <p className={`text-xs font-semibold ${m.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <p className="text-sm font-data text-gray-300">{formatMoney(m.price)}</p>
+                  <p className={`text-xs font-data font-medium ${m.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     {m.change >= 0 ? '+' : ''}{m.change}%
                   </p>
                 </div>
@@ -313,17 +351,17 @@ export default function Dashboard() {
           {/* Allocation summary */}
           <div className="mt-4 pt-4 border-t border-white/5">
             <p className="text-xs text-gray-500 mb-2">Allocation Split</p>
-            <div className="flex gap-1 h-2 rounded-full overflow-hidden">
-              <div className="bg-emerald-500" style={{ width: `${(summary.stockValue / summary.totalValue * 100).toFixed(0)}%` }} />
-              <div className="bg-cyan-500" style={{ width: `${(summary.cryptoValue / summary.totalValue * 100).toFixed(0)}%` }} />
+            <div className="flex gap-0.5 h-2 rounded-full overflow-hidden">
+              <div className="rounded-l-full" style={{ width: `${(summary.stockValue / summary.totalValue * 100).toFixed(0)}%`, background: 'linear-gradient(90deg, #059669, #10b981)' }} />
+              <div className="rounded-r-full" style={{ width: `${(summary.cryptoValue / summary.totalValue * 100).toFixed(0)}%`, background: 'linear-gradient(90deg, #0891b2, #06b6d4)' }} />
             </div>
             <div className="flex justify-between mt-1.5 text-xs">
               <span className="text-gray-500">
                 <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full mr-1" />
-                Stocks {(summary.stockValue / summary.totalValue * 100).toFixed(0)}%
+                Stocks <span className="font-data">{(summary.stockValue / summary.totalValue * 100).toFixed(0)}%</span>
               </span>
               <span className="text-gray-500">
-                Crypto {(summary.cryptoValue / summary.totalValue * 100).toFixed(0)}%
+                Crypto <span className="font-data">{(summary.cryptoValue / summary.totalValue * 100).toFixed(0)}%</span>
                 <span className="inline-block w-2 h-2 bg-cyan-500 rounded-full ml-1" />
               </span>
             </div>

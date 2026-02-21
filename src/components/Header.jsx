@@ -32,7 +32,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
     >
       {/* Mobile hamburger */}
       <button
-        className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5"
+        className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,9 +42,12 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
 
       {/* Live portfolio value */}
       <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-        <div className={`w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-500 flex-shrink-0 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
-        <span className="text-gray-500 text-sm hidden md:inline">Total Portfolio</span>
-        <span className="text-sm sm:text-lg font-bold text-white value-pulse truncate">
+        <div className="relative flex-shrink-0">
+          <div className={`w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-500 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
+          <div className="absolute inset-0 w-2 h-2 rounded-full bg-emerald-400 animate-ping opacity-20" />
+        </div>
+        <span className="text-gray-500 text-sm hidden md:inline">Portfolio</span>
+        <span className="text-sm sm:text-lg font-data font-medium text-white value-pulse truncate">
           {formatMoney(summary.totalValue)}
         </span>
       </div>
@@ -57,7 +60,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
         <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span className="text-xs text-emerald-400 font-medium">
+        <span className="text-xs font-data text-emerald-400">
           {formatMoney(summary.monthlyIncome)}/mo
         </span>
       </div>
@@ -68,14 +71,14 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
           <button
             key={code}
             onClick={() => setActiveCurrency(code)}
-            className={`px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs font-medium transition-colors ${
+            className={`px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs font-medium transition-all duration-200 ${
               activeCurrency === code
                 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <span className="sm:hidden">{SYMBOLS[code]}</span>
-            <span className="hidden sm:inline">{SYMBOLS[code]} {code}</span>
+            <span className="sm:hidden font-data">{SYMBOLS[code]}</span>
+            <span className="hidden sm:inline font-data">{SYMBOLS[code]} {code}</span>
           </button>
         ))}
       </div>
@@ -83,7 +86,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
       {/* Date/Time */}
       <div className="text-right hidden sm:block">
         <p className="text-xs text-gray-500">{formattedDate}</p>
-        <p className="text-sm font-mono text-gray-300">{formattedTime}</p>
+        <p className="text-sm font-data text-gray-300">{formattedTime}</p>
       </div>
 
       {/* Notification bell */}
