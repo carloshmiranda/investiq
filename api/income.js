@@ -1,9 +1,9 @@
-// api/income/index.js
+// api/income.js
 // GET /api/income — merge dividend + staking events per user
-import { createProtectedHandler } from '../../lib/apiHandler.js'
-import { prisma } from '../../lib/prisma.js'
-import { decrypt } from '../../lib/encryption.js'
-import { getCache, setCache, invalidateCache } from '../../lib/cache.js'
+import { createProtectedHandler } from '../lib/apiHandler.js'
+import { prisma } from '../lib/prisma.js'
+import { decrypt } from '../lib/encryption.js'
+import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
 // ─── Trading 212 helpers ────────────────────────────────────────────────────

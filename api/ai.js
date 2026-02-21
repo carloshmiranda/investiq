@@ -1,7 +1,7 @@
-// api/ai/chat.js
+// api/ai.js
 // POST /api/ai/chat — Claude claude-sonnet-4-6, portfolio context injected
-import { createProtectedHandler } from '../../lib/apiHandler.js'
-import { getCache } from '../../lib/cache.js'
+import { createProtectedHandler } from '../lib/apiHandler.js'
+import { getCache } from '../lib/cache.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const MODEL = 'claude-sonnet-4-6'

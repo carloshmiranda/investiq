@@ -1,9 +1,8 @@
-// api/portfolio/index.js
-// GET /api/portfolio — merge all connected sources per user
-import { createProtectedHandler } from '../../lib/apiHandler.js'
-import { prisma } from '../../lib/prisma.js'
-import { decrypt } from '../../lib/encryption.js'
-import { getCache, setCache, invalidateCache } from '../../lib/cache.js'
+// api/portfolio.js — GET /api/portfolio — merge all connected sources per user
+import { createProtectedHandler } from '../lib/apiHandler.js'
+import { prisma } from '../lib/prisma.js'
+import { decrypt } from '../lib/encryption.js'
+import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
@@ -100,18 +99,9 @@ async function fetchBinanceHoldings(apiKey, apiSecret) {
     const total = parseFloat(b.free) + parseFloat(b.locked)
     const price = getPrice(b.asset)
     holdings.push({
-      id: `binance-${b.asset}`,
-      source: 'binance',
-      broker: 'Binance',
-      ticker: b.asset,
-      name: b.asset,
-      type: 'Crypto',
-      sector: 'Cryptocurrency',
-      quantity: total,
-      price,
-      value: total * price,
-      currency: 'USD',
-      logoColor: '#f0b90b',
+      id: `binance-${b.asset}`, source: 'binance', broker: 'Binance',
+      ticker: b.asset, name: b.asset, type: 'Crypto', sector: 'Cryptocurrency',
+      quantity: total, price, value: total * price, currency: 'USD', logoColor: '#f0b90b',
     })
   }
 
@@ -119,19 +109,9 @@ async function fetchBinanceHoldings(apiKey, apiSecret) {
     const price = getPrice(f.asset)
     const qty = parseFloat(f.totalAmount || 0)
     holdings.push({
-      id: `binance-earn-flex-${f.asset}`,
-      source: 'binance',
-      broker: 'Binance Earn',
-      ticker: f.asset,
-      name: `${f.asset} (Flexible)`,
-      type: 'Crypto',
-      sector: 'Staking',
-      quantity: qty,
-      price,
-      value: qty * price,
-      currency: 'USD',
-      earnType: 'flexible',
-      logoColor: '#f0b90b',
+      id: `binance-earn-flex-${f.asset}`, source: 'binance', broker: 'Binance Earn',
+      ticker: f.asset, name: `${f.asset} (Flexible)`, type: 'Crypto', sector: 'Staking',
+      quantity: qty, price, value: qty * price, currency: 'USD', earnType: 'flexible', logoColor: '#f0b90b',
     })
   }
 
@@ -139,19 +119,9 @@ async function fetchBinanceHoldings(apiKey, apiSecret) {
     const price = getPrice(l.asset)
     const qty = parseFloat(l.amount || 0)
     holdings.push({
-      id: `binance-earn-locked-${l.asset}-${l.positionId}`,
-      source: 'binance',
-      broker: 'Binance Earn',
-      ticker: l.asset,
-      name: `${l.asset} (Locked)`,
-      type: 'Crypto',
-      sector: 'Staking',
-      quantity: qty,
-      price,
-      value: qty * price,
-      currency: 'USD',
-      earnType: 'locked',
-      logoColor: '#f0b90b',
+      id: `binance-earn-locked-${l.asset}-${l.positionId}`, source: 'binance', broker: 'Binance Earn',
+      ticker: l.asset, name: `${l.asset} (Locked)`, type: 'Crypto', sector: 'Staking',
+      quantity: qty, price, value: qty * price, currency: 'USD', earnType: 'locked', logoColor: '#f0b90b',
     })
   }
 
@@ -204,37 +174,18 @@ async function fetchCryptocomHoldings(apiKey, apiSecret) {
     if (available > 0) {
       const price = getPrice(b.currency)
       holdings.push({
-        id: `cryptocom-${b.currency}`,
-        source: 'cryptocom',
-        broker: 'Crypto.com',
-        ticker: b.currency,
-        name: b.currency,
-        type: 'Crypto',
-        sector: 'Cryptocurrency',
-        quantity: available,
-        price,
-        value: available * price,
-        currency: 'USD',
-        logoColor: '#002d74',
+        id: `cryptocom-${b.currency}`, source: 'cryptocom', broker: 'Crypto.com',
+        ticker: b.currency, name: b.currency, type: 'Crypto', sector: 'Cryptocurrency',
+        quantity: available, price, value: available * price, currency: 'USD', logoColor: '#002d74',
       })
     }
 
     if (staked > 0) {
       const price = getPrice(b.currency)
       holdings.push({
-        id: `cryptocom-stake-${b.currency}`,
-        source: 'cryptocom',
-        broker: 'Crypto.com Earn',
-        ticker: b.currency,
-        name: `${b.currency} (Staked)`,
-        type: 'Crypto',
-        sector: 'Staking',
-        quantity: staked,
-        price,
-        value: staked * price,
-        currency: 'USD',
-        earnType: 'staking',
-        logoColor: '#002d74',
+        id: `cryptocom-stake-${b.currency}`, source: 'cryptocom', broker: 'Crypto.com Earn',
+        ticker: b.currency, name: `${b.currency} (Staked)`, type: 'Crypto', sector: 'Staking',
+        quantity: staked, price, value: staked * price, currency: 'USD', earnType: 'staking', logoColor: '#002d74',
       })
     }
   }
@@ -296,7 +247,6 @@ export default createProtectedHandler({
   GET: async (req, res) => {
     const refresh = req.query.refresh === 'true'
 
-    // Check cache first (unless force refresh)
     if (!refresh) {
       const cached = await getCache(req.userId, 'portfolio')
       if (cached) {
@@ -304,10 +254,8 @@ export default createProtectedHandler({
       }
     }
 
-    // Fetch fresh data
     const data = await fetchFreshPortfolio(req.userId)
 
-    // Cache the result (only if no errors)
     if (data.errors.length === 0) {
       await setCache(req.userId, 'portfolio', data)
     }
@@ -315,7 +263,6 @@ export default createProtectedHandler({
     return res.json({ ...data, cached: false })
   },
   POST: async (req, res) => {
-    // POST /api/portfolio?action=invalidate — force cache invalidation
     await invalidateCache(req.userId, 'portfolio')
     return res.json({ invalidated: true })
   },

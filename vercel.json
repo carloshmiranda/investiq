@@ -1,5 +1,13 @@
 {
   "rewrites": [
+    { "source": "/api/auth/:action*", "destination": "/api/auth?scope=auth&action=:action*" },
+    { "source": "/api/user/:action*", "destination": "/api/auth?scope=user&action=:action*" },
+    { "source": "/api/degiro/:action*", "destination": "/api/connections?provider=degiro&action=:action*" },
+    { "source": "/api/trading212/:action*", "destination": "/api/connections?provider=trading212&action=:action*" },
+    { "source": "/api/binance/:action*", "destination": "/api/connections?provider=binance&action=:action*" },
+    { "source": "/api/cryptocom/:action*", "destination": "/api/connections?provider=cryptocom&action=:action*" },
+    { "source": "/api/ai/:action*", "destination": "/api/ai?action=:action*" },
+    { "source": "/api/brokers/:path*", "destination": "/api/brokers?path=:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {

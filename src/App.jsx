@@ -4,6 +4,7 @@ import { CurrencyProvider } from './context/CurrencyContext'
 import { DegiroProvider } from './context/DegiroContext'
 import { Trading212Provider } from './context/Trading212Context'
 import { BinanceProvider } from './context/BinanceContext'
+import { CryptocomProvider } from './context/CryptocomContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -23,6 +24,7 @@ export default function App() {
         <DegiroProvider>
         <Trading212Provider>
         <BinanceProvider>
+        <CryptocomProvider>
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
@@ -46,6 +48,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </BrowserRouter>
+        </CryptocomProvider>
         </BinanceProvider>
         </Trading212Provider>
         </DegiroProvider>
