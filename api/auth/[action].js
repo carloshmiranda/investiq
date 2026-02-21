@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { createHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../lib/jwt.js'
+import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken } from '../../lib/jwt.js'
 import { checkRateLimit, getClientIp } from '../../lib/rateLimit.js'
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
@@ -69,7 +69,7 @@ async function handleRegister(req, res) {
   await prisma.session.create({
     data: {
       userId: user.id,
-      refreshToken,
+      refreshToken: hashToken(refreshToken),
       userAgent: req.headers['user-agent'] ?? null,
       ipAddress: req.headers['x-forwarded-for'] ?? null,
       expiresAt: new Date(Date.now() + SEVEN_DAYS_MS),
@@ -113,7 +113,7 @@ async function handleLogin(req, res) {
   await prisma.session.create({
     data: {
       userId: user.id,
-      refreshToken,
+      refreshToken: hashToken(refreshToken),
       userAgent: req.headers['user-agent'] ?? null,
       ipAddress: req.headers['x-forwarded-for'] ?? null,
       expiresAt: new Date(Date.now() + SEVEN_DAYS_MS),
@@ -142,7 +142,8 @@ async function handleRefresh(req, res) {
     return res.status(401).json({ error: 'Invalid refresh token' })
   }
 
-  const session = await prisma.session.findUnique({ where: { refreshToken: token } })
+  const tokenHash = hashToken(token)
+  const session = await prisma.session.findUnique({ where: { refreshToken: tokenHash } })
   if (!session || session.expiresAt < new Date()) {
     if (session) await prisma.session.delete({ where: { id: session.id } })
     return res.status(401).json({ error: 'Session expired or revoked' })
@@ -165,7 +166,7 @@ async function handleRefresh(req, res) {
   await prisma.session.update({
     where: { id: session.id },
     data: {
-      refreshToken: newRefreshToken,
+      refreshToken: hashToken(newRefreshToken),
       userAgent: req.headers['user-agent'] ?? null,
       ipAddress: req.headers['x-forwarded-for'] ?? null,
       expiresAt: new Date(Date.now() + SEVEN_DAYS_MS),
@@ -181,7 +182,7 @@ async function handleRefresh(req, res) {
 async function handleLogout(req, res) {
   const token = parseCookie(req.headers.cookie, 'refreshToken')
   if (token) {
-    await prisma.session.deleteMany({ where: { refreshToken: token } })
+    await prisma.session.deleteMany({ where: { refreshToken: hashToken(token) } })
   }
   clearRefreshCookie(res)
   return res.status(200).json({ ok: true })

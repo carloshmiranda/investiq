@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { createProtectedHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
 import { SUPPORTED } from '../../lib/exchangeRates.js'
+import { hashToken } from '../../lib/jwt.js'
 
 // ── GET /api/user/profile ────────────────────────────────────────────────────
 
@@ -81,12 +82,12 @@ async function getSessions(req, res) {
     orderBy: { createdAt: 'desc' },
   })
 
-  // Identify current session by matching refresh token from cookie
+  // Identify current session by matching refresh token hash from cookie
   const currentToken = parseCookie(req.headers.cookie, 'refreshToken')
   let currentSessionId = null
   if (currentToken) {
     const currentSession = await prisma.session.findUnique({
-      where: { refreshToken: currentToken },
+      where: { refreshToken: hashToken(currentToken) },
       select: { id: true },
     })
     if (currentSession) currentSessionId = currentSession.id
@@ -108,7 +109,7 @@ async function logoutAll(req, res) {
     await prisma.session.deleteMany({
       where: {
         userId: req.userId,
-        NOT: { refreshToken: currentToken },
+        NOT: { refreshToken: hashToken(currentToken) },
       },
     })
   } else {
