@@ -6,7 +6,7 @@ import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
 // ─── Trading 212 helpers ────────────────────────────────────────────────────
-const T212_LIVE = 'https://live.trading212.com/api/v0'
+const T212_LIVE = process.env.T212_BASE_URL || 'https://live.trading212.com/api/v0'
 
 async function t212Fetch(path, apiKey, apiSecret) {
   const encoded = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')
@@ -41,7 +41,7 @@ async function fetchT212Holdings(apiKey, apiSecret) {
 }
 
 // ─── Binance helpers ────────────────────────────────────────────────────────
-const BINANCE_BASE = 'https://api.binance.com'
+const BINANCE_BASE = process.env.BINANCE_BASE_URL || 'https://api.binance.com'
 
 function binanceSign(qs, secret) {
   return createHmac('sha256', secret).update(qs).digest('hex')
@@ -129,7 +129,7 @@ async function fetchBinanceHoldings(apiKey, apiSecret) {
 }
 
 // ─── Crypto.com helpers ─────────────────────────────────────────────────────
-const CRYPTOCOM_BASE = 'https://api.crypto.com/exchange/v1'
+const CRYPTOCOM_BASE = process.env.CRYPTOCOM_BASE_URL || 'https://api.crypto.com/exchange/v1'
 
 function cryptocomSign(method, id, apiKey, apiSecret, params, nonce) {
   const paramStr = Object.keys(params).sort().map((k) => `${k}${params[k]}`).join('')

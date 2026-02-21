@@ -10,7 +10,7 @@ import { createHmac } from 'crypto'
 // DEGIRO
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const DEGIRO_BASE = 'https://trader.degiro.nl'
+const DEGIRO_BASE = process.env.DEGIRO_BASE_URL || 'https://trader.degiro.nl'
 
 function extractSessionId(setCookie) {
   if (!setCookie) return null
@@ -189,7 +189,7 @@ function handleDegiro(req, res, action) {
 // TRADING 212
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const T212_LIVE = 'https://live.trading212.com/api/v0'
+const T212_LIVE = process.env.T212_BASE_URL || 'https://live.trading212.com/api/v0'
 
 function t212AuthHeader(apiKey, apiSecret) {
   return `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`
@@ -296,7 +296,7 @@ async function handleT212(req, res, action) {
 // BINANCE
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const BINANCE_BASE = 'https://api.binance.com'
+const BINANCE_BASE = process.env.BINANCE_BASE_URL || 'https://api.binance.com'
 
 function binanceSign(queryString, secret) {
   return createHmac('sha256', secret).update(queryString).digest('hex')
@@ -398,7 +398,7 @@ async function handleBinance(req, res, action) {
 // CRYPTO.COM
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const CRYPTOCOM_BASE = 'https://api.crypto.com/exchange/v1'
+const CRYPTOCOM_BASE = process.env.CRYPTOCOM_BASE_URL || 'https://api.crypto.com/exchange/v1'
 
 function cryptocomBuildParamString(params) {
   if (!params || Object.keys(params).length === 0) return ''
