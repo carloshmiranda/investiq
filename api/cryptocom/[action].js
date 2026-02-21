@@ -90,10 +90,10 @@ async function handleConnect(req, res) {
   try {
     balance = await cryptocomFetch('private/user-balance', apiKey, apiSecret)
   } catch (err) {
+    console.error('[Crypto.com] Connect validation failed:', err.message)
     const isAuth = err.code === 10002 || err.code === 10007 || err.status === 401
     return res.status(isAuth ? 401 : 400).json({
       error: 'Invalid Crypto.com credentials',
-      debug: err.message,
     })
   }
 

@@ -77,9 +77,9 @@ async function handleConnect(req, res) {
   try {
     account = await binanceFetch('/api/v3/account', apiKey, apiSecret, { signed: true })
   } catch (err) {
+    console.error('[Binance] Connect validation failed:', err.message)
     return res.status(err.status === 401 || err.code === -2015 ? 401 : 400).json({
       error: 'Invalid Binance credentials',
-      debug: err.message,
     })
   }
 

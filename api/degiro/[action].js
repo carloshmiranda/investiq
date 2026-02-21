@@ -82,9 +82,9 @@ async function handleLogin(req, res, { withTOTP = false } = {}) {
 
   if (!loginRes.ok) {
     const msg = loginData.message || loginData.statusText || 'DeGiro login failed'
+    console.error('[DeGiro] Login failed:', msg)
     return res.status(loginRes.status === 401 ? 401 : 400).json({
       error: 'DeGiro login failed',
-      debug: msg,
     })
   }
 

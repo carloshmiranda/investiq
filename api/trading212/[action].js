@@ -91,9 +91,9 @@ async function handleConnect(req, res) {
   try {
     account = await t212Fetch('/equity/account/summary', apiKey, apiSecret)
   } catch (err) {
+    console.error('[Trading 212] Connect validation failed:', err.message)
     return res.status(err.status === 401 ? 401 : 400).json({
       error: 'Invalid Trading 212 credentials',
-      debug: err.message,
     })
   }
 
