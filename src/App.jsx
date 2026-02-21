@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
+import { DebugProvider, useDebugContext } from './context/DebugContext'
 import { DegiroProvider } from './context/DegiroContext'
 import { Trading212Provider } from './context/Trading212Context'
 import { BinanceProvider } from './context/BinanceContext'
 import { CryptocomProvider } from './context/CryptocomContext'
+import DebugPanel from './components/DebugPanel'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -17,10 +19,17 @@ import Connections from './pages/Connections'
 import AIInsights from './pages/AIInsights'
 import Settings from './pages/Settings'
 
+function DebugOverlay() {
+  const debug = useDebugContext()
+  if (!debug) return null
+  return <DebugPanel logs={debug.logs} onClear={debug.clear} visible={debug.visible} onToggle={debug.toggle} />
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <CurrencyProvider>
+        <DebugProvider>
         <DegiroProvider>
         <Trading212Provider>
         <BinanceProvider>
@@ -47,11 +56,13 @@ export default function App() {
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+          <DebugOverlay />
         </BrowserRouter>
         </CryptocomProvider>
         </BinanceProvider>
         </Trading212Provider>
         </DegiroProvider>
+        </DebugProvider>
       </CurrencyProvider>
     </AuthProvider>
   )
