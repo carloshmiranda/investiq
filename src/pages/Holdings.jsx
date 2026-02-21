@@ -16,18 +16,24 @@ const safetyTooltips = {
 function SafetyBadge({ rating }) {
   return (
     <div className="relative group">
-      <span className={`badge-${rating} text-xs font-bold px-2 py-0.5 rounded cursor-help`}>{rating}</span>
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1.5 bg-gray-800 border border-white/10 text-white text-[11px] rounded-lg w-52 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl">
+      <span className={`badge-${rating} text-xs font-bold px-2.5 py-1 rounded-md cursor-help transition-transform group-hover:scale-110 inline-block`}>{rating}</span>
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-navy-700 border border-white/10 text-white text-[11px] rounded-lg w-52 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl backdrop-blur-sm">
         <span className="font-bold">{rating}: </span>{safetyTooltips[rating]}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800" />
+        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-navy-700" />
       </div>
     </div>
   );
 }
 
 function SortIcon({ field, sortField, sortDir }) {
-  if (sortField !== field) return <span className="text-gray-700 ml-1">↕</span>;
-  return <span className="text-emerald-400 ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+  if (sortField !== field) {
+    return <span className="text-gray-700 ml-1 opacity-40 group-hover:opacity-70 transition-opacity">⇅</span>;
+  }
+  return (
+    <span className="text-emerald-400 ml-1 font-data">
+      {sortDir === 'asc' ? '▲' : '▼'}
+    </span>
+  );
 }
 
 const typeColors = {
@@ -135,7 +141,7 @@ export default function Holdings() {
           <button
             onClick={degiroSync}
             disabled={degiroSyncing}
-            className="text-xs px-3 py-1 rounded-lg border border-[#ff6600]/30 text-[#ff6600] hover:bg-[#ff6600]/10 transition-colors disabled:opacity-40"
+            className="text-xs px-3 py-1 rounded-lg border border-[#ff6600]/30 text-[#ff6600] hover:bg-[#ff6600]/10 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-[#ff6600]/40"
           >
             {degiroSyncing ? 'Syncing…' : 'Sync Now'}
           </button>
@@ -144,12 +150,12 @@ export default function Holdings() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-500 text-sm mt-0.5">All assets unified — stocks, crypto, DeFi{degiroConnected ? ' + DeGiro' : ''}</p>
+          <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
+          <p className="text-gray-500 text-sm mt-1">All assets unified — stocks, crypto, DeFi{degiroConnected ? ' + DeGiro' : ''}</p>
         </div>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -162,20 +168,20 @@ export default function Holdings() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Total Holdings</p>
-          <p className="text-xl font-bold text-white">{filtered.length}</p>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Holdings</p>
+          <p className="text-xl font-data font-medium text-white">{filtered.length}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Total Value</p>
-          <p className="text-xl font-bold text-emerald-400">{formatMoney(totalValue, 0)}</p>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Value</p>
+          <p className="text-xl font-data font-medium text-emerald-400">{formatMoney(totalValue, 0)}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Annual Income</p>
-          <p className="text-xl font-bold text-cyan-400">{formatMoney(totalAnnualIncome, 0)}</p>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Annual Income</p>
+          <p className="text-xl font-data font-medium text-cyan-400">{formatMoney(totalAnnualIncome, 0)}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Avg Yield</p>
-          <p className="text-xl font-bold text-amber-400">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Avg Yield</p>
+          <p className="text-xl font-data font-medium text-amber-400">
             {formatPercent(totalValue > 0 ? (totalAnnualIncome / totalValue) * 100 : 0)}
           </p>
         </div>
@@ -184,8 +190,8 @@ export default function Holdings() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Search */}
-        <div className="relative flex-1 max-w-sm">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="relative flex-1 max-w-sm group">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -193,7 +199,7 @@ export default function Holdings() {
             placeholder="Search ticker or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full pl-9 pr-3 py-2 bg-navy-700 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
           />
         </div>
         {/* Type filter */}
@@ -201,10 +207,10 @@ export default function Holdings() {
           {/* Source filter — only show when DeGiro connected */}
           {degiroConnected && ['All', 'Mock', 'DeGiro'].map((s) => (
             <button key={s} onClick={() => setSourceFilter(s === 'Mock' ? 'mock' : s === 'DeGiro' ? 'degiro' : 'All')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${
                 sourceFilter === (s === 'Mock' ? 'mock' : s === 'DeGiro' ? 'degiro' : 'All')
                   ? s === 'DeGiro' ? 'bg-[#ff6600] text-white border-[#ff6600]' : 'bg-emerald-500 text-white border-emerald-500'
-                  : 'bg-[#1f2937] text-gray-400 hover:text-white border-white/5'
+                  : 'bg-navy-700 text-gray-400 hover:text-white border-white/5'
               }`}
             >{s}</button>
           ))}
@@ -212,9 +218,9 @@ export default function Holdings() {
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${typeFilter === t
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${typeFilter === t
                 ? 'bg-emerald-500 text-white'
-                : 'bg-[#1f2937] text-gray-400 hover:text-white border border-white/5'
+                : 'bg-navy-700 text-gray-400 hover:text-white border border-white/5'
                 }`}
             >
               {t}
@@ -233,7 +239,7 @@ export default function Holdings() {
                   <th
                     key={col.key}
                     onClick={() => handleSort(col.key)}
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors whitespace-nowrap"
+                    className="group px-4 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-white transition-colors whitespace-nowrap"
                   >
                     {col.label}
                     <SortIcon field={col.key} sortField={sortField} sortDir={sortDir} />
@@ -245,7 +251,7 @@ export default function Holdings() {
               {filtered.map((h, i) => (
                 <tr
                   key={h.ticker}
-                  className={`table-row-hover border-b border-white/3 ${i % 2 === 0 ? '' : 'bg-white/[0.02]'}`}
+                  className={`table-row-hover border-b border-white/[0.03] transition-colors ${i % 2 === 0 ? '' : 'bg-white/[0.015]'}`}
                 >
                   {/* Asset */}
                   <td className="px-4 py-3">
@@ -272,30 +278,30 @@ export default function Holdings() {
                   </td>
                   {/* Type */}
                   <td className="px-4 py-3">
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${typeColors[h.type] ?? 'text-gray-400'}`}>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-md border ${typeColors[h.type] ?? 'text-gray-400'}`}>
                       {h.type}
                     </span>
                   </td>
                   {/* Qty */}
-                  <td className="px-4 py-3 text-gray-300 text-xs font-mono">
+                  <td className="px-4 py-3 text-gray-300 text-xs font-data">
                     {formatNumber(h.quantity)}
                   </td>
                   {/* Price */}
-                  <td className="px-4 py-3 text-gray-300 text-xs font-mono">
+                  <td className="px-4 py-3 text-gray-300 text-xs font-data">
                     {formatMoney(h.price)}
                   </td>
                   {/* Value */}
-                  <td className="px-4 py-3 text-white font-semibold text-xs font-mono">
+                  <td className="px-4 py-3 text-white font-medium text-xs font-data">
                     {formatMoney(h.value, 0)}
                   </td>
                   {/* Annual Income */}
-                  <td className="px-4 py-3 text-emerald-400 font-semibold text-xs font-mono">
+                  <td className="px-4 py-3 text-emerald-400 font-medium text-xs font-data">
                     {h.annualIncome > 0 ? formatMoney(h.annualIncome, 0) : <span className="text-gray-600">—</span>}
                   </td>
                   {/* Yield */}
                   <td className="px-4 py-3">
                     {h.yieldPercent > 0 ? (
-                      <span className={`text-xs font-bold ${h.yieldPercent >= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                      <span className={`text-xs font-data font-medium ${h.yieldPercent >= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
                         {formatPercent(h.yieldPercent)}
                       </span>
                     ) : <span className="text-gray-600 text-xs">—</span>}
@@ -305,7 +311,7 @@ export default function Holdings() {
                     {h.frequency !== 'N/A' ? h.frequency : <span className="text-gray-600">—</span>}
                   </td>
                   {/* Next payment */}
-                  <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-400 text-xs font-data whitespace-nowrap">
                     {h.nextPayDate !== 'N/A' ? formatDateShort(h.nextPayDate) : <span className="text-gray-600">—</span>}
                   </td>
                   {/* Safety */}
@@ -329,8 +335,8 @@ export default function Holdings() {
         <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between text-xs bg-white/[0.02]">
           <span className="text-gray-500">{filtered.length} holdings shown</span>
           <div className="flex gap-6">
-            <span className="text-gray-400">Total: <span className="text-white font-bold">{formatMoney(totalValue, 0)}</span></span>
-            <span className="text-gray-400">Annual: <span className="text-emerald-400 font-bold">{formatMoney(totalAnnualIncome, 0)}</span></span>
+            <span className="text-gray-400">Total: <span className="text-white font-data font-medium">{formatMoney(totalValue, 0)}</span></span>
+            <span className="text-gray-400">Annual: <span className="text-emerald-400 font-data font-medium">{formatMoney(totalAnnualIncome, 0)}</span></span>
           </div>
         </div>
       </div>
