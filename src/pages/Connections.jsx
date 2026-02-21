@@ -93,7 +93,7 @@ function DegiroModal({ onClose }) {
               <p className="text-[10px] text-gray-500">European broker integration</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -280,7 +280,7 @@ function APIKeyModal({ name, onClose, onConnect }) {
       <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-bold text-white">Connect {name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -341,7 +341,7 @@ function WalletModal({ name, onClose, onConnect }) {
       <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-bold text-white">Connect {name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -394,7 +394,10 @@ function DegiroCard({ onOpenModal }) {
             </span>
           </div>
         </div>
-        <div className={`w-2 h-2 rounded-full mt-1 ${connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+          {connected ? 'Live' : 'Off'}
+        </div>
       </div>
 
       {connected ? (
@@ -503,7 +506,7 @@ function Trading212Modal({ onClose }) {
               <p className="text-[10px] text-gray-500">Official API integration</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -608,7 +611,10 @@ function Trading212Card({ onOpenModal }) {
             </span>
           </div>
         </div>
-        <div className={`w-2 h-2 rounded-full mt-1 ${connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+          {connected ? 'Live' : 'Off'}
+        </div>
       </div>
 
       {connected ? (
@@ -648,11 +654,11 @@ function Trading212Card({ onOpenModal }) {
       {connected ? (
         <div className="flex gap-2">
           <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40">
+            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
             {syncing ? 'Syncing…' : 'Sync Now'}
           </button>
           <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
+            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
             Disconnect
           </button>
         </div>
@@ -706,7 +712,7 @@ function BinanceModal({ onClose }) {
               <p className="text-[10px] text-gray-500">Crypto exchange — HMAC-signed API</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -818,7 +824,10 @@ function BinanceCard({ onOpenModal }) {
             </span>
           </div>
         </div>
-        <div className={`w-2 h-2 rounded-full mt-1 ${connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+          {connected ? 'Live' : 'Off'}
+        </div>
       </div>
 
       {connected ? (
@@ -858,11 +867,11 @@ function BinanceCard({ onOpenModal }) {
       {connected ? (
         <div className="flex gap-2">
           <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40">
+            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
             {syncing ? 'Syncing…' : 'Sync Now'}
           </button>
           <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
+            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
             Disconnect
           </button>
         </div>
@@ -916,7 +925,7 @@ function CryptocomModal({ onClose }) {
               <p className="text-[10px] text-gray-500">Crypto exchange — signed API</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1028,7 +1037,10 @@ function CryptocomCard({ onOpenModal }) {
             </span>
           </div>
         </div>
-        <div className={`w-2 h-2 rounded-full mt-1 ${connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+          {connected ? 'Live' : 'Off'}
+        </div>
       </div>
 
       {connected ? (
@@ -1066,11 +1078,11 @@ function CryptocomCard({ onOpenModal }) {
       {connected ? (
         <div className="flex gap-2">
           <button onClick={sync} disabled={syncing}
-            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40">
+            className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
             {syncing ? 'Syncing…' : 'Sync Now'}
           </button>
           <button onClick={disconnect}
-            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
+            className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
             Disconnect
           </button>
         </div>
@@ -1126,26 +1138,26 @@ export default function Connections() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Connections</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Link your brokers, exchanges, and wallets</p>
+        <h1 className="text-3xl font-display font-bold text-white">Connections</h1>
+        <p className="text-gray-500 text-sm mt-1">Link your brokers, exchanges, and wallets</p>
       </div>
 
       {/* Status summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Connected Sources</p>
-          <p className="text-2xl font-bold text-emerald-400">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Connected Sources</p>
+          <p className="text-2xl font-data font-medium text-emerald-400">
             {connectedMock.length + liveSourceCount}
           </p>
           <p className="text-xs text-gray-500">of {conns.length + 4} available</p>
         </div>
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">Total Tracked Value</p>
-          <p className="text-2xl font-bold text-white">{formatMoney(totalConnectedValue, 0)}</p>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Tracked Value</p>
+          <p className="text-2xl font-data font-medium text-white">{formatMoney(totalConnectedValue, 0)}</p>
         </div>
         <div className="glass-card rounded-xl p-4">
-          <p className="text-xs text-gray-500">DeGiro Positions</p>
-          <p className="text-2xl font-bold text-[#ff6600]">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">DeGiro Positions</p>
+          <p className="text-2xl font-data font-medium text-[#ff6600]">
             {degiroConnected ? positionCount : '—'}
           </p>
           <p className="text-xs text-gray-500">{degiroConnected ? 'live positions' : 'Not connected'}</p>
@@ -1178,7 +1190,10 @@ export default function Connections() {
                     </span>
                   </div>
                 </div>
-                <div className={`w-2 h-2 rounded-full mt-1 ${conn.connected ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${conn.connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${conn.connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
+                  {conn.connected ? 'Live' : 'Off'}
+                </div>
               </div>
 
               {conn.connected ? (
