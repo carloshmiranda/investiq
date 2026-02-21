@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { createHandler } from '../../lib/apiHandler.js'
 import { prisma } from '../../lib/prisma.js'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../lib/jwt.js'
+import { checkRateLimit, getClientIp } from '../../lib/rateLimit.js'
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 const SEVEN_DAYS_S  = 7 * 24 * 60 * 60
@@ -33,6 +34,12 @@ function clearRefreshCookie(res) {
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 
 async function handleRegister(req, res) {
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`register:${ip}`, { maxAttempts: 3, windowMs: 60_000 })
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many requests. Try again later.', retryAfter: rl.retryAfter })
+  }
+
   const { name, email, password } = req.body ?? {}
 
   if (!name || !email || !password) {
@@ -76,6 +83,12 @@ async function handleRegister(req, res) {
 // ── POST /api/auth/login ──────────────────────────────────────────────────────
 
 async function handleLogin(req, res) {
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`login:${ip}`, { maxAttempts: 5, windowMs: 60_000 })
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Too many login attempts. Try again later.', retryAfter: rl.retryAfter })
+  }
+
   const { email, password } = req.body ?? {}
 
   if (!email || !password) {
