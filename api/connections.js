@@ -173,6 +173,17 @@ async function degiroTransactions(req, res) {
   return res.json({ data: data.data || [] })
 }
 
+async function degiroTest(req, res) {
+  const start = Date.now()
+  try {
+    const testRes = await fetch(`${DEGIRO_BASE}/login/secure/config`, { method: 'GET' })
+    const latency = Date.now() - start
+    return res.json({ provider: 'degiro', reachable: testRes.ok, status: testRes.status, latency })
+  } catch (err) {
+    return res.json({ provider: 'degiro', reachable: false, error: err.message, latency: Date.now() - start })
+  }
+}
+
 function handleDegiro(req, res, action) {
   switch (action) {
     case 'login':        return degiroLogin(req, res, { withTOTP: false })
@@ -181,6 +192,7 @@ function handleDegiro(req, res, action) {
     case 'products':     return degiroProducts(req, res)
     case 'dividends':    return degiroDividends(req, res)
     case 'transactions': return degiroTransactions(req, res)
+    case 'test':         return degiroTest(req, res)
     default: return res.status(404).json({ error: `Unknown degiro action: ${action}` })
   }
 }
@@ -244,6 +256,17 @@ async function getT212Credentials(userId) {
 }
 
 async function handleT212(req, res, action) {
+  if (action === 'test') {
+    const start = Date.now()
+    const creds = await getT212Credentials(req.userId)
+    if (!creds) return res.json({ provider: 'trading212', reachable: false, error: 'Not connected', latency: 0 })
+    try {
+      await t212Fetch('/equity/account/info', creds.apiKey, creds.apiSecret)
+      return res.json({ provider: 'trading212', reachable: true, status: 200, latency: Date.now() - start })
+    } catch (err) {
+      return res.json({ provider: 'trading212', reachable: false, error: err.message, latency: Date.now() - start })
+    }
+  }
   if (action === 'connect' && req.method === 'POST') {
     const { apiKey, apiSecret } = req.body || {}
     if (!apiKey || !apiSecret) return res.status(400).json({ error: 'apiKey and apiSecret are required' })
@@ -334,6 +357,17 @@ async function getBinanceCredentials(userId) {
 }
 
 async function handleBinance(req, res, action) {
+  if (action === 'test') {
+    const start = Date.now()
+    const creds = await getBinanceCredentials(req.userId)
+    if (!creds) return res.json({ provider: 'binance', reachable: false, error: 'Not connected', latency: 0 })
+    try {
+      await binanceFetch('/api/v3/account', creds.apiKey, creds.apiSecret, { signed: true })
+      return res.json({ provider: 'binance', reachable: true, status: 200, latency: Date.now() - start })
+    } catch (err) {
+      return res.json({ provider: 'binance', reachable: false, error: err.message, latency: Date.now() - start })
+    }
+  }
   if (action === 'connect' && req.method === 'POST') {
     const { apiKey, apiSecret } = req.body || {}
     if (!apiKey || !apiSecret) return res.status(400).json({ error: 'apiKey and apiSecret are required' })
@@ -442,6 +476,17 @@ async function getCryptocomCredentials(userId) {
 }
 
 async function handleCryptocom(req, res, action) {
+  if (action === 'test') {
+    const start = Date.now()
+    const creds = await getCryptocomCredentials(req.userId)
+    if (!creds) return res.json({ provider: 'cryptocom', reachable: false, error: 'Not connected', latency: 0 })
+    try {
+      await cryptocomFetch('private/user-balance', creds.apiKey, creds.apiSecret)
+      return res.json({ provider: 'cryptocom', reachable: true, status: 200, latency: Date.now() - start })
+    } catch (err) {
+      return res.json({ provider: 'cryptocom', reachable: false, error: err.message, latency: Date.now() - start })
+    }
+  }
   if (action === 'connect' && req.method === 'POST') {
     const { apiKey, apiSecret } = req.body || {}
     if (!apiKey || !apiSecret) return res.status(400).json({ error: 'apiKey and apiSecret are required' })
