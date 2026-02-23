@@ -62,16 +62,24 @@ async function degiroLogin(req, res, { withTOTP = false } = {}) {
     ...(withTOTP ? { oneTimePassword } : {}),
   }
 
+  // Browser-like headers to avoid Myra Security WAF bot detection
   const loginRes = await fetch(loginUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Origin': 'https://trader.degiro.nl',
+      'Referer': 'https://trader.degiro.nl/login/s/default/',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    },
     body: JSON.stringify(loginBody),
   })
 
   const loginText = await loginRes.text()
-  console.error('[DeGiro Login] Status:', loginRes.status)
-  console.error('[DeGiro Login] Response:', loginText)
-  console.error('[DeGiro Login] Headers sent:', JSON.stringify({ username, hasPassword: !!password }))
+  const isHtml = loginText.trimStart().startsWith('<')
+  console.error('[DeGiro Login] Status:', loginRes.status, isHtml ? '(HTML — likely WAF block)' : '(JSON)')
+  if (!isHtml) console.error('[DeGiro Login] Response:', loginText.slice(0, 500))
 
   let loginData
   try { loginData = JSON.parse(loginText) } catch { loginData = {} }
@@ -79,8 +87,16 @@ async function degiroLogin(req, res, { withTOTP = false } = {}) {
   if (loginData.statusCode === 6) return res.json({ requiresTOTP: true })
 
   if (!loginRes.ok) {
+    if (isHtml) {
+      console.error('[DeGiro] WAF/captcha block detected (status', loginRes.status + ')')
+      return res.status(503).json({
+        error: 'DeGiro blocked the request (security captcha). Server-side login may not be supported.',
+        code: 'WAF_BLOCKED',
+        status: loginRes.status,
+      })
+    }
     const msg = loginData.message || loginData.statusText || 'DeGiro login failed'
-    console.error('[DeGiro] Login failed:', msg, 'Full response:', loginText)
+    console.error('[DeGiro] Login failed:', msg)
     return res.status(loginRes.status === 401 ? 401 : 400).json({
       error: 'DeGiro login failed',
       debug: msg,
