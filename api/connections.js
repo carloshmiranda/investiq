@@ -54,8 +54,11 @@ async function degiroLogin(req, res, { withTOTP = false } = {}) {
     : `${DEGIRO_BASE}/login/secure/login`
 
   const loginBody = {
-    username, password, isRedirectToMobile: false, loginButtonUniversal: '',
-    queryParams: { reason: 'session_expired' },
+    username,
+    password,
+    isPassCodeReset: false,
+    isRedirectToMobile: false,
+    queryParams: {},
     ...(withTOTP ? { oneTimePassword } : {}),
   }
 
@@ -65,20 +68,30 @@ async function degiroLogin(req, res, { withTOTP = false } = {}) {
     body: JSON.stringify(loginBody),
   })
 
+  const loginText = await loginRes.text()
+  console.error('[DeGiro Login] Status:', loginRes.status)
+  console.error('[DeGiro Login] Response:', loginText)
+  console.error('[DeGiro Login] Headers sent:', JSON.stringify({ username, hasPassword: !!password }))
+
   let loginData
-  try { loginData = await loginRes.json() } catch { loginData = {} }
+  try { loginData = JSON.parse(loginText) } catch { loginData = {} }
 
   if (loginData.statusCode === 6) return res.json({ requiresTOTP: true })
 
   if (!loginRes.ok) {
     const msg = loginData.message || loginData.statusText || 'DeGiro login failed'
-    console.error('[DeGiro] Login failed:', msg)
-    return res.status(loginRes.status === 401 ? 401 : 400).json({ error: 'DeGiro login failed' })
+    console.error('[DeGiro] Login failed:', msg, 'Full response:', loginText)
+    return res.status(loginRes.status === 401 ? 401 : 400).json({
+      error: 'DeGiro login failed',
+      debug: msg,
+      status: loginRes.status,
+    })
   }
 
-  const setCookie = loginRes.headers.get('set-cookie')
-  const sessionId = extractSessionId(setCookie)
+  const sessionId = loginData.sessionId
+    || extractSessionId(loginRes.headers.get('set-cookie'))
   if (!sessionId) {
+    console.error('[DeGiro Login] No sessionId found in body or Set-Cookie header')
     return res.status(500).json({ error: 'Failed to extract session from DeGiro response' })
   }
 
