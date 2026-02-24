@@ -70,14 +70,11 @@ export function useUnifiedPortfolio() {
     // ── Core metrics ─────────────────────────────────────────────────────
     const totalValue = holdings.reduce((sum, h) => sum + (h.value || 0), 0);
 
-    // Compute annual income from real dividend data (last 12 months),
-    // falling back to per-holding annualIncome if no dividend history exists
+    // Annual income from actual received dividends/staking/yield only (last 12 months)
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
     const last12mDividends = dividends.filter((d) => new Date(d.date) >= twelveMonthsAgo);
-    const dividendTotal12m = last12mDividends.reduce((s, d) => s + (d.amount || 0), 0);
-    const holdingBasedIncome = holdings.reduce((sum, h) => sum + (h.annualIncome || 0), 0);
-    const annualIncome = dividendTotal12m > 0 ? dividendTotal12m : holdingBasedIncome;
+    const annualIncome = last12mDividends.reduce((s, d) => s + (d.amount || 0), 0);
     const monthlyIncome = annualIncome / 12;
     const overallYield = totalValue > 0 ? (annualIncome / totalValue) * 100 : 0;
 
