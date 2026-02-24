@@ -10,14 +10,10 @@
     { "source": "/api/brokers/:path*", "destination": "/api/brokers?path=:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
+  "regions": ["fra1"],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 30
-    },
-    "api/connections.js": {
-      "maxDuration": 30,
-      "memory": 1024,
-      "regions": ["fra1"]
     }
   }
 }
