@@ -40,6 +40,13 @@ export function BinanceProvider({ children }) {
       .catch(() => { /* not connected */ });
   }, [authAxios, user]);
 
+  // Auto-sync when connection state becomes true
+  useEffect(() => {
+    if (state.connected && state.holdings.length === 0 && !state.syncing) {
+      sync();
+    }
+  }, [state.connected]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Connect with API key + secret (server-side validation + storage) ───────
   const connect = useCallback(async (apiKey, apiSecret) => {
     setState((prev) => ({ ...prev, error: null, syncing: true }));

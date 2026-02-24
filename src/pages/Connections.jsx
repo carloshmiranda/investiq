@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { connections } from '../data/mockPortfolio';
 import { useCurrency } from '../context/CurrencyContext';
 import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
@@ -652,67 +651,6 @@ function CryptocomModal({ onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// GENERIC MODALS (mock connections)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function APIKeyModal({ name, onClose, onConnect }) {
-  const [apiKey, setApiKey] = useState('');
-  const [apiSecret, setApiSecret] = useState('');
-  const [done, setDone] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setDone(true);
-    setTimeout(() => { onConnect(); onClose(); }, 1000);
-  };
-
-  return (
-    <ModalShell onClose={onClose}>
-      <ModalHeader icon="—" iconColor="#6b7280" title={`Connect ${name}`} subtitle="API key integration" onClose={onClose} />
-      {done ? (
-        <ModalSuccess syncing={false} brandColor="#10b981" message="Connected!" onClose={onClose} />
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-gray-400">Read-only API credentials for {name}. We never trade on your behalf.</p>
-          <InputField label="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter API key…" required className="font-mono" />
-          <InputField label="API Secret" type="password" value={apiSecret}
-            onChange={(e) => setApiSecret(e.target.value)} placeholder="Enter API secret…" required className="font-mono" />
-          <SubmitButton loading={false} disabled={!apiKey || !apiSecret} label="Connect Securely" loadingLabel="Connecting…" />
-        </form>
-      )}
-    </ModalShell>
-  );
-}
-
-function WalletModal({ name, onClose, onConnect }) {
-  const [address, setAddress] = useState('');
-  const [done, setDone] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setDone(true);
-    setTimeout(() => { onConnect(); onClose(); }, 1000);
-  };
-
-  return (
-    <ModalShell onClose={onClose}>
-      <ModalHeader icon="—" iconColor="#6b7280" title={`Connect ${name}`} subtitle="Wallet tracking" onClose={onClose} />
-      {done ? (
-        <ModalSuccess syncing={false} brandColor="#10b981" message="Wallet Tracked!" onClose={onClose} />
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-gray-400">Enter your wallet address for read-only balance tracking. We never request private keys.</p>
-          <InputField label="Wallet Address" value={address} onChange={(e) => setAddress(e.target.value)}
-            placeholder="0x… or SOL address" required className="font-mono" />
-          <SubmitButton loading={false} disabled={!address} label="Track Wallet" loadingLabel="Connecting…" />
-        </form>
-      )}
-    </ModalShell>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // BROKER CARDS — Connected & disconnected states
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -943,38 +881,17 @@ export default function Connections() {
   const { formatMoney } = useCurrency();
   const { connected: degiroConnected, positionCount } = useDegiro();
   const { connected: t212Connected, positionCount: t212PositionCount } = useTrading212();
-  const { connected: binanceConnected, assetCount: binanceAssetCount } = useBinance();
-  const { connected: cryptocomConnected, assetCount: cryptocomAssetCount } = useCryptocom();
+  const { connected: binanceConnected, assetCount: binanceAssetCount, totalValue: binanceTotalValue } = useBinance();
+  const { connected: cryptocomConnected, assetCount: cryptocomAssetCount, totalValue: cryptocomTotalValue } = useCryptocom();
   const { test: testConn, testing: testingMap, results: testResults } = useTestConnection();
-  const [conns, setConns] = useState(connections);
-  const [modal, setModal] = useState(null);
   const [showDegiroModal, setShowDegiroModal] = useState(false);
   const [showT212Modal, setShowT212Modal] = useState(false);
   const [showBinanceModal, setShowBinanceModal] = useState(false);
   const [showCryptocomModal, setShowCryptocomModal] = useState(false);
 
-  const toggleConnection = (id) => {
-    setConns((prev) => prev.map((c) => c.id === id ? { ...c, connected: !c.connected } : c));
-  };
-
-  const openModal = (conn) => {
-    const modalType = ['wallet', 'hardware'].includes(conn.type) ? 'wallet' : 'api';
-    if (conn.type === 'broker' && conn.id !== 'plaid') {
-      setTimeout(() => toggleConnection(conn.id), 800);
-      return;
-    }
-    setModal({ id: conn.id, name: conn.name, modalType });
-  };
-
-  const handleConnect = (id) => {
-    setConns((prev) => prev.map((c) =>
-      c.id === id ? { ...c, connected: true, accounts: 1, totalValue: Math.round(Math.random() * 50000) + 10000 } : c
-    ));
-  };
-
-  const connectedMock = conns.filter((c) => c.connected);
-  const totalConnectedValue = connectedMock.reduce((s, c) => s + c.totalValue, 0);
   const liveSourceCount = (degiroConnected ? 1 : 0) + (t212Connected ? 1 : 0) + (binanceConnected ? 1 : 0) + (cryptocomConnected ? 1 : 0);
+  const totalLivePositions = (degiroConnected ? positionCount : 0) + (t212Connected ? t212PositionCount : 0) + (binanceConnected ? binanceAssetCount : 0) + (cryptocomConnected ? cryptocomAssetCount : 0);
+  const totalTrackedValue = (binanceTotalValue || 0) + (cryptocomTotalValue || 0);
 
   return (
     <div className="space-y-8">
@@ -989,31 +906,24 @@ export default function Connections() {
         <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '0ms' }}>
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Connected Sources</p>
           <p className="text-3xl font-data font-medium text-emerald-400 leading-tight">
-            {connectedMock.length + liveSourceCount}
+            {liveSourceCount}
           </p>
-          <p className="text-xs text-gray-600 mt-1">of {conns.length + 4} available</p>
+          <p className="text-xs text-gray-600 mt-1">of 4 available</p>
         </div>
         <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '60ms' }}>
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Tracked Value</p>
-          <p className="text-3xl font-data font-medium text-white leading-tight">{formatMoney(totalConnectedValue, 0)}</p>
-          <p className="text-xs text-gray-600 mt-1">across all mock sources</p>
+          <p className="text-3xl font-data font-medium text-white leading-tight">{totalTrackedValue > 0 ? formatMoney(totalTrackedValue, 0) : '—'}</p>
+          <p className="text-xs text-gray-600 mt-1">across connected sources</p>
         </div>
         <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '120ms' }}>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Live Positions</p>
-          <div className="flex items-baseline gap-3">
-            <p className="text-3xl font-data font-medium leading-tight" style={{ color: '#ff6600' }}>
-              {degiroConnected ? positionCount : '—'}
-            </p>
-            {t212Connected && (
-              <p className="text-lg font-data text-[#1a56db]">
-                +{t212PositionCount}
-              </p>
-            )}
-          </div>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Total Positions</p>
+          <p className="text-3xl font-data font-medium text-emerald-400 leading-tight">
+            {liveSourceCount > 0 ? totalLivePositions : '—'}
+          </p>
           <p className="text-xs text-gray-600 mt-1">
-            {degiroConnected || t212Connected
-              ? [degiroConnected && 'DeGiro', t212Connected && 'T212'].filter(Boolean).join(' + ')
-              : 'No brokers connected'}
+            {liveSourceCount > 0
+              ? [degiroConnected && 'DeGiro', t212Connected && 'T212', binanceConnected && 'Binance', cryptocomConnected && 'Crypto.com'].filter(Boolean).join(' + ')
+              : 'No sources connected'}
           </p>
         </div>
       </div>
@@ -1035,72 +945,11 @@ export default function Connections() {
           <div className="card-reveal" style={{ animationDelay: '300ms' }}>
             <CryptocomCard onOpenModal={() => setShowCryptocomModal(true)} onTest={testConn} testing={testingMap.cryptocom} testResult={testResults.cryptocom} />
           </div>
-
-          {conns.map((conn, i) => {
-            const tc = typeConfig[conn.type] ?? typeConfig.broker;
-            const brand = brandColors[conn.id] ?? '#6b7280';
-            return (
-              <div key={conn.id} className="card-reveal" style={{ animationDelay: `${350 + i * 50}ms` }}>
-                <div className={`card-accent ${conn.connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
-                  style={{ '--accent': brand }}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <BrandIcon label={conn.logo} color={brand} />
-                      <div>
-                        <p className="text-sm font-semibold text-white">{conn.name}</p>
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${tc.bg} ${tc.color} border ${tc.border}`}>
-                          {tc.label}
-                        </span>
-                      </div>
-                    </div>
-                    <StatusBadge connected={conn.connected} />
-                  </div>
-
-                  {conn.connected ? (
-                    <div className="mb-4 space-y-2">
-                      <DataRow label="Accounts" value={conn.accounts} />
-                      <DataRow label="Portfolio" value={formatMoney(conn.totalValue, 0)} valueClass="text-emerald-400 font-data" />
-                      <DataRow label="Status" value={
-                        <span className="flex items-center gap-1.5">
-                          <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
-                          Active
-                        </span>
-                      } valueClass="text-emerald-400" />
-                    </div>
-                  ) : (
-                    <div className="mb-4 py-4 text-center">
-                      <p className="text-xs text-gray-600">Not connected</p>
-                    </div>
-                  )}
-
-                  {conn.connected ? (
-                    <div className="pt-3 border-t border-white/[0.04] flex gap-2">
-                      <button className="flex-1 py-1.5 text-xs font-medium text-gray-400 border border-white/[0.06] rounded-lg hover:text-white hover:bg-white/[0.04] transition-all">
-                        Sync Now
-                      </button>
-                      <button onClick={() => toggleConnection(conn.id)}
-                        className="px-3 py-1.5 text-xs font-medium text-red-400/70 border border-red-500/10 rounded-lg hover:text-red-400 hover:bg-red-500/[0.06] transition-all">
-                        Disconnect
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => openModal(conn)}
-                      className="w-full py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-all active:scale-[0.98]">
-                      {conn.type === 'broker' && conn.id !== 'plaid' ? 'Connect via OAuth' :
-                        conn.type === 'aggregator' ? 'Connect via Plaid' :
-                          ['wallet', 'hardware'].includes(conn.type) ? 'Add Wallet Address' :
-                            'Connect with API Key'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
       {/* ── Security notice ── */}
-      <div className="glass-card rounded-xl p-5 border border-amber-500/[0.08] card-reveal" style={{ animationDelay: '600ms' }}>
+      <div className="glass-card rounded-xl p-5 border border-amber-500/[0.08] card-reveal" style={{ animationDelay: '400ms' }}>
         <div className="flex gap-3">
           <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/15 flex items-center justify-center flex-shrink-0">
             <svg className="w-4.5 h-4.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1110,9 +959,8 @@ export default function Connections() {
           <div>
             <p className="text-sm font-semibold text-amber-400 mb-1">Read-Only Security</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              InvestIQ requests read-only access only. DeGiro credentials are proxied server-side and never stored.
-              Exchange API keys use read-only scopes — Binance connects directly from your browser for maximum security.
-              Wallet addresses are public — no private keys ever needed.
+              All API keys are encrypted at rest (AES-256-GCM). InvestIQ requests read-only access only —
+              no trading or withdrawal permissions are ever used. DeGiro sessions are proxied server-side.
             </p>
           </div>
         </div>
@@ -1123,12 +971,6 @@ export default function Connections() {
       {showT212Modal && <Trading212Modal onClose={() => setShowT212Modal(false)} />}
       {showBinanceModal && <BinanceModal onClose={() => setShowBinanceModal(false)} />}
       {showCryptocomModal && <CryptocomModal onClose={() => setShowCryptocomModal(false)} />}
-      {modal?.modalType === 'api' && (
-        <APIKeyModal name={modal.name} onClose={() => setModal(null)} onConnect={() => handleConnect(modal.id)} />
-      )}
-      {modal?.modalType === 'wallet' && (
-        <WalletModal name={modal.name} onClose={() => setModal(null)} onConnect={() => handleConnect(modal.id)} />
-      )}
     </div>
   );
 }

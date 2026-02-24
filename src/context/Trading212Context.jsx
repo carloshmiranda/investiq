@@ -20,7 +20,7 @@ export function Trading212Provider({ children }) {
   const { authAxios, user } = useAuth();
   const [state, setState] = useState(INITIAL_STATE);
 
-  // Check connection status on mount
+  // Check connection status on mount and auto-sync if connected
   useEffect(() => {
     if (!user) return;
     t212Api.getStatus(authAxios)
@@ -35,6 +35,13 @@ export function Trading212Provider({ children }) {
       })
       .catch(() => { /* not connected */ });
   }, [authAxios, user]);
+
+  // Auto-sync when connection state becomes true
+  useEffect(() => {
+    if (state.connected && state.positions.length === 0 && !state.syncing) {
+      sync();
+    }
+  }, [state.connected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Connect with API key ──────────────────────────────────────────────────
   const connect = useCallback(async (apiKey, apiSecret) => {
