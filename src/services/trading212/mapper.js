@@ -1,61 +1,42 @@
 /**
- * Build a lookup map from T212 instruments metadata.
- * Key: T212 ticker (e.g. "AAPL_US_EQ"), Value: instrument info
- */
-export function buildInstrumentMap(instruments) {
-  const map = {};
-  for (const inst of instruments) {
-    if (inst.ticker) {
-      map[inst.ticker] = inst;
-    }
-  }
-  return map;
-}
-
-/**
  * Extract a clean display ticker from T212's composite format.
- * e.g. "AAPL_US_EQ" → "AAPL", "VUSA_EQ_L" → "VUSA", "SIE_EQ_DE" → "SIE"
+ * "AAPL_US_EQ" → "AAPL", "VUSA_EQ_L" → "VUSA", "SIE_EQ_DE" → "SIE"
  */
 function cleanTicker(t212Ticker) {
-  if (!t212Ticker) return '??';
+  if (!t212Ticker) return t212Ticker;
   return t212Ticker.split('_')[0];
 }
 
 /**
  * Map Trading 212 position to InvestIQ holding format.
- * @param {object} pos - Raw T212 position
- * @param {object} instrumentMap - Lookup from buildInstrumentMap()
  */
-export function mapPosition(pos, instrumentMap = {}) {
-  const inst = instrumentMap[pos.ticker] || {};
-  const displayTicker = inst.shortName || cleanTicker(pos.ticker);
-  const currencyCode = inst.currencyCode || 'USD';
-
-  const value = pos.currentPrice * pos.quantity;
-  const costBasis = pos.averagePrice * pos.quantity;
+export function mapPosition(pos) {
+  const ticker = cleanTicker(pos.ticker) || pos.ticker || 'UNKNOWN';
+  const value = (pos.currentPrice || 0) * (pos.quantity || 0);
+  const costBasis = (pos.averagePrice || 0) * (pos.quantity || 0);
   const pnl = pos.ppl || (value - costBasis);
 
   return {
     id: `t212-${pos.ticker}`,
     source: 'trading212',
     broker: 'Trading 212',
-    ticker: displayTicker,
+    ticker,
     t212Ticker: pos.ticker,
-    name: inst.name || displayTicker,
-    isin: inst.isin || pos.figi || '',
-    type: inst.type || 'Stock',
+    name: ticker,
+    isin: pos.figi || '',
+    type: 'Stock',
     sector: 'Unknown',
-    quantity: pos.quantity,
-    price: pos.currentPrice,
+    quantity: pos.quantity || 0,
+    price: pos.currentPrice || 0,
     value,
-    currency: currencyCode,
+    currency: 'USD',
     annualIncome: 0,
     yieldPercent: 0,
     frequency: 'Unknown',
     nextPayDate: 'N/A',
     safetyRating: null,
     logoColor: '#1a56db',
-    breakEvenPrice: pos.averagePrice,
+    breakEvenPrice: pos.averagePrice || 0,
     costBasis,
     unrealizedPnL: pnl,
     unrealizedPnLPct: costBasis > 0 ? (pnl / costBasis) * 100 : 0,
@@ -63,24 +44,63 @@ export function mapPosition(pos, instrumentMap = {}) {
 }
 
 /**
- * Map Trading 212 dividend to InvestIQ income event
- * @param {object} div - Raw T212 dividend
- * @param {object} instrumentMap - Lookup from buildInstrumentMap()
+ * Map Trading 212 dividend to InvestIQ income event.
  */
-export function mapDividend(div, instrumentMap = {}) {
-  const inst = instrumentMap[div.ticker] || {};
-  const displayTicker = inst.shortName || cleanTicker(div.ticker);
+export function mapDividend(div) {
+  const ticker = cleanTicker(div.ticker) || div.ticker || 'UNKNOWN';
 
   return {
     date: div.paidOn || div.reference,
-    ticker: displayTicker,
+    ticker,
     t212Ticker: div.ticker,
-    name: inst.name || displayTicker,
+    name: ticker,
     amount: div.amount || 0,
-    currency: div.currency || inst.currencyCode || 'USD',
+    currency: div.currency || 'USD',
     type: 'Dividend',
     source: 'trading212',
   };
+}
+
+/**
+ * Enrich already-mapped positions with instrument metadata.
+ * Call this after initial sync to add names/types/currency without blocking.
+ */
+export function enrichPositions(positions, instruments) {
+  const instMap = {};
+  for (const inst of instruments) {
+    if (inst.ticker) instMap[inst.ticker] = inst;
+  }
+
+  return positions.map((pos) => {
+    const inst = instMap[pos.t212Ticker];
+    if (!inst) return pos;
+    return {
+      ...pos,
+      name: inst.name || pos.ticker,
+      type: inst.type || pos.type,
+      isin: inst.isin || pos.isin,
+      currency: inst.currencyCode || pos.currency,
+    };
+  });
+}
+
+/**
+ * Enrich already-mapped dividends with instrument metadata.
+ */
+export function enrichDividends(dividends, instruments) {
+  const instMap = {};
+  for (const inst of instruments) {
+    if (inst.ticker) instMap[inst.ticker] = inst;
+  }
+
+  return dividends.map((div) => {
+    const inst = instMap[div.t212Ticker];
+    if (!inst) return div;
+    return {
+      ...div,
+      name: inst.name || div.ticker,
+    };
+  });
 }
 
 /**

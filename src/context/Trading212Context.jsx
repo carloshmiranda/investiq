@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import * as t212Api from '../services/trading212/api.js';
-import { mapPosition, mapDividend, buildInstrumentMap } from '../services/trading212/mapper.js';
+import { mapPosition, mapDividend, enrichPositions, enrichDividends } from '../services/trading212/mapper.js';
 
 const Trading212Context = createContext(null);
 
@@ -68,16 +68,15 @@ export function Trading212Provider({ children }) {
     if (!state.connected) return;
     setState((prev) => ({ ...prev, syncing: true, error: null }));
     try {
-      const [rawPositions, rawDividends, account, rawInstruments] = await Promise.all([
+      // Core sync — only essential API calls (no instruments to avoid rate limits)
+      const [rawPositions, rawDividends, account] = await Promise.all([
         t212Api.getPositions(authAxios),
         t212Api.getDividends(authAxios),
         t212Api.getAccount(authAxios),
-        t212Api.getInstruments(authAxios).catch(() => []),
       ]);
 
-      const instrumentMap = buildInstrumentMap(rawInstruments);
-      const positions = rawPositions.map((p) => mapPosition(p, instrumentMap));
-      const dividends = rawDividends.map((d) => mapDividend(d, instrumentMap));
+      const positions = rawPositions.map(mapPosition);
+      const dividends = rawDividends.map(mapDividend);
 
       setState((prev) => ({
         ...prev,
@@ -94,6 +93,19 @@ export function Trading212Provider({ children }) {
         syncing: false,
         error: null,
       }));
+
+      // Lazy enrichment — fetch instruments metadata separately (non-blocking)
+      // This adds full names, types, ISIN, and currency without slowing down sync
+      t212Api.getInstruments(authAxios)
+        .then((instruments) => {
+          if (!instruments || instruments.length === 0) return;
+          setState((prev) => ({
+            ...prev,
+            positions: enrichPositions(prev.positions, instruments),
+            dividends: enrichDividends(prev.dividends, instruments),
+          }));
+        })
+        .catch(() => { /* instruments enrichment failed — tickers still work */ });
     } catch (err) {
       setState((prev) => ({
         ...prev,
