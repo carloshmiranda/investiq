@@ -10,6 +10,11 @@
 
 body {
   background-color: #0a0f1e;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(13, 31, 60, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
   color: #f9fafb;
   font-family: 'Inter', sans-serif;
   margin: 0;
