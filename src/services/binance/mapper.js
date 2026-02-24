@@ -18,9 +18,16 @@ function getUsdPrice(asset, priceMap) {
   const stables = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'TUSD', 'DAI'];
   if (stables.includes(asset) || asset === 'USD') return 1;
 
-  for (const quote of ['USDT', 'USDC', 'BUSD', 'FDUSD']) {
-    const key = `${asset}${quote}`;
-    if (priceMap[key]) return priceMap[key];
+  // Try direct lookup, then strip LD/B prefixes (Binance Lending/Staking wrappers)
+  const variants = [asset];
+  if (asset.startsWith('LD')) variants.push(asset.slice(2));
+  if (asset === 'BETH') variants.push('ETH');
+
+  for (const a of variants) {
+    for (const quote of ['USDT', 'USDC', 'BUSD', 'FDUSD']) {
+      const key = `${a}${quote}`;
+      if (priceMap[key]) return priceMap[key];
+    }
   }
   return 0;
 }

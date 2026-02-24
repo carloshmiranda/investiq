@@ -546,6 +546,7 @@ async function handleBinance(req, res, action) {
     const account = await binanceFetch('/api/v3/account', creds.apiKey, creds.apiSecret, { signed: true })
     const balances = (account.balances || [])
       .filter((b) => parseFloat(b.free) > 0 || parseFloat(b.locked) > 0)
+      .filter((b) => !b.asset.startsWith('LD')) // LD* are Binance Lending wrappers — duplicates of earn positions
       .map((b) => ({ asset: b.asset, free: parseFloat(b.free), locked: parseFloat(b.locked), total: parseFloat(b.free) + parseFloat(b.locked) }))
     return res.json({ balances })
   }

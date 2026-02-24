@@ -117,6 +117,8 @@ export async function getBalancesDirect(apiKey, apiSecret) {
   const account = await binanceFetchDirect('/api/v3/account', apiKey, apiSecret, { signed: true });
   return (account.balances || [])
     .filter((b) => parseFloat(b.free) > 0 || parseFloat(b.locked) > 0)
+    // LD* tokens are Binance Lending wrappers — already represented in earn positions
+    .filter((b) => !b.asset.startsWith('LD'))
     .map((b) => ({
       asset: b.asset,
       free: parseFloat(b.free),
