@@ -9,37 +9,51 @@ function cleanTicker(t212Ticker) {
 
 /**
  * Map Trading 212 position to InvestIQ holding format.
+ * T212 API nests instrument data: pos.instrument.{ticker, name, isin, currency}
  */
 export function mapPosition(pos) {
-  if (!pos.ticker && typeof pos === 'object') {
-    console.warn('[T212 Mapper] Position missing ticker. Fields:', Object.keys(pos), 'Raw:', JSON.stringify(pos).slice(0, 300));
+  const inst = pos.instrument || {};
+  const rawTicker = inst.ticker || pos.ticker;
+  const ticker = cleanTicker(rawTicker) || 'UNKNOWN';
+  const name = inst.name || ticker;
+  const currency = inst.currency || 'USD';
+  const isin = inst.isin || '';
+
+  const quantity = pos.quantity || 0;
+  const price = pos.currentPrice || 0;
+  const value = price * quantity;
+  const avgPrice = pos.averagePricePaid ?? pos.averagePrice ?? 0;
+  const costBasis = avgPrice * quantity;
+
+  // walletImpact is the new PnL field; fall back to ppl or manual calc
+  let pnl = value - costBasis;
+  if (typeof pos.walletImpact === 'number') {
+    pnl = pos.walletImpact;
+  } else if (typeof pos.ppl === 'number') {
+    pnl = pos.ppl;
   }
-  const ticker = cleanTicker(pos.ticker) || pos.ticker || 'UNKNOWN';
-  const value = (pos.currentPrice || 0) * (pos.quantity || 0);
-  const costBasis = (pos.averagePrice || 0) * (pos.quantity || 0);
-  const pnl = pos.ppl || (value - costBasis);
 
   return {
-    id: `t212-${pos.ticker}`,
+    id: `t212-${rawTicker}`,
     source: 'trading212',
     broker: 'Trading 212',
     ticker,
-    t212Ticker: pos.ticker,
-    name: ticker,
-    isin: pos.figi || '',
+    t212Ticker: rawTicker,
+    name,
+    isin,
     type: 'Stock',
     sector: 'Unknown',
-    quantity: pos.quantity || 0,
-    price: pos.currentPrice || 0,
+    quantity,
+    price,
     value,
-    currency: 'USD',
+    currency,
     annualIncome: 0,
     yieldPercent: 0,
     frequency: 'Unknown',
     nextPayDate: 'N/A',
     safetyRating: null,
     logoColor: '#1a56db',
-    breakEvenPrice: pos.averagePrice || 0,
+    breakEvenPrice: avgPrice,
     costBasis,
     unrealizedPnL: pnl,
     unrealizedPnLPct: costBasis > 0 ? (pnl / costBasis) * 100 : 0,
@@ -62,55 +76,4 @@ export function mapDividend(div) {
     type: 'Dividend',
     source: 'trading212',
   };
-}
-
-/**
- * Enrich already-mapped positions with instrument metadata.
- * Call this after initial sync to add names/types/currency without blocking.
- */
-export function enrichPositions(positions, instruments) {
-  const instMap = {};
-  for (const inst of instruments) {
-    if (inst.ticker) instMap[inst.ticker] = inst;
-  }
-
-  return positions.map((pos) => {
-    const inst = instMap[pos.t212Ticker];
-    if (!inst) return pos;
-    return {
-      ...pos,
-      name: inst.name || pos.ticker,
-      type: inst.type || pos.type,
-      isin: inst.isin || pos.isin,
-      currency: inst.currencyCode || pos.currency,
-    };
-  });
-}
-
-/**
- * Enrich already-mapped dividends with instrument metadata.
- */
-export function enrichDividends(dividends, instruments) {
-  const instMap = {};
-  for (const inst of instruments) {
-    if (inst.ticker) instMap[inst.ticker] = inst;
-  }
-
-  return dividends.map((div) => {
-    const inst = instMap[div.t212Ticker];
-    if (!inst) return div;
-    return {
-      ...div,
-      name: inst.name || div.ticker,
-    };
-  });
-}
-
-/**
- * Merge mock holdings with T212 holdings (deduplicate by ticker)
- */
-export function mergeHoldings(mockHoldings, t212Holdings) {
-  const mockTickers = new Set(mockHoldings.map((h) => h.ticker.toUpperCase()));
-  const unique = t212Holdings.filter((h) => !mockTickers.has(h.ticker.toUpperCase()));
-  return [...mockHoldings, ...unique];
 }
