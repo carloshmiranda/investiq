@@ -170,6 +170,22 @@ https://github.com/carloshmiranda/investiq
 - [x] 13.1 — Loading skeletons, error boundaries, empty states
 - [x] 13.2 — Responsive audit, production smoke test
 
+### UI Design Polish — Priority 1 (high impact, low effort)
+- [x] 14.1 — Background atmosphere (global): radial gradient on body (`src/index.css`), optional CSS noise overlay
+- [x] 14.2 — Staggered card-reveal animations: apply `.card-reveal` to Dashboard, Income, Holdings, Calendar, AIInsights
+
+### UI Design Polish — Priority 2 (medium impact)
+- [ ] 15.1 — Login/Register redesign: gradient mesh bg, staggered entrance, logo glow, asymmetric desktop layout
+- [ ] 15.2 — Settings page alignment: heading font → `text-3xl font-display`, card rounding consistency, section labels
+- [ ] 15.3 — Extract PageHeader component: consistent heading + subtitle across all pages
+- [ ] 15.4 — Header polish: gradient bottom fade, portfolio value pill, notification dot animation
+
+### UI Design Polish — Priority 3 (polish)
+- [ ] 16.1 — AI chat bubble distinction: emerald accent line on AI messages
+- [ ] 16.2 — Holdings table breathing room: row padding, alternating stripes, header tracking, hover accent
+- [ ] 16.3 — Sidebar active state: thicker indicator or background pill, glass-card collapsed tooltip
+- [ ] 16.4 — Dashboard KpiCard accent bars: left brand bar using `accentColor` prop
+
 ## Session Log
 | Date | Item | Notes |
 |------|------|-------|
@@ -211,3 +227,6 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-21 | Broker wiring | Step 2: Connection test endpoints added to connections.js for all 4 brokers. GET /api/<provider>/test pings broker API with stored credentials, returns reachable/latency/status. |
 | 2026-02-21 | Broker wiring | Step 3: Test Connection button on all 4 broker cards. useTestConnection hook + TestButton component. Results logged to DebugPanel. |
 | 2026-02-21 | Broker wiring | Steps 4-9: DeGiro fully wired into unified portfolio. Session (sessionId+intAccount) stored encrypted in connections table after login. fetchDegiroHoldings in portfolio.js with product enrichment. fetchDegiroIncome in income.js with dividend history. Session expiry detection (401/403 marks connection as expired). DegiroContext disconnect calls API. Portfolio/income return useMockData flag for frontend mock fallback. Function count verified: 8/12. Pushed to main, Vercel auto-deploys. |
+| 2026-02-24 | Binance client-side | Moved all Binance API calls to browser-side (Web Crypto HMAC-SHA256) to bypass Vercel geo-restriction. Added store-credentials/get-credentials actions to connections.js. Credentials restored on page reload. |
+| 2026-02-24 | Connections redesign | Full Connections.jsx rewrite: shared primitives (ModalShell, InputField, SubmitButton, etc.), staggered card-reveal animations, brand accent bars, ~300 lines shorter, JS bundle shrank 20KB. New CSS in index.css. |
+| 2026-02-24 | UI design audit | Full site review with frontend-design skill. 10 prioritized items added to backlog (14.1–16.4). Connections page set as quality benchmark. |

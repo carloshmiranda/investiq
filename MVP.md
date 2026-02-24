@@ -96,3 +96,26 @@ Funvest.com — clean, data-rich, investor-first terminal aesthetic.
 - [x] Currency switcher works across all pages (USD / EUR / GBP)
 - [x] Rates auto-refresh every hour
 - [x] User currency preference persists across sessions
+
+---
+
+## Post-MVP: UI Design Polish
+
+Audit performed 2026-02-24 using frontend-design skill.
+Connections page is the current quality benchmark (redesigned with shared primitives, staggered animations, brand accents).
+
+### Priority 1 — High impact, low effort
+- [x] 14.1 — Background atmosphere (global): add radial gradient to body in `src/index.css`, optional CSS noise overlay
+- [x] 14.2 — Staggered card-reveal animations (all pages): apply existing `.card-reveal` class to Dashboard, Income, Holdings, Calendar, AIInsights
+
+### Priority 2 — Medium impact
+- [ ] 15.1 — Login/Register redesign: gradient mesh bg, staggered entrance, logo glow, asymmetric desktop layout
+- [ ] 15.2 — Settings page alignment: fix heading font, card rounding, add section labels
+- [ ] 15.3 — Extract PageHeader component: consistent `text-3xl font-display font-bold` + subtitle across all pages
+- [ ] 15.4 — Header polish: gradient bottom fade, portfolio value pill, animate or remove notification dot
+
+### Priority 3 — Polish
+- [ ] 16.1 — AI chat bubble distinction: emerald accent line on AI messages, replace `bg-navy-700/80`
+- [ ] 16.2 — Holdings table breathing room: row padding, alternating stripes, header tracking, hover accent
+- [ ] 16.3 — Sidebar active state: thicker indicator or background pill, glass-card tooltip on collapse
+- [ ] 16.4 — Dashboard KpiCard accent bars: left brand accent bar using `accentColor` prop
