@@ -121,3 +121,65 @@ body {
     font-size: 10px;
   }
 }
+
+/* ── Connection card effects ─────────────────────────────── */
+@keyframes cardReveal {
+  0% { opacity: 0; transform: translateY(18px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card-reveal {
+  animation: cardReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+@keyframes statusPing {
+  0% { transform: scale(1); opacity: 1; }
+  75% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.status-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: statusPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Card brand accent — left edge glow */
+.card-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-accent::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  opacity: 0.8;
+  transition: opacity 0.3s, box-shadow 0.3s;
+}
+
+.card-accent:hover::before {
+  opacity: 1;
+  box-shadow: 0 0 12px 2px var(--accent);
+}
+
+.card-accent-connected::before {
+  box-shadow: 0 0 8px 1px var(--accent);
+}

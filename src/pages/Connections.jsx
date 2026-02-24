@@ -10,6 +10,75 @@ import { useAuth } from '../context/AuthContext';
 import { DegiroError } from '../services/degiro/auth';
 import { timeAgo } from '../utils/formatters';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// SHARED UI PRIMITIVES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const Spinner = ({ className = 'w-4 h-4' }) => (
+  <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+  </svg>
+);
+
+const CheckIcon = ({ className = 'w-7 h-7' }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+const CloseButton = ({ onClick }) => (
+  <button onClick={onClick} className="text-gray-500 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-all focus:outline-none focus:ring-2 focus:ring-white/10">
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+);
+
+function StatusBadge({ connected }) {
+  return (
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
+      connected
+        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        : 'bg-white/[0.03] text-gray-600 border border-white/5'
+    }`}>
+      <span className={`relative w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 status-ping' : 'bg-gray-700'}`} />
+      {connected ? 'Live' : 'Off'}
+    </div>
+  );
+}
+
+function BrandIcon({ label, color, bg }) {
+  return (
+    <div
+      className="w-11 h-11 rounded-xl flex items-center justify-center text-xs font-black tracking-tight transition-transform group-hover:scale-105"
+      style={{ background: bg || color + '18', border: `1px solid ${color}30`, color }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function DataRow({ label, value, valueClass = 'text-white' }) {
+  return (
+    <div className="flex justify-between items-center text-xs">
+      <span className="text-gray-500">{label}</span>
+      <span className={`font-medium ${valueClass}`}>{value}</span>
+    </div>
+  );
+}
+
+function ErrorBanner({ error }) {
+  if (!error) return null;
+  return (
+    <div className="p-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-lg text-[11px] text-red-400 leading-relaxed">
+      {error}
+    </div>
+  );
+}
+
+// ── Test connection ──────────────────────────────────────────────────────────
+
 function useTestConnection() {
   const { authAxios } = useAuth();
   const debug = useDebugContext();
@@ -41,20 +110,14 @@ function useTestConnection() {
 
 function TestButton({ provider, testing, result, onTest }) {
   return (
-    <div className="mt-2">
+    <div className="mt-2.5">
       <button
         onClick={() => onTest(provider)}
         disabled={testing}
-        className="w-full py-1.5 text-[10px] font-medium text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/5 transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+        className="w-full py-1.5 text-[10px] font-medium text-gray-500 border border-white/[0.06] rounded-lg hover:text-cyan-400 hover:border-cyan-500/20 hover:bg-cyan-500/[0.03] transition-all disabled:opacity-40 flex items-center justify-center gap-1.5 focus:outline-none"
       >
         {testing ? (
-          <>
-            <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Testing…
-          </>
+          <><Spinner className="w-3 h-3" /> Testing…</>
         ) : (
           <>
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,31 +128,27 @@ function TestButton({ provider, testing, result, onTest }) {
         )}
       </button>
       {result && (
-        <div className={`mt-1.5 p-2 rounded text-[10px] ${result.reachable ? 'bg-emerald-500/5 border border-emerald-500/20 text-emerald-400' : 'bg-red-500/5 border border-red-500/20 text-red-400'}`}>
-          {result.reachable ? (
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
-              Reachable — {result.latency}ms
-            </span>
-          ) : (
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
-              {result.error || 'Unreachable'}
-            </span>
-          )}
+        <div className={`mt-1.5 px-2.5 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5 ${
+          result.reachable
+            ? 'bg-emerald-500/[0.06] border border-emerald-500/15 text-emerald-400'
+            : 'bg-red-500/[0.06] border border-red-500/15 text-red-400'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${result.reachable ? 'bg-emerald-400' : 'bg-red-400'}`} />
+          {result.reachable ? `Reachable — ${result.latency}ms` : (result.error || 'Unreachable')}
         </div>
       )}
     </div>
   );
 }
 
-// ── Type config ───────────────────────────────────────────────────────────────
+// ── Type config ──────────────────────────────────────────────────────────────
+
 const typeConfig = {
-  broker: { label: 'Broker', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-  exchange: { label: 'Exchange', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
-  wallet: { label: 'Wallet', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-  hardware: { label: 'Hardware', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-  aggregator: { label: 'Aggregator', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+  broker:     { label: 'Broker',     color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+  exchange:   { label: 'Exchange',   color: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/20' },
+  wallet:     { label: 'Wallet',     color: 'text-purple-400',  bg: 'bg-purple-500/10',  border: 'border-purple-500/20' },
+  hardware:   { label: 'Hardware',   color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/20' },
+  aggregator: { label: 'Aggregator', color: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/20' },
 };
 
 const brandColors = {
@@ -98,16 +157,116 @@ const brandColors = {
   degiro: '#ff6600',
 };
 
-// ── DeGiro modal ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODAL — shared wrapper
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ModalShell({ children, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/[0.08] shadow-2xl shadow-black/40 card-reveal">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ModalHeader({ icon, iconColor, title, subtitle, onClose }) {
+  return (
+    <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-3">
+        <BrandIcon label={icon} color={iconColor} />
+        <div>
+          <h3 className="text-base font-bold text-white leading-tight">{title}</h3>
+          <p className="text-[11px] text-gray-500 mt-0.5">{subtitle}</p>
+        </div>
+      </div>
+      <CloseButton onClick={onClose} />
+    </div>
+  );
+}
+
+function ModalSuccess({ message, detail, brandColor, syncing, onClose }) {
+  return (
+    <div className="text-center py-8 space-y-3">
+      {syncing ? (
+        <>
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto"
+            style={{ background: brandColor + '20' }}>
+            <Spinner className="w-7 h-7" style={{ color: brandColor }} />
+          </div>
+          <p className="text-white font-semibold">{message}</p>
+          <p className="text-xs text-gray-500">Fetching positions and dividend history</p>
+        </>
+      ) : (
+        <>
+          <div className="w-14 h-14 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto border border-emerald-500/20">
+            <CheckIcon className="w-7 h-7 text-emerald-400" />
+          </div>
+          <p className="text-emerald-400 font-semibold text-lg">{message}</p>
+          {detail && <p className="text-xs text-gray-500">{detail}</p>}
+          <button onClick={onClose}
+            className="mt-3 px-8 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-colors">
+            View Portfolio
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function InputField({ label, type = 'text', value, onChange, placeholder, className = '', ...props }) {
+  return (
+    <div>
+      <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
+      <input type={type} value={value} onChange={onChange} placeholder={placeholder}
+        className={`w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-sm text-white
+          placeholder-gray-700 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all ${className}`}
+        {...props}
+      />
+    </div>
+  );
+}
+
+function SubmitButton({ loading, disabled, label, loadingLabel, color = '#10b981', textColor = 'text-white' }) {
+  return (
+    <button type="submit" disabled={loading || disabled}
+      className={`w-full py-2.5 font-semibold rounded-xl transition-all text-sm ${textColor}
+        disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2
+        hover:brightness-110 active:scale-[0.98]`}
+      style={{ background: color }}
+    >
+      {loading ? <><Spinner className="w-4 h-4" /> {loadingLabel}</> : label}
+    </button>
+  );
+}
+
+function InfoBanner({ children, color = 'blue' }) {
+  const colors = {
+    blue: 'bg-blue-500/[0.05] border-blue-500/15 text-blue-300',
+    amber: 'bg-amber-500/[0.05] border-amber-500/15 text-amber-400',
+  };
+  return (
+    <div className={`p-3 rounded-xl border text-xs leading-relaxed ${colors[color]}`}>
+      {children}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DEGIRO MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function DegiroModal({ onClose }) {
-  const { connect, connectTOTP, syncing, connected, intAccount, username, positionCount } = useDegiro();
+  const { connect, connectTOTP, connectManual, syncing, connected, intAccount, username, positionCount } = useDegiro();
   const [username_, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [totp, setTotp] = useState('');
-  const [step, setStep] = useState('credentials'); // 'credentials' | 'totp' | 'syncing' | 'done'
+  const [manualSessionId, setManualSessionId] = useState('');
+  const [step, setStep] = useState('credentials');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  // Temporary store pending creds for TOTP step
+  const [wafBlocked, setWafBlocked] = useState(false);
   const [pendingCreds, setPendingCreds] = useState(null);
 
   const handleLogin = async (e) => {
@@ -124,7 +283,10 @@ function DegiroModal({ onClose }) {
       }
     } catch (err) {
       if (err instanceof DegiroError) {
-        if (err.isMaintenance) {
+        if (err.code === 'WAF_BLOCKED') {
+          setWafBlocked(true);
+          setError('DeGiro is blocking automated connections from our servers.');
+        } else if (err.isMaintenance) {
           setError('DeGiro is under maintenance. Try again later (Sunday nights are common).');
         } else if (err.isSessionExpired) {
           setError('Session expired. Please try logging in again.');
@@ -147,412 +309,150 @@ function DegiroModal({ onClose }) {
       const result = await connectTOTP(pendingCreds.username, pendingCreds.password, totp);
       if (result.success) setStep('done');
     } catch (err) {
-      setError(err instanceof DegiroError ? err.message : 'TOTP verification failed');
+      if (err instanceof DegiroError && err.code === 'WAF_BLOCKED') {
+        setWafBlocked(true);
+        setError('DeGiro is blocking automated connections from our servers.');
+      } else {
+        setError(err instanceof DegiroError ? err.message : 'TOTP verification failed');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleManualSession = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await connectManual(manualSessionId.trim());
+      if (result.success) setStep('done');
+    } catch (err) {
+      setError(err instanceof DegiroError ? err.message : 'Failed to connect with session');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm"
-              style={{ background: '#ff660022', border: '1px solid #ff660044', color: '#ff6600' }}>
-              DG
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Connect DeGiro</h3>
-              <p className="text-[10px] text-gray-500">European broker integration</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="DG" iconColor="#ff6600" title="Connect DeGiro" subtitle="European broker integration" onClose={onClose} />
 
-        {/* ── Step: credentials ── */}
-        {step === 'credentials' && (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300">
-              <span className="font-semibold">Read-only access.</span>{' '}
-              Your credentials are sent directly to DeGiro's servers and never stored by InvestIQ.
-            </div>
+      {step === 'credentials' && (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <InfoBanner>
+            <span className="font-semibold">Read-only access.</span>{' '}
+            Your credentials are sent directly to DeGiro's servers and never stored by InvestIQ.
+          </InfoBanner>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
-                {error}
-              </div>
-            )}
+          <ErrorBanner error={error} />
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">DeGiro Username / Email</label>
-              <input
-                type="text"
-                value={username_}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="username"
-                required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#ff6600]/50"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#ff6600]/50"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !username_ || !password}
-              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-white
-                bg-[#ff6600] hover:bg-[#e05a00] disabled:opacity-40 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Connecting…
-                </>
-              ) : 'Connect Securely'}
+          {wafBlocked && (
+            <button type="button" onClick={() => { setStep('manual'); setError(null); }}
+              className="w-full p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-left hover:bg-amber-500/10 transition-colors">
+              <p className="text-xs font-semibold text-amber-400 mb-1">Use Manual Session Instead</p>
+              <p className="text-[11px] text-amber-400/70">
+                Log into DeGiro in your browser and paste your session token. This always works.
+              </p>
             </button>
-          </form>
-        )}
-
-        {/* ── Step: TOTP ── */}
-        {step === 'totp' && (
-          <form onSubmit={handleTOTP} className="space-y-4">
-            <div className="text-center py-3">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <p className="text-sm font-semibold text-white">Two-Factor Authentication</p>
-              <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code from your authenticator app</p>
-            </div>
-
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
-            )}
-
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">TOTP Code</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                value={totp}
-                onChange={(e) => setTotp(e.target.value.replace(/\D/g, ''))}
-                placeholder="000000"
-                autoFocus
-                required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-xl text-white
-                  text-center font-mono tracking-widest placeholder-gray-700
-                  focus:outline-none focus:border-amber-500/50"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || totp.length !== 6}
-              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-white
-                bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Verifying…
-                </>
-              ) : 'Verify & Connect'}
-            </button>
-            <button type="button" onClick={() => setStep('credentials')}
-              className="w-full text-xs text-gray-500 hover:text-gray-300 transition-colors">
-              ← Back to login
-            </button>
-          </form>
-        )}
-
-        {/* ── Step: syncing ── */}
-        {(step === 'done' || syncing) && (
-          <div className="text-center py-6 space-y-3">
-            {syncing ? (
-              <>
-                <div className="w-14 h-14 rounded-full bg-[#ff6600]/20 flex items-center justify-center mx-auto">
-                  <svg className="animate-spin w-7 h-7 text-[#ff6600]" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                </div>
-                <p className="text-white font-semibold">Syncing your DeGiro portfolio…</p>
-                <p className="text-xs text-gray-500">Fetching positions and dividend history</p>
-              </>
-            ) : (
-              <>
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-emerald-400 font-semibold">DeGiro Connected!</p>
-                {username && <p className="text-sm text-gray-300">{username}</p>}
-                {intAccount && (
-                  <p className="text-xs text-gray-500">Account #{intAccount} · {positionCount} positions found</p>
-                )}
-                <button
-                  onClick={onClose}
-                  className="mt-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors"
-                >
-                  View Portfolio
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── API Key modal (for exchanges) ─────────────────────────────────────────────
-function APIKeyModal({ name, onClose, onConnect }) {
-  const [apiKey, setApiKey] = useState('');
-  const [apiSecret, setApiSecret] = useState('');
-  const [done, setDone] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(`[InvestIQ] Connecting ${name}:`, { apiKey });
-    setDone(true);
-    setTimeout(() => { onConnect(); onClose(); }, 1000);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-bold text-white">Connect {name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {done ? (
-          <div className="text-center py-6">
-            <div className="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="text-emerald-400 font-semibold">Connected!</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-sm text-gray-400">Read-only API credentials for {name}. We never trade on your behalf.</p>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">API Key</label>
-              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="Enter API key…"
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono" required />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">API Secret</label>
-              <input type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)} placeholder="Enter API secret…"
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono" required />
-            </div>
-            <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-              <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <p className="text-[11px] text-amber-400">Enable read-only API permissions only.</p>
-            </div>
-            <button type="submit" className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-colors text-sm">
-              Connect Securely
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Wallet modal ──────────────────────────────────────────────────────────────
-function WalletModal({ name, onClose, onConnect }) {
-  const [address, setAddress] = useState('');
-  const [done, setDone] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(`[InvestIQ] Connecting wallet ${name}:`, { address });
-    setDone(true);
-    setTimeout(() => { onConnect(); onClose(); }, 1000);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-bold text-white">Connect {name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        {done ? (
-          <div className="text-center py-6">
-            <div className="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="text-emerald-400 font-semibold">Wallet Tracked!</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-sm text-gray-400">Enter your wallet address for read-only balance tracking. We never request private keys.</p>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Wallet Address</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="0x… or SOL address"
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono" required />
-            </div>
-            <button type="submit" className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-colors text-sm">
-              Track Wallet
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── DeGiro card ───────────────────────────────────────────────────────────────
-function DegiroCard({ onOpenModal, onTest, testing, testResult }) {
-  const { connected, username, intAccount, positionCount, lastSync, syncing, sync, disconnect, error } = useDegiro();
-  const brand = '#ff6600';
-
-  return (
-    <div className={`glass-card rounded-xl p-5 border transition-all ${connected ? 'border-[#ff6600]/20' : 'border-white/5'}`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black"
-            style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
-            DG
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">DeGiro</p>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Broker
-            </span>
-          </div>
-        </div>
-        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-          {connected ? 'Live' : 'Off'}
-        </div>
-      </div>
-
-      {connected ? (
-        <div className="mb-4 space-y-1.5">
-          {username && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Account</span>
-              <span className="text-white truncate max-w-[140px]">{username}</span>
-            </div>
           )}
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Int. Account</span>
-            <span className="text-white font-mono">{intAccount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Positions</span>
-            <span className="text-emerald-400 font-semibold">{positionCount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Last sync</span>
-            <span className="text-gray-400">{lastSync ? timeAgo(lastSync) : '—'}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Status</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              {syncing ? 'Syncing…' : 'Active'}
-            </span>
-          </div>
-          {error && (
-            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400">
-              {error}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="mb-4 py-3 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">European broker — unofficial API</p>
-        </div>
+
+          <InputField label="DeGiro Username / Email" value={username_}
+            onChange={(e) => setUsername(e.target.value)} placeholder="you@example.com"
+            autoComplete="username" required />
+          <InputField label="Password" type="password" value={password}
+            onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
+            autoComplete="current-password" required />
+
+          <SubmitButton loading={loading} disabled={!username_ || !password}
+            label="Connect Securely" loadingLabel="Connecting…" color="#ff6600" />
+        </form>
       )}
 
-      {connected ? (
-        <div>
-          <div className="flex gap-2">
-            <button
-              onClick={sync}
-              disabled={syncing}
-              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40"
-            >
-              {syncing ? 'Syncing…' : 'Sync Now'}
-            </button>
-            <button
-              onClick={disconnect}
-              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors"
-            >
-              Disconnect
-            </button>
+      {step === 'totp' && (
+        <form onSubmit={handleTOTP} className="space-y-4">
+          <div className="text-center py-3">
+            <div className="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-white">Two-Factor Authentication</p>
+            <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code from your authenticator app</p>
           </div>
-          <TestButton provider="degiro" testing={testing} result={testResult} onTest={onTest} />
-        </div>
-      ) : (
-        <button
-          onClick={onOpenModal}
-          className="w-full py-2 text-xs font-semibold text-white rounded-lg transition-colors"
-          style={{ background: brand }}
-        >
-          Connect DeGiro
-        </button>
+
+          <ErrorBanner error={error} />
+
+          <InputField label="TOTP Code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
+            value={totp} onChange={(e) => setTotp(e.target.value.replace(/\D/g, ''))}
+            placeholder="000000" autoFocus required
+            className="text-xl text-center font-mono tracking-[0.3em]" />
+
+          <SubmitButton loading={loading} disabled={totp.length !== 6}
+            label="Verify & Connect" loadingLabel="Verifying…" color="#f59e0b" />
+          <button type="button" onClick={() => setStep('credentials')}
+            className="w-full text-xs text-gray-600 hover:text-gray-300 transition-colors py-1">
+            ← Back to login
+          </button>
+        </form>
       )}
-    </div>
+
+      {step === 'manual' && (
+        <form onSubmit={handleManualSession} className="space-y-4">
+          <InfoBanner color="amber">
+            <p className="font-semibold mb-2">How to get your session token:</p>
+            <ol className="list-decimal list-inside space-y-1 opacity-80">
+              <li>Open <span className="font-mono">trader.degiro.nl</span> in a new tab</li>
+              <li>Log in with your DeGiro credentials normally</li>
+              <li>Press <span className="font-mono">F12</span> to open DevTools</li>
+              <li>Go to <span className="font-mono">Application</span> → <span className="font-mono">Cookies</span> → <span className="font-mono">trader.degiro.nl</span></li>
+              <li>Copy the value of <span className="font-mono">JSESSIONID</span></li>
+              <li>Paste it below</li>
+            </ol>
+          </InfoBanner>
+
+          <ErrorBanner error={error} />
+
+          <InputField label="JSESSIONID" value={manualSessionId}
+            onChange={(e) => setManualSessionId(e.target.value)}
+            placeholder="Paste your JSESSIONID here…" autoFocus required className="font-mono" />
+
+          <InfoBanner>
+            Your session is sent securely to our server, validated with DeGiro, and stored encrypted. Sessions typically last 24 hours.
+          </InfoBanner>
+
+          <SubmitButton loading={loading} disabled={!manualSessionId.trim()}
+            label="Connect with Session" loadingLabel="Validating Session…" color="#f59e0b" />
+          <button type="button" onClick={() => { setStep('credentials'); setError(null); }}
+            className="w-full text-xs text-gray-600 hover:text-gray-300 transition-colors py-1">
+            ← Back to login
+          </button>
+        </form>
+      )}
+
+      {(step === 'done' || syncing) && (
+        <ModalSuccess
+          syncing={syncing}
+          brandColor="#ff6600"
+          message={syncing ? 'Syncing your DeGiro portfolio…' : 'DeGiro Connected!'}
+          detail={connected && !syncing ? `${username || ''} · Account #${intAccount || '—'} · ${positionCount} positions` : null}
+          onClose={onClose}
+        />
+      )}
+    </ModalShell>
   );
 }
 
-// ── Trading 212 modal ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// TRADING 212 MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function Trading212Modal({ onClose }) {
   const { connect, syncing, connected, positionCount, account } = useTrading212();
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
-  const [step, setStep] = useState('credentials'); // 'credentials' | 'syncing' | 'done'
+  const [step, setStep] = useState('credentials');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -571,190 +471,46 @@ function Trading212Modal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm"
-              style={{ background: '#1a56db22', border: '1px solid #1a56db44', color: '#1a56db' }}>
-              T2
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Connect Trading 212</h3>
-              <p className="text-[10px] text-gray-500">Official API integration</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="T2" iconColor="#1a56db" title="Connect Trading 212" subtitle="Official API integration" onClose={onClose} />
 
-        {step === 'credentials' && (
-          <form onSubmit={handleConnect} className="space-y-4">
-            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300">
-              <span className="font-semibold">Read-only API.</span>{' '}
-              Generate keys from Trading 212 → Settings → API (Beta). Enable read-only permissions only.
-            </div>
+      {step === 'credentials' && (
+        <form onSubmit={handleConnect} className="space-y-4">
+          <InfoBanner>
+            <span className="font-semibold">Read-only API.</span>{' '}
+            Generate keys from Trading 212 → Settings → API (Beta). Enable read-only permissions only.
+          </InfoBanner>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
-            )}
+          <ErrorBanner error={error} />
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Key</label>
-              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#1a56db]/50 font-mono" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Secret</label>
-              <input type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)}
-                placeholder="Enter your API secret…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#1a56db]/50 font-mono" />
-            </div>
+          <InputField label="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your API key…" required className="font-mono" />
+          <InputField label="API Secret" type="password" value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)}
+            placeholder="Enter your API secret…" required className="font-mono" />
 
-            <button type="submit" disabled={loading || !apiKey || !apiSecret}
-              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-white
-                bg-[#1a56db] hover:bg-[#1649c0] disabled:opacity-40 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2">
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Validating…
-                </>
-              ) : 'Connect Securely'}
-            </button>
-          </form>
-        )}
+          <SubmitButton loading={loading} disabled={!apiKey || !apiSecret}
+            label="Connect Securely" loadingLabel="Validating…" color="#1a56db" />
+        </form>
+      )}
 
-        {(step === 'done' || syncing) && (
-          <div className="text-center py-6 space-y-3">
-            {syncing ? (
-              <>
-                <div className="w-14 h-14 rounded-full bg-[#1a56db]/20 flex items-center justify-center mx-auto">
-                  <svg className="animate-spin w-7 h-7 text-[#1a56db]" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                </div>
-                <p className="text-white font-semibold">Syncing your Trading 212 portfolio…</p>
-              </>
-            ) : (
-              <>
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-emerald-400 font-semibold">Trading 212 Connected!</p>
-                {account && <p className="text-xs text-gray-500">{positionCount} positions found</p>}
-                <button onClick={onClose}
-                  className="mt-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                  View Portfolio
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+      {(step === 'done' || syncing) && (
+        <ModalSuccess
+          syncing={syncing}
+          brandColor="#1a56db"
+          message={syncing ? 'Syncing your Trading 212 portfolio…' : 'Trading 212 Connected!'}
+          detail={!syncing && account ? `${positionCount} positions found` : null}
+          onClose={onClose}
+        />
+      )}
+    </ModalShell>
   );
 }
 
-// ── Trading 212 card ──────────────────────────────────────────────────────────
-function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
-  const { connected, positionCount, lastSync, syncing, sync, disconnect, error, account } = useTrading212();
-  const { formatMoney } = useCurrency();
-  const brand = '#1a56db';
+// ═══════════════════════════════════════════════════════════════════════════════
+// BINANCE MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
 
-  return (
-    <div className={`glass-card rounded-xl p-5 border transition-all ${connected ? 'border-[#1a56db]/20' : 'border-white/5'}`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black"
-            style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
-            T2
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Trading 212</p>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              Broker
-            </span>
-          </div>
-        </div>
-        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-          {connected ? 'Live' : 'Off'}
-        </div>
-      </div>
-
-      {connected ? (
-        <div className="mb-4 space-y-1.5">
-          {account && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Portfolio</span>
-              <span className="text-emerald-400 font-semibold">{formatMoney(account.totalValue, 0)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Positions</span>
-            <span className="text-emerald-400 font-semibold">{positionCount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Last sync</span>
-            <span className="text-gray-400">{lastSync ? timeAgo(lastSync) : '—'}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Status</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              {syncing ? 'Syncing…' : 'Active'}
-            </span>
-          </div>
-          {error && (
-            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400">{error}</div>
-          )}
-        </div>
-      ) : (
-        <div className="mb-4 py-3 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">Official API — read-only access</p>
-        </div>
-      )}
-
-      {connected ? (
-        <div>
-          <div className="flex gap-2">
-            <button onClick={sync} disabled={syncing}
-              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-              {syncing ? 'Syncing…' : 'Sync Now'}
-            </button>
-            <button onClick={disconnect}
-              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-              Disconnect
-            </button>
-          </div>
-          <TestButton provider="trading212" testing={testing} result={testResult} onTest={onTest} />
-        </div>
-      ) : (
-        <button onClick={onOpenModal}
-          className="w-full py-2 text-xs font-semibold text-white rounded-lg transition-colors"
-          style={{ background: brand }}>
-          Connect Trading 212
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ── Binance modal ────────────────────────────────────────────────────────────
 function BinanceModal({ onClose }) {
   const { connect, syncing, connected, assetCount, account } = useBinance();
   const [apiKey, setApiKey] = useState('');
@@ -777,200 +533,56 @@ function BinanceModal({ onClose }) {
     }
   };
 
-  const brand = '#f0b90b';
-
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm"
-              style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
-              BN
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Connect Binance</h3>
-              <p className="text-[10px] text-gray-500">Crypto exchange — HMAC-signed API</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="BN" iconColor="#f0b90b" title="Connect Binance" subtitle="Crypto exchange — direct browser connection" onClose={onClose} />
 
-        {step === 'credentials' && (
-          <form onSubmit={handleConnect} className="space-y-4">
-            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300">
-              <span className="font-semibold">Read-only API.</span>{' '}
-              Create keys from Binance → API Management. Enable <strong>only</strong> "Enable Reading" — disable trading and withdrawals.
-            </div>
+      {step === 'credentials' && (
+        <form onSubmit={handleConnect} className="space-y-4">
+          <InfoBanner>
+            <span className="font-semibold">Read-only API.</span>{' '}
+            Create keys from Binance → API Management. Enable <strong>only</strong> "Enable Reading" — disable trading and withdrawals.
+          </InfoBanner>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
-            )}
+          <ErrorBanner error={error} />
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Key</label>
-              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your Binance API key…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#f0b90b]/50 font-mono" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Secret</label>
-              <input type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)}
-                placeholder="Enter your API secret…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#f0b90b]/50 font-mono" />
-            </div>
+          <InputField label="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your Binance API key…" required className="font-mono" />
+          <InputField label="API Secret" type="password" value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)}
+            placeholder="Enter your API secret…" required className="font-mono" />
 
-            <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-              <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <InfoBanner color="amber">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <p className="text-[11px] text-amber-400">Restrict API key to read-only. IP whitelist recommended.</p>
+              Restrict API key to read-only. IP whitelist recommended.
             </div>
+          </InfoBanner>
 
-            <button type="submit" disabled={loading || !apiKey || !apiSecret}
-              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-black
-                bg-[#f0b90b] hover:bg-[#d9a60a] disabled:opacity-40 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2">
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Validating…
-                </>
-              ) : 'Connect Securely'}
-            </button>
-          </form>
-        )}
+          <SubmitButton loading={loading} disabled={!apiKey || !apiSecret}
+            label="Connect Securely" loadingLabel="Validating…" color="#f0b90b" textColor="text-black" />
+        </form>
+      )}
 
-        {(step === 'done' || syncing) && (
-          <div className="text-center py-6 space-y-3">
-            {syncing ? (
-              <>
-                <div className="w-14 h-14 rounded-full bg-[#f0b90b]/20 flex items-center justify-center mx-auto">
-                  <svg className="animate-spin w-7 h-7 text-[#f0b90b]" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                </div>
-                <p className="text-white font-semibold">Syncing your Binance portfolio…</p>
-              </>
-            ) : (
-              <>
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-emerald-400 font-semibold">Binance Connected!</p>
-                {account && <p className="text-xs text-gray-500">{assetCount} assets found</p>}
-                <button onClick={onClose}
-                  className="mt-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                  View Portfolio
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+      {(step === 'done' || syncing) && (
+        <ModalSuccess
+          syncing={syncing}
+          brandColor="#f0b90b"
+          message={syncing ? 'Syncing your Binance portfolio…' : 'Binance Connected!'}
+          detail={!syncing && account ? `${assetCount} assets found` : null}
+          onClose={onClose}
+        />
+      )}
+    </ModalShell>
   );
 }
 
-// ── Binance card ─────────────────────────────────────────────────────────────
-function BinanceCard({ onOpenModal, onTest, testing, testResult }) {
-  const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useBinance();
-  const { formatMoney } = useCurrency();
-  const brand = '#f0b90b';
+// ═══════════════════════════════════════════════════════════════════════════════
+// CRYPTO.COM MODAL
+// ═══════════════════════════════════════════════════════════════════════════════
 
-  return (
-    <div className={`glass-card rounded-xl p-5 border transition-all ${connected ? 'border-[#f0b90b]/20' : 'border-white/5'}`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black"
-            style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
-            BN
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Binance</p>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              Exchange
-            </span>
-          </div>
-        </div>
-        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-          {connected ? 'Live' : 'Off'}
-        </div>
-      </div>
-
-      {connected ? (
-        <div className="mb-4 space-y-1.5">
-          {totalValue > 0 && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Portfolio</span>
-              <span className="text-emerald-400 font-semibold">{formatMoney(totalValue, 0)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Assets</span>
-            <span className="text-emerald-400 font-semibold">{assetCount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Last sync</span>
-            <span className="text-gray-400">{lastSync ? timeAgo(lastSync) : '—'}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Status</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              {syncing ? 'Syncing…' : 'Active'}
-            </span>
-          </div>
-          {error && (
-            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400">{error}</div>
-          )}
-        </div>
-      ) : (
-        <div className="mb-4 py-3 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — HMAC-signed API</p>
-        </div>
-      )}
-
-      {connected ? (
-        <div>
-          <div className="flex gap-2">
-            <button onClick={sync} disabled={syncing}
-              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-              {syncing ? 'Syncing…' : 'Sync Now'}
-            </button>
-            <button onClick={disconnect}
-              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-              Disconnect
-            </button>
-          </div>
-          <TestButton provider="binance" testing={testing} result={testResult} onTest={onTest} />
-        </div>
-      ) : (
-        <button onClick={onOpenModal}
-          className="w-full py-2 text-xs font-semibold text-black rounded-lg transition-colors"
-          style={{ background: brand }}>
-          Connect Binance
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ── Crypto.com modal ─────────────────────────────────────────────────────────
 function CryptocomModal({ onClose }) {
   const { connect, syncing, connected, assetCount, account } = useCryptocom();
   const [apiKey, setApiKey] = useState('');
@@ -993,198 +605,340 @@ function CryptocomModal({ onClose }) {
     }
   };
 
-  const brand = '#002d74';
-
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm"
-              style={{ background: brand + '22', border: `1px solid ${brand}44`, color: '#1199fa' }}>
-              CC
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Connect Crypto.com</h3>
-              <p className="text-[10px] text-gray-500">Crypto exchange — signed API</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="CC" iconColor="#1199fa" title="Connect Crypto.com" subtitle="Crypto exchange — signed API" onClose={onClose} />
 
-        {step === 'credentials' && (
-          <form onSubmit={handleConnect} className="space-y-4">
-            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300">
-              <span className="font-semibold">Read-only API.</span>{' '}
-              Create keys from Crypto.com Exchange → Settings → API Keys. Enable read-only permissions only.
-            </div>
+      {step === 'credentials' && (
+        <form onSubmit={handleConnect} className="space-y-4">
+          <InfoBanner>
+            <span className="font-semibold">Read-only API.</span>{' '}
+            Create keys from Crypto.com Exchange → Settings → API Keys. Enable read-only permissions only.
+          </InfoBanner>
 
-            {error && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
-            )}
+          <ErrorBanner error={error} />
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Key</label>
-              <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your Crypto.com API key…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#1199fa]/50 font-mono" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">API Secret</label>
-              <input type="password" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)}
-                placeholder="Enter your API secret…" required
-                className="w-full px-3 py-2.5 bg-[#1f2937] border border-white/10 rounded-lg text-sm text-white
-                  placeholder-gray-600 focus:outline-none focus:border-[#1199fa]/50 font-mono" />
-            </div>
+          <InputField label="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your Crypto.com API key…" required className="font-mono" />
+          <InputField label="API Secret" type="password" value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)}
+            placeholder="Enter your API secret…" required className="font-mono" />
 
-            <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-              <svg className="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <InfoBanner color="amber">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <p className="text-[11px] text-amber-400">Restrict API key to read-only. Never enable trading or withdrawals.</p>
+              Never enable trading or withdrawals on API keys.
             </div>
+          </InfoBanner>
 
-            <button type="submit" disabled={loading || !apiKey || !apiSecret}
-              className="w-full py-2.5 font-semibold rounded-lg transition-colors text-sm text-white
-                bg-[#1199fa] hover:bg-[#0d7dd4] disabled:opacity-40 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2">
-              {loading ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Validating…
-                </>
-              ) : 'Connect Securely'}
-            </button>
-          </form>
-        )}
+          <SubmitButton loading={loading} disabled={!apiKey || !apiSecret}
+            label="Connect Securely" loadingLabel="Validating…" color="#1199fa" />
+        </form>
+      )}
 
-        {(step === 'done' || syncing) && (
-          <div className="text-center py-6 space-y-3">
-            {syncing ? (
-              <>
-                <div className="w-14 h-14 rounded-full bg-[#1199fa]/20 flex items-center justify-center mx-auto">
-                  <svg className="animate-spin w-7 h-7 text-[#1199fa]" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                </div>
-                <p className="text-white font-semibold">Syncing your Crypto.com portfolio…</p>
-              </>
-            ) : (
-              <>
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto">
-                  <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-emerald-400 font-semibold">Crypto.com Connected!</p>
-                {account && <p className="text-xs text-gray-500">{assetCount} assets found</p>}
-                <button onClick={onClose}
-                  className="mt-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                  View Portfolio
-                </button>
-              </>
-            )}
-          </div>
-        )}
+      {(step === 'done' || syncing) && (
+        <ModalSuccess
+          syncing={syncing}
+          brandColor="#1199fa"
+          message={syncing ? 'Syncing your Crypto.com portfolio…' : 'Crypto.com Connected!'}
+          detail={!syncing && account ? `${assetCount} assets found` : null}
+          onClose={onClose}
+        />
+      )}
+    </ModalShell>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GENERIC MODALS (mock connections)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function APIKeyModal({ name, onClose, onConnect }) {
+  const [apiKey, setApiKey] = useState('');
+  const [apiSecret, setApiSecret] = useState('');
+  const [done, setDone] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setDone(true);
+    setTimeout(() => { onConnect(); onClose(); }, 1000);
+  };
+
+  return (
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="—" iconColor="#6b7280" title={`Connect ${name}`} subtitle="API key integration" onClose={onClose} />
+      {done ? (
+        <ModalSuccess syncing={false} brandColor="#10b981" message="Connected!" onClose={onClose} />
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-sm text-gray-400">Read-only API credentials for {name}. We never trade on your behalf.</p>
+          <InputField label="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter API key…" required className="font-mono" />
+          <InputField label="API Secret" type="password" value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)} placeholder="Enter API secret…" required className="font-mono" />
+          <SubmitButton loading={false} disabled={!apiKey || !apiSecret} label="Connect Securely" loadingLabel="Connecting…" />
+        </form>
+      )}
+    </ModalShell>
+  );
+}
+
+function WalletModal({ name, onClose, onConnect }) {
+  const [address, setAddress] = useState('');
+  const [done, setDone] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setDone(true);
+    setTimeout(() => { onConnect(); onClose(); }, 1000);
+  };
+
+  return (
+    <ModalShell onClose={onClose}>
+      <ModalHeader icon="—" iconColor="#6b7280" title={`Connect ${name}`} subtitle="Wallet tracking" onClose={onClose} />
+      {done ? (
+        <ModalSuccess syncing={false} brandColor="#10b981" message="Wallet Tracked!" onClose={onClose} />
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-sm text-gray-400">Enter your wallet address for read-only balance tracking. We never request private keys.</p>
+          <InputField label="Wallet Address" value={address} onChange={(e) => setAddress(e.target.value)}
+            placeholder="0x… or SOL address" required className="font-mono" />
+          <SubmitButton loading={false} disabled={!address} label="Track Wallet" loadingLabel="Connecting…" />
+        </form>
+      )}
+    </ModalShell>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BROKER CARDS — Connected & disconnected states
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function CardActions({ connected, syncing, onSync, onDisconnect, onConnect, connectLabel, brand, provider, testing, testResult, onTest }) {
+  if (connected) {
+    return (
+      <div className="pt-3 border-t border-white/[0.04]">
+        <div className="flex gap-2">
+          <button onClick={onSync} disabled={syncing}
+            className="flex-1 py-1.5 text-xs font-medium text-gray-400 border border-white/[0.06] rounded-lg hover:text-white hover:bg-white/[0.04] transition-all disabled:opacity-40 focus:outline-none">
+            {syncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+          <button onClick={onDisconnect}
+            className="px-3 py-1.5 text-xs font-medium text-red-400/70 border border-red-500/10 rounded-lg hover:text-red-400 hover:bg-red-500/[0.06] transition-all focus:outline-none">
+            Disconnect
+          </button>
+        </div>
+        <TestButton provider={provider} testing={testing} result={testResult} onTest={onTest} />
       </div>
+    );
+  }
+  return (
+    <button onClick={onConnect}
+      className="w-full py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all hover:brightness-110 active:scale-[0.98]"
+      style={{ background: brand, color: brand === '#f0b90b' ? '#000' : '#fff' }}>
+      {connectLabel}
+    </button>
+  );
+}
+
+function DegiroCard({ onOpenModal, onTest, testing, testResult }) {
+  const { connected, username, intAccount, positionCount, lastSync, syncing, sync, disconnect, error } = useDegiro();
+  const brand = '#ff6600';
+
+  return (
+    <div className={`card-accent ${connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
+      style={{ '--accent': brand }}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <BrandIcon label="DG" color={brand} />
+          <div>
+            <p className="text-sm font-semibold text-white">DeGiro</p>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+              Broker
+            </span>
+          </div>
+        </div>
+        <StatusBadge connected={connected} />
+      </div>
+
+      {connected ? (
+        <div className="mb-4 space-y-2">
+          {username && <DataRow label="Account" value={<span className="truncate max-w-[140px] block">{username}</span>} />}
+          <DataRow label="Int. Account" value={<span className="font-mono text-[11px]">{intAccount}</span>} />
+          <DataRow label="Positions" value={positionCount} valueClass="text-emerald-400 font-data" />
+          <DataRow label="Last sync" value={lastSync ? timeAgo(lastSync) : '—'} valueClass="text-gray-400" />
+          <DataRow label="Status" value={
+            <span className="flex items-center gap-1.5">
+              <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
+              {syncing ? 'Syncing…' : 'Active'}
+            </span>
+          } valueClass="text-emerald-400" />
+          <ErrorBanner error={error} />
+        </div>
+      ) : (
+        <div className="mb-4 py-4 text-center">
+          <p className="text-xs text-gray-600">Not connected</p>
+          <p className="text-[10px] text-gray-700 mt-0.5">European broker — unofficial API</p>
+        </div>
+      )}
+
+      <CardActions connected={connected} syncing={syncing} onSync={sync} onDisconnect={disconnect}
+        onConnect={() => onOpenModal()} connectLabel="Connect DeGiro" brand={brand}
+        provider="degiro" testing={testing} testResult={testResult} onTest={onTest} />
     </div>
   );
 }
 
-// ── Crypto.com card ──────────────────────────────────────────────────────────
+function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
+  const { connected, positionCount, lastSync, syncing, sync, disconnect, error, account } = useTrading212();
+  const { formatMoney } = useCurrency();
+  const brand = '#1a56db';
+
+  return (
+    <div className={`card-accent ${connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
+      style={{ '--accent': brand }}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <BrandIcon label="T2" color={brand} />
+          <div>
+            <p className="text-sm font-semibold text-white">Trading 212</p>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+              Broker
+            </span>
+          </div>
+        </div>
+        <StatusBadge connected={connected} />
+      </div>
+
+      {connected ? (
+        <div className="mb-4 space-y-2">
+          {account && <DataRow label="Portfolio" value={formatMoney(account.totalValue, 0)} valueClass="text-emerald-400 font-data" />}
+          <DataRow label="Positions" value={positionCount} valueClass="text-emerald-400 font-data" />
+          <DataRow label="Last sync" value={lastSync ? timeAgo(lastSync) : '—'} valueClass="text-gray-400" />
+          <DataRow label="Status" value={
+            <span className="flex items-center gap-1.5">
+              <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
+              {syncing ? 'Syncing…' : 'Active'}
+            </span>
+          } valueClass="text-emerald-400" />
+          <ErrorBanner error={error} />
+        </div>
+      ) : (
+        <div className="mb-4 py-4 text-center">
+          <p className="text-xs text-gray-600">Not connected</p>
+          <p className="text-[10px] text-gray-700 mt-0.5">Official API — read-only access</p>
+        </div>
+      )}
+
+      <CardActions connected={connected} syncing={syncing} onSync={sync} onDisconnect={disconnect}
+        onConnect={() => onOpenModal()} connectLabel="Connect Trading 212" brand={brand}
+        provider="trading212" testing={testing} testResult={testResult} onTest={onTest} />
+    </div>
+  );
+}
+
+function BinanceCard({ onOpenModal, onTest, testing, testResult }) {
+  const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useBinance();
+  const { formatMoney } = useCurrency();
+  const brand = '#f0b90b';
+
+  return (
+    <div className={`card-accent ${connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
+      style={{ '--accent': brand }}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <BrandIcon label="BN" color={brand} />
+          <div>
+            <p className="text-sm font-semibold text-white">Binance</p>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">
+              Exchange
+            </span>
+          </div>
+        </div>
+        <StatusBadge connected={connected} />
+      </div>
+
+      {connected ? (
+        <div className="mb-4 space-y-2">
+          {totalValue > 0 && <DataRow label="Portfolio" value={formatMoney(totalValue, 0)} valueClass="text-emerald-400 font-data" />}
+          <DataRow label="Assets" value={assetCount} valueClass="text-emerald-400 font-data" />
+          <DataRow label="Last sync" value={lastSync ? timeAgo(lastSync) : '—'} valueClass="text-gray-400" />
+          <DataRow label="Status" value={
+            <span className="flex items-center gap-1.5">
+              <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
+              {syncing ? 'Syncing…' : 'Active'}
+            </span>
+          } valueClass="text-emerald-400" />
+          <ErrorBanner error={error} />
+        </div>
+      ) : (
+        <div className="mb-4 py-4 text-center">
+          <p className="text-xs text-gray-600">Not connected</p>
+          <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — browser-direct API</p>
+        </div>
+      )}
+
+      <CardActions connected={connected} syncing={syncing} onSync={sync} onDisconnect={disconnect}
+        onConnect={() => onOpenModal()} connectLabel="Connect Binance" brand={brand}
+        provider="binance" testing={testing} testResult={testResult} onTest={onTest} />
+    </div>
+  );
+}
+
 function CryptocomCard({ onOpenModal, onTest, testing, testResult }) {
   const { connected, assetCount, totalValue, lastSync, syncing, sync, disconnect, error } = useCryptocom();
   const { formatMoney } = useCurrency();
   const brand = '#1199fa';
 
   return (
-    <div className={`glass-card rounded-xl p-5 border transition-all ${connected ? 'border-[#1199fa]/20' : 'border-white/5'}`}>
+    <div className={`card-accent ${connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
+      style={{ '--accent': brand }}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black"
-            style={{ background: '#002d7422', border: '1px solid #002d7444', color: brand }}>
-            CC
-          </div>
+          <BrandIcon label="CC" color={brand} bg="#002d7418" />
           <div>
             <p className="text-sm font-semibold text-white">Crypto.com</p>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">
               Exchange
             </span>
           </div>
         </div>
-        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-          {connected ? 'Live' : 'Off'}
-        </div>
+        <StatusBadge connected={connected} />
       </div>
 
       {connected ? (
-        <div className="mb-4 space-y-1.5">
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Portfolio</span>
-            <span className="text-emerald-400 font-semibold">{formatMoney(totalValue, 0)}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Assets</span>
-            <span className="text-white">{assetCount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Last sync</span>
-            <span className="text-gray-400">{lastSync ? timeAgo(lastSync) : '—'}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Status</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+        <div className="mb-4 space-y-2">
+          <DataRow label="Portfolio" value={formatMoney(totalValue, 0)} valueClass="text-emerald-400 font-data" />
+          <DataRow label="Assets" value={assetCount} valueClass="text-white" />
+          <DataRow label="Last sync" value={lastSync ? timeAgo(lastSync) : '—'} valueClass="text-gray-400" />
+          <DataRow label="Status" value={
+            <span className="flex items-center gap-1.5">
+              <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
               {syncing ? 'Syncing…' : 'Active'}
             </span>
-          </div>
-          {error && (
-            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400">{error}</div>
-          )}
+          } valueClass="text-emerald-400" />
+          <ErrorBanner error={error} />
         </div>
       ) : (
-        <div className="mb-4 py-3 text-center">
+        <div className="mb-4 py-4 text-center">
           <p className="text-xs text-gray-600">Not connected</p>
           <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — signed API</p>
         </div>
       )}
 
-      {connected ? (
-        <div>
-          <div className="flex gap-2">
-            <button onClick={sync} disabled={syncing}
-              className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white/20">
-              {syncing ? 'Syncing…' : 'Sync Now'}
-            </button>
-            <button onClick={disconnect}
-              className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/30">
-              Disconnect
-            </button>
-          </div>
-          <TestButton provider="cryptocom" testing={testing} result={testResult} onTest={onTest} />
-        </div>
-      ) : (
-        <button onClick={onOpenModal}
-          className="w-full py-2 text-xs font-semibold text-white rounded-lg transition-colors"
-          style={{ background: brand }}>
-          Connect Crypto.com
-        </button>
-      )}
+      <CardActions connected={connected} syncing={syncing} onSync={sync} onDisconnect={disconnect}
+        onConnect={() => onOpenModal()} connectLabel="Connect Crypto.com" brand={brand}
+        provider="cryptocom" testing={testing} testResult={testResult} onTest={onTest} />
     </div>
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN PAGE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export default function Connections() {
   const { formatMoney } = useCurrency();
   const { connected: degiroConnected, positionCount } = useDegiro();
@@ -1206,7 +960,6 @@ export default function Connections() {
   const openModal = (conn) => {
     const modalType = ['wallet', 'hardware'].includes(conn.type) ? 'wallet' : 'api';
     if (conn.type === 'broker' && conn.id !== 'plaid') {
-      console.log(`[InvestIQ] Initiating OAuth for ${conn.name}`);
       setTimeout(() => toggleConnection(conn.id), 800);
       return;
     }
@@ -1224,130 +977,148 @@ export default function Connections() {
   const liveSourceCount = (degiroConnected ? 1 : 0) + (t212Connected ? 1 : 0) + (binanceConnected ? 1 : 0) + (cryptocomConnected ? 1 : 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* ── Header ── */}
       <div>
         <h1 className="text-3xl font-display font-bold text-white">Connections</h1>
-        <p className="text-gray-500 text-sm mt-1">Link your brokers, exchanges, and wallets</p>
+        <p className="text-gray-500 text-sm mt-1.5">Link your brokers, exchanges, and wallets to build a unified portfolio view</p>
       </div>
 
-      {/* Status summary */}
+      {/* ── Status summary ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Connected Sources</p>
-          <p className="text-2xl font-data font-medium text-emerald-400">
+        <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '0ms' }}>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Connected Sources</p>
+          <p className="text-3xl font-data font-medium text-emerald-400 leading-tight">
             {connectedMock.length + liveSourceCount}
           </p>
-          <p className="text-xs text-gray-500">of {conns.length + 4} available</p>
+          <p className="text-xs text-gray-600 mt-1">of {conns.length + 4} available</p>
         </div>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Tracked Value</p>
-          <p className="text-2xl font-data font-medium text-white">{formatMoney(totalConnectedValue, 0)}</p>
+        <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '60ms' }}>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Tracked Value</p>
+          <p className="text-3xl font-data font-medium text-white leading-tight">{formatMoney(totalConnectedValue, 0)}</p>
+          <p className="text-xs text-gray-600 mt-1">across all mock sources</p>
         </div>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">DeGiro Positions</p>
-          <p className="text-2xl font-data font-medium text-[#ff6600]">
-            {degiroConnected ? positionCount : '—'}
+        <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '120ms' }}>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Live Positions</p>
+          <div className="flex items-baseline gap-3">
+            <p className="text-3xl font-data font-medium leading-tight" style={{ color: '#ff6600' }}>
+              {degiroConnected ? positionCount : '—'}
+            </p>
+            {t212Connected && (
+              <p className="text-lg font-data text-[#1a56db]">
+                +{t212PositionCount}
+              </p>
+            )}
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            {degiroConnected || t212Connected
+              ? [degiroConnected && 'DeGiro', t212Connected && 'T212'].filter(Boolean).join(' + ')
+              : 'No brokers connected'}
           </p>
-          <p className="text-xs text-gray-500">{degiroConnected ? 'live positions' : 'Not connected'}</p>
         </div>
       </div>
 
-      {/* Cards grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {/* Real integrations first */}
-        <DegiroCard onOpenModal={() => setShowDegiroModal(true)} onTest={testConn} testing={testingMap.degiro} testResult={testResults.degiro} />
-        <Trading212Card onOpenModal={() => setShowT212Modal(true)} onTest={testConn} testing={testingMap.trading212} testResult={testResults.trading212} />
-        <BinanceCard onOpenModal={() => setShowBinanceModal(true)} onTest={testConn} testing={testingMap.binance} testResult={testResults.binance} />
-        <CryptocomCard onOpenModal={() => setShowCryptocomModal(true)} onTest={testConn} testing={testingMap.cryptocom} testResult={testResults.cryptocom} />
+      {/* ── Cards grid ── */}
+      <div>
+        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-4">Integrations</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* Real integrations first */}
+          <div className="card-reveal" style={{ animationDelay: '150ms' }}>
+            <DegiroCard onOpenModal={() => setShowDegiroModal(true)} onTest={testConn} testing={testingMap.degiro} testResult={testResults.degiro} />
+          </div>
+          <div className="card-reveal" style={{ animationDelay: '200ms' }}>
+            <Trading212Card onOpenModal={() => setShowT212Modal(true)} onTest={testConn} testing={testingMap.trading212} testResult={testResults.trading212} />
+          </div>
+          <div className="card-reveal" style={{ animationDelay: '250ms' }}>
+            <BinanceCard onOpenModal={() => setShowBinanceModal(true)} onTest={testConn} testing={testingMap.binance} testResult={testResults.binance} />
+          </div>
+          <div className="card-reveal" style={{ animationDelay: '300ms' }}>
+            <CryptocomCard onOpenModal={() => setShowCryptocomModal(true)} onTest={testConn} testing={testingMap.cryptocom} testResult={testResults.cryptocom} />
+          </div>
 
-        {conns.map((conn) => {
-          const tc = typeConfig[conn.type] ?? typeConfig.broker;
-          const brand = brandColors[conn.id] ?? '#6b7280';
-          return (
-            <div key={conn.id} className={`glass-card rounded-xl p-5 border transition-all ${conn.connected ? 'border-emerald-500/20' : 'border-white/5'}`}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white"
-                    style={{ background: brand + '22', border: `1px solid ${brand}44`, color: brand }}>
-                    {conn.logo}
+          {conns.map((conn, i) => {
+            const tc = typeConfig[conn.type] ?? typeConfig.broker;
+            const brand = brandColors[conn.id] ?? '#6b7280';
+            return (
+              <div key={conn.id} className="card-reveal" style={{ animationDelay: `${350 + i * 50}ms` }}>
+                <div className={`card-accent ${conn.connected ? 'card-accent-connected' : ''} glass-card group rounded-xl p-5 transition-all hover:translate-y-[-2px]`}
+                  style={{ '--accent': brand }}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <BrandIcon label={conn.logo} color={brand} />
+                      <div>
+                        <p className="text-sm font-semibold text-white">{conn.name}</p>
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${tc.bg} ${tc.color} border ${tc.border}`}>
+                          {tc.label}
+                        </span>
+                      </div>
+                    </div>
+                    <StatusBadge connected={conn.connected} />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{conn.name}</p>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${tc.bg} ${tc.color} border ${tc.border}`}>
-                      {tc.label}
-                    </span>
-                  </div>
-                </div>
-                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium ${conn.connected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : 'bg-gray-800 text-gray-500 border border-white/5'}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${conn.connected ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-                  {conn.connected ? 'Live' : 'Off'}
+
+                  {conn.connected ? (
+                    <div className="mb-4 space-y-2">
+                      <DataRow label="Accounts" value={conn.accounts} />
+                      <DataRow label="Portfolio" value={formatMoney(conn.totalValue, 0)} valueClass="text-emerald-400 font-data" />
+                      <DataRow label="Status" value={
+                        <span className="flex items-center gap-1.5">
+                          <span className="relative w-1.5 h-1.5 bg-emerald-400 rounded-full status-ping" />
+                          Active
+                        </span>
+                      } valueClass="text-emerald-400" />
+                    </div>
+                  ) : (
+                    <div className="mb-4 py-4 text-center">
+                      <p className="text-xs text-gray-600">Not connected</p>
+                    </div>
+                  )}
+
+                  {conn.connected ? (
+                    <div className="pt-3 border-t border-white/[0.04] flex gap-2">
+                      <button className="flex-1 py-1.5 text-xs font-medium text-gray-400 border border-white/[0.06] rounded-lg hover:text-white hover:bg-white/[0.04] transition-all">
+                        Sync Now
+                      </button>
+                      <button onClick={() => toggleConnection(conn.id)}
+                        className="px-3 py-1.5 text-xs font-medium text-red-400/70 border border-red-500/10 rounded-lg hover:text-red-400 hover:bg-red-500/[0.06] transition-all">
+                        Disconnect
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => openModal(conn)}
+                      className="w-full py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-all active:scale-[0.98]">
+                      {conn.type === 'broker' && conn.id !== 'plaid' ? 'Connect via OAuth' :
+                        conn.type === 'aggregator' ? 'Connect via Plaid' :
+                          ['wallet', 'hardware'].includes(conn.type) ? 'Add Wallet Address' :
+                            'Connect with API Key'}
+                    </button>
+                  )}
                 </div>
               </div>
-
-              {conn.connected ? (
-                <div className="mb-4 space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Accounts</span>
-                    <span className="text-white">{conn.accounts}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Portfolio</span>
-                    <span className="text-emerald-400 font-semibold">{formatMoney(conn.totalValue, 0)}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Status</span>
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />Active
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="mb-4 py-3 text-center">
-                  <p className="text-xs text-gray-600">Not connected</p>
-                </div>
-              )}
-
-              {conn.connected ? (
-                <div className="flex gap-2">
-                  <button className="flex-1 py-1.5 text-xs text-gray-400 border border-white/10 rounded-lg hover:text-white hover:bg-white/5 transition-colors">
-                    Sync Now
-                  </button>
-                  <button onClick={() => toggleConnection(conn.id)}
-                    className="px-2.5 py-1.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
-                    Disconnect
-                  </button>
-                </div>
-              ) : (
-                <button onClick={() => openModal(conn)}
-                  className="w-full py-2 text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors">
-                  {conn.type === 'broker' && conn.id !== 'plaid' ? 'Connect via OAuth' :
-                    conn.type === 'aggregator' ? 'Connect via Plaid' :
-                      ['wallet', 'hardware'].includes(conn.type) ? 'Add Wallet Address' :
-                        'Connect with API Key'}
-                </button>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Security notice */}
-      <div className="glass-card rounded-xl p-4 border border-amber-500/10">
+      {/* ── Security notice ── */}
+      <div className="glass-card rounded-xl p-5 border border-amber-500/[0.08] card-reveal" style={{ animationDelay: '600ms' }}>
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
+          <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/15 flex items-center justify-center flex-shrink-0">
+            <svg className="w-4.5 h-4.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
           <div>
             <p className="text-sm font-semibold text-amber-400 mb-1">Read-Only Security</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500 leading-relaxed">
               InvestIQ requests read-only access only. DeGiro credentials are proxied server-side and never stored.
-              API keys for exchanges use read-only scopes. Wallet addresses are public — no private keys ever needed.
+              Exchange API keys use read-only scopes — Binance connects directly from your browser for maximum security.
+              Wallet addresses are public — no private keys ever needed.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Modals */}
+      {/* ── Modals ── */}
       {showDegiroModal && <DegiroModal onClose={() => setShowDegiroModal(false)} />}
       {showT212Modal && <Trading212Modal onClose={() => setShowT212Modal(false)} />}
       {showBinanceModal && <BinanceModal onClose={() => setShowBinanceModal(false)} />}
