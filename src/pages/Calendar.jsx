@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { upcomingPayments } from '../data/mockPortfolio';
+import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { useCurrency } from '../context/CurrencyContext';
+import { Link } from 'react-router-dom';
 
 const typeColors = {
   Dividend: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', dot: 'bg-emerald-400', border: 'border-emerald-500/20', hex: '#10b981' },
@@ -96,6 +97,7 @@ function CalendarGrid({ year, month, payments, onDayClick, selectedDay }) {
 
 export default function Calendar() {
   const { formatMoney } = useCurrency();
+  const { upcomingPayments, isEmpty } = useUnifiedPortfolio();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
@@ -106,6 +108,34 @@ export default function Calendar() {
   const filteredPayments = upcomingPayments.filter(
     (p) => typeFilter === 'All' || p.type === typeFilter
   );
+
+  if (isEmpty) {
+    return (
+      <div className="space-y-6">
+        <div className="card-reveal">
+          <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
+          <p className="text-gray-500 text-sm mt-1">Track all upcoming income payments</p>
+        </div>
+        <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <h2 className="text-xl font-display font-bold text-white mb-2">No Upcoming Payments</h2>
+          <p className="text-gray-500 text-sm mb-5 max-w-sm mx-auto">
+            Connect a broker to see upcoming dividend and reward payment dates.
+          </p>
+          <Link to="/connections"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Go to Connections
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const navigateMonth = (dir) => {
     let m = viewMonth + dir;

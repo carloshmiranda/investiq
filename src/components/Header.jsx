@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPortfolioSummary } from '../data/mockPortfolio';
+import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { useCurrency } from '../context/CurrencyContext';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP'];
@@ -8,7 +8,7 @@ const SYMBOLS = { USD: '$', EUR: '€', GBP: '£' };
 export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileOpen, isMobile }) {
   const [time, setTime] = useState(new Date());
   const [pulse, setPulse] = useState(false);
-  const summary = getPortfolioSummary();
+  const { totalValue, monthlyIncome } = useUnifiedPortfolio();
   const { activeCurrency, setActiveCurrency, formatMoney } = useCurrency();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
         </div>
         <span className="text-gray-500 text-sm hidden md:inline">Portfolio</span>
         <span className="text-sm sm:text-lg font-data font-medium text-white value-pulse truncate">
-          {formatMoney(summary.totalValue)}
+          {formatMoney(totalValue)}
         </span>
       </div>
 
@@ -61,7 +61,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span className="text-xs font-data text-emerald-400">
-          {formatMoney(summary.monthlyIncome)}/mo
+          {formatMoney(monthlyIncome)}/mo
         </span>
       </div>
 
