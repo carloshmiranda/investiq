@@ -136,13 +136,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Page title */}
-      <div>
+      <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
         <p className="text-gray-500 text-sm mt-1">Your investment command center</p>
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
         <KpiCard
           title="Total Portfolio Value"
           value={formatMoney(summary.totalValue, 0)}
@@ -199,7 +199,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.12s' }}>
         {/* Income Chart — spans 2 cols */}
         <div className="xl:col-span-2 glass-card rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -288,7 +288,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 card-reveal" style={{ animationDelay: '0.2s' }}>
         {/* Upcoming Payments */}
         <div className="glass-card rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">

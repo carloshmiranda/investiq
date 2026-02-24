@@ -131,12 +131,12 @@ export default function Calendar() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
         <p className="text-gray-500 text-sm mt-1">Track all upcoming income payments</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>
         {/* Calendar main */}
         <div className="xl:col-span-2 glass-card rounded-xl p-5">
           {/* Calendar header */}

@@ -200,13 +200,13 @@ export default function Income() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Income Intelligence</h1>
         <p className="text-gray-500 text-sm mt-1">Track, project, and optimize your passive income</p>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
         {[
           { label: 'Annual Income', value: formatMoney(summary.annualIncome, 0), color: 'text-emerald-400' },
           { label: 'Monthly Avg', value: formatMoney(summary.monthlyIncome, 0), color: 'text-cyan-400' },
@@ -221,7 +221,7 @@ export default function Income() {
       </div>
 
       {/* Income Timeline */}
-      <div className="glass-card rounded-xl p-5">
+      <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '0.1s' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-white">Income Timeline — Last 12 Months</h3>
           <span className="text-xs font-data text-gray-500">{formatMoney(incomeHistory.reduce((s, m) => s + m.total, 0), 0)} total</span>
@@ -243,7 +243,7 @@ export default function Income() {
       </div>
 
       {/* Projected Income */}
-      <div className="glass-card rounded-xl p-5">
+      <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '0.16s' }}>
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-semibold text-white">Income Forecast — Next 12 Months</h3>
           <div className="flex gap-3 text-xs">
@@ -282,7 +282,7 @@ export default function Income() {
       </div>
 
       {/* Income Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 card-reveal" style={{ animationDelay: '0.22s' }}>
         {/* By type */}
         <div className="glass-card rounded-xl p-5">
           <h3 className="text-sm font-semibold text-white mb-4">By Income Type (Annual)</h3>
@@ -330,7 +330,9 @@ export default function Income() {
       </div>
 
       {/* DRIP Simulator */}
-      <DRIPSimulator />
+      <div className="card-reveal" style={{ animationDelay: '0.28s' }}>
+        <DRIPSimulator />
+      </div>
     </div>
   );
 }

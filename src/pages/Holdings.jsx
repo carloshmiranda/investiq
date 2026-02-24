@@ -148,7 +148,7 @@ export default function Holdings() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-reveal">
         <div>
           <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
           <p className="text-gray-500 text-sm mt-1">All assets unified — stocks, crypto, DeFi{degiroConnected ? ' + DeGiro' : ''}</p>
@@ -166,7 +166,7 @@ export default function Holdings() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
         <div className="glass-card rounded-xl p-4">
           <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Holdings</p>
           <p className="text-xl font-data font-medium text-white">{filtered.length}</p>
@@ -188,7 +188,7 @@ export default function Holdings() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 card-reveal" style={{ animationDelay: '0.1s' }}>
         {/* Search */}
         <div className="relative flex-1 max-w-sm group">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +230,7 @@ export default function Holdings() {
       </div>
 
       {/* Table */}
-      <div className="glass-card rounded-xl overflow-hidden">
+      <div className="glass-card rounded-xl overflow-hidden card-reveal" style={{ animationDelay: '0.15s' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
