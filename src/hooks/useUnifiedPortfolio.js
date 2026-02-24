@@ -3,6 +3,7 @@ import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
 import { useBinance } from '../context/BinanceContext';
 import { useCryptocom } from '../context/CryptocomContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const BROKER_COLORS = {
   degiro: { label: 'DeGiro', abbr: 'DG', color: '#ff6600' },
@@ -21,15 +22,39 @@ export function useUnifiedPortfolio() {
   const t212 = useTrading212();
   const binance = useBinance();
   const cryptocom = useCryptocom();
+  const { rates } = useCurrency();
 
   return useMemo(() => {
+    // ── Currency normalization — convert any currency to USD ────────────
+    // rates = { USD: 1, EUR: 0.92, GBP: 0.79 } meaning 1 USD = X foreign
+    const toUSD = (amount, fromCurrency) => {
+      if (!fromCurrency || fromCurrency === 'USD') return amount;
+      const rate = rates[fromCurrency];
+      if (!rate || rate === 0) return amount; // unknown currency, pass through
+      return amount / rate;
+    };
+
+    const normalizeHolding = (h) => {
+      if (!h.currency || h.currency === 'USD') return h;
+      return {
+        ...h,
+        price: toUSD(h.price, h.currency),
+        value: toUSD(h.value, h.currency),
+        costBasis: toUSD(h.costBasis, h.currency),
+        breakEvenPrice: toUSD(h.breakEvenPrice, h.currency),
+        unrealizedPnL: toUSD(h.unrealizedPnL, h.currency),
+        originalCurrency: h.currency,
+        currency: 'USD',
+      };
+    };
+
     // ── Merge holdings from all brokers ──────────────────────────────────
     const holdings = [
       ...degiro.positions,
       ...t212.positions,
       ...binance.holdings,
       ...cryptocom.holdings,
-    ];
+    ].map(normalizeHolding);
 
     // ── Merge dividends from all brokers, sorted date desc ───────────────
     const dividends = [
@@ -37,7 +62,10 @@ export function useUnifiedPortfolio() {
       ...t212.dividends,
       ...binance.dividends,
       ...(cryptocom.trades || []).filter((t) => t.type === 'Dividend' || t.type === 'Staking' || t.type === 'Earn'),
-    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+    ].map((d) => {
+      if (!d.currency || d.currency === 'USD') return d;
+      return { ...d, amount: toUSD(d.amount, d.currency), currency: 'USD' };
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // ── Core metrics ─────────────────────────────────────────────────────
     const totalValue = holdings.reduce((sum, h) => sum + (h.value || 0), 0);
@@ -189,5 +217,6 @@ export function useUnifiedPortfolio() {
     t212.positions, t212.dividends, t212.connected, t212.syncing,
     binance.holdings, binance.dividends, binance.connected, binance.syncing,
     cryptocom.holdings, cryptocom.trades, cryptocom.connected, cryptocom.syncing,
+    rates,
   ]);
 }
