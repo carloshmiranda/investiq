@@ -422,6 +422,11 @@ async function handleT212(req, res, action) {
     const creds = await getT212Credentials(req.userId)
     if (!creds) return res.status(400).json({ error: 'Trading 212 not connected' })
     const positions = await t212Fetch('/equity/positions', creds.apiKey, creds.apiSecret)
+    if (Array.isArray(positions) && positions.length > 0) {
+      console.log('[T212 Positions] Sample keys:', Object.keys(positions[0]), 'Sample:', JSON.stringify(positions[0]).slice(0, 300))
+    } else {
+      console.log('[T212 Positions] Raw response type:', typeof positions, Array.isArray(positions) ? `array(${positions.length})` : JSON.stringify(positions).slice(0, 300))
+    }
     return res.json({ positions: Array.isArray(positions) ? positions : [] })
   }
   if (action === 'dividends') {

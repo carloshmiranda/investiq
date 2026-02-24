@@ -11,6 +11,9 @@ function cleanTicker(t212Ticker) {
  * Map Trading 212 position to InvestIQ holding format.
  */
 export function mapPosition(pos) {
+  if (!pos.ticker && typeof pos === 'object') {
+    console.warn('[T212 Mapper] Position missing ticker. Fields:', Object.keys(pos), 'Raw:', JSON.stringify(pos).slice(0, 300));
+  }
   const ticker = cleanTicker(pos.ticker) || pos.ticker || 'UNKNOWN';
   const value = (pos.currentPrice || 0) * (pos.quantity || 0);
   const costBasis = (pos.averagePrice || 0) * (pos.quantity || 0);
