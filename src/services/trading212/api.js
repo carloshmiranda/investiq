@@ -29,3 +29,8 @@ export async function getAccount(authAxios) {
   const { data } = await authAxios.get(`${BASE}/account`);
   return data;
 }
+
+export async function getInstruments(authAxios) {
+  const { data } = await authAxios.get(`${BASE}/instruments`);
+  return data.instruments || [];
+}

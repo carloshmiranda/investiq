@@ -436,6 +436,12 @@ async function handleT212(req, res, action) {
     const account = await t212Fetch('/equity/account/summary', creds.apiKey, creds.apiSecret)
     return res.json(account)
   }
+  if (action === 'instruments') {
+    const creds = await getT212Credentials(req.userId)
+    if (!creds) return res.status(400).json({ error: 'Trading 212 not connected' })
+    const instruments = await t212Fetch('/equity/metadata/instruments', creds.apiKey, creds.apiSecret)
+    return res.json({ instruments: Array.isArray(instruments) ? instruments : [] })
+  }
   return res.status(404).json({ error: `Unknown trading212 action: ${action}` })
 }
 

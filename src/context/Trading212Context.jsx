@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import * as t212Api from '../services/trading212/api.js';
-import { mapPosition, mapDividend } from '../services/trading212/mapper.js';
+import { mapPosition, mapDividend, buildInstrumentMap } from '../services/trading212/mapper.js';
 
 const Trading212Context = createContext(null);
 
@@ -68,14 +68,16 @@ export function Trading212Provider({ children }) {
     if (!state.connected) return;
     setState((prev) => ({ ...prev, syncing: true, error: null }));
     try {
-      const [rawPositions, rawDividends, account] = await Promise.all([
+      const [rawPositions, rawDividends, account, rawInstruments] = await Promise.all([
         t212Api.getPositions(authAxios),
         t212Api.getDividends(authAxios),
         t212Api.getAccount(authAxios),
+        t212Api.getInstruments(authAxios).catch(() => []),
       ]);
 
-      const positions = rawPositions.map(mapPosition);
-      const dividends = rawDividends.map(mapDividend);
+      const instrumentMap = buildInstrumentMap(rawInstruments);
+      const positions = rawPositions.map((p) => mapPosition(p, instrumentMap));
+      const dividends = rawDividends.map((d) => mapDividend(d, instrumentMap));
 
       setState((prev) => ({
         ...prev,
