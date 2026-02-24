@@ -215,6 +215,49 @@ async function degiroTransactions(req, res) {
   return res.json({ data: data.data || [] })
 }
 
+async function degiroStoreSession(req, res) {
+  const { sessionId, username } = req.body || {}
+  if (!sessionId) {
+    return res.status(400).json({ error: 'sessionId is required' })
+  }
+
+  try {
+    const config = await degiroFetch(`${DEGIRO_BASE}/login/secure/config`, {
+      headers: { Cookie: `JSESSIONID=${sessionId};` },
+    })
+    const paUrl = config.paUrl || `${DEGIRO_BASE}/pa/secure/`
+    const clientInfo = await degiroFetch(`${paUrl}client?sessionId=${sessionId}`)
+    const data = clientInfo.data || clientInfo
+
+    const encryptedData = encrypt(JSON.stringify({
+      sessionId,
+      intAccount: data.intAccount,
+      username: username || 'unknown',
+      loginAt: new Date().toISOString(),
+    }))
+    await prisma.connection.upsert({
+      where: { userId_provider: { userId: req.userId, provider: 'degiro' } },
+      create: { userId: req.userId, provider: 'degiro', status: 'connected', encryptedData, lastSyncAt: new Date() },
+      update: { status: 'connected', encryptedData, lastSyncAt: new Date(), lastError: null },
+    })
+
+    return res.json({
+      sessionId,
+      intAccount: data.intAccount,
+      userId: data.id,
+      username: username || 'unknown',
+      firstName: data.firstContact?.firstName || data.displayName || username || 'unknown',
+      requiresTOTP: false,
+    })
+  } catch (err) {
+    console.error('[DeGiro] store-session validation failed:', err.message)
+    return res.status(400).json({
+      error: 'Invalid or expired session. Make sure you are logged into DeGiro.',
+      debug: err.message,
+    })
+  }
+}
+
 async function degiroDisconnect(req, res) {
   await prisma.connection.deleteMany({ where: { userId: req.userId, provider: 'degiro' } })
   return res.json({ disconnected: true })
@@ -264,9 +307,10 @@ async function degiroTest(req, res) {
 
 function handleDegiro(req, res, action) {
   switch (action) {
-    case 'login':        return degiroLogin(req, res, { withTOTP: false })
-    case 'totp':         return degiroLogin(req, res, { withTOTP: true })
-    case 'disconnect':   return degiroDisconnect(req, res)
+    case 'login':          return degiroLogin(req, res, { withTOTP: false })
+    case 'totp':           return degiroLogin(req, res, { withTOTP: true })
+    case 'store-session':  return degiroStoreSession(req, res)
+    case 'disconnect':     return degiroDisconnect(req, res)
     case 'status':       return degiroStatus(req, res)
     case 'portfolio':    return degiroPortfolio(req, res)
     case 'products':     return degiroProducts(req, res)
@@ -447,6 +491,24 @@ async function handleBinance(req, res, action) {
     } catch (err) {
       return res.json({ provider: 'binance', reachable: false, error: err.message, latency: Date.now() - start })
     }
+  }
+  // Store credentials after client-side validation (no Binance API call)
+  if (action === 'store-credentials' && req.method === 'POST') {
+    const { apiKey, apiSecret } = req.body || {}
+    if (!apiKey || !apiSecret) return res.status(400).json({ error: 'apiKey and apiSecret are required' })
+    const encryptedData = encrypt(JSON.stringify({ apiKey, apiSecret }))
+    await prisma.connection.upsert({
+      where: { userId_provider: { userId: req.userId, provider: 'binance' } },
+      create: { userId: req.userId, provider: 'binance', status: 'connected', encryptedData, lastSyncAt: new Date() },
+      update: { status: 'connected', encryptedData, lastSyncAt: new Date(), lastError: null },
+    })
+    return res.json({ connected: true })
+  }
+  // Return decrypted credentials to authenticated user (for client-side API calls)
+  if (action === 'get-credentials') {
+    const creds = await getBinanceCredentials(req.userId)
+    if (!creds) return res.status(404).json({ error: 'Binance not connected' })
+    return res.json({ apiKey: creds.apiKey, apiSecret: creds.apiSecret })
   }
   if (action === 'connect' && req.method === 'POST') {
     const { apiKey, apiSecret } = req.body || {}
