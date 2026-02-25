@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { DebugProvider, useDebugContext } from './context/DebugContext'
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <DebugOverlay />
+          <Analytics />
         </BrowserRouter>
         </CryptocomProvider>
         </BinanceProvider>
