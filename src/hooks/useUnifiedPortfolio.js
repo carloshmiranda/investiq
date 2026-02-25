@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
 import { useBinance } from '../context/BinanceContext';
@@ -22,14 +22,20 @@ export function useUnifiedPortfolio() {
   const t212 = useTrading212();
   const binance = useBinance();
   const cryptocom = useCryptocom();
-  const { rates } = useCurrency();
+  const { rates, ratesLoaded } = useCurrency();
+
+  // Keep rates in a ref so the main useMemo doesn't recompute on every rate tick.
+  // We add ratesLoaded as a dep so it recomputes once when real rates arrive.
+  const ratesRef = useRef(rates);
+  if (ratesLoaded) ratesRef.current = rates;
 
   return useMemo(() => {
     // ── Currency normalization — convert any currency to USD ────────────
     // rates = { USD: 1, EUR: 0.92, GBP: 0.79 } meaning 1 USD = X foreign
+    const currentRates = ratesRef.current;
     const toUSD = (amount, fromCurrency) => {
       if (!fromCurrency || fromCurrency === 'USD') return amount;
-      const rate = rates[fromCurrency];
+      const rate = currentRates[fromCurrency];
       if (!rate || rate === 0) return amount; // unknown currency, pass through
       return amount / rate;
     };
@@ -218,6 +224,6 @@ export function useUnifiedPortfolio() {
     t212.positions, t212.dividends, t212.connected, t212.syncing,
     binance.holdings, binance.dividends, binance.connected, binance.syncing,
     cryptocom.holdings, cryptocom.trades, cryptocom.connected, cryptocom.syncing,
-    rates,
+    ratesLoaded,
   ]);
 }
