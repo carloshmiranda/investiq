@@ -262,7 +262,7 @@ export default function Holdings() {
                   <th
                     key={col.key}
                     onClick={() => handleSort(col.key)}
-                    className="group px-4 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-white transition-colors whitespace-nowrap"
+                    className="group px-4 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-white transition-colors whitespace-nowrap"
                   >
                     {col.label}
                     <SortIcon field={col.key} sortField={sortField} sortDir={sortDir} />
@@ -277,10 +277,10 @@ export default function Holdings() {
                 return (
                   <tr
                     key={`${h.ticker}-${source}-${i}`}
-                    className={`table-row-hover border-b border-white/[0.03] transition-colors ${i % 2 === 0 ? '' : 'bg-white/[0.015]'}`}
+                    className={`table-row-hover border-b border-white/[0.03] transition-colors hover:border-l-2 hover:border-l-[#7C5CFC]/40 ${i % 2 === 0 ? '' : 'bg-white/[0.025]'}`}
                   >
                     {/* Asset */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2.5">
                         <div
                           className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
@@ -303,29 +303,29 @@ export default function Holdings() {
                       </div>
                     </td>
                     {/* Type */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3.5">
                       <span className={`text-[10px] font-medium px-2 py-0.5 rounded-md border ${typeColors[h.type] ?? 'text-gray-400'}`}>
                         {h.type}
                       </span>
                     </td>
                     {/* Qty */}
-                    <td className="px-4 py-3 text-gray-300 text-xs font-data">
+                    <td className="px-4 py-3.5 text-gray-300 text-xs font-data">
                       {formatNumber(h.quantity)}
                     </td>
                     {/* Price */}
-                    <td className="px-4 py-3 text-gray-300 text-xs font-data">
+                    <td className="px-4 py-3.5 text-gray-300 text-xs font-data">
                       {formatMoney(h.price)}
                     </td>
                     {/* Value */}
-                    <td className="px-4 py-3 text-white font-medium text-xs font-data">
+                    <td className="px-4 py-3.5 text-white font-medium text-xs font-data">
                       {formatMoney(h.value, 0)}
                     </td>
                     {/* Annual Income */}
-                    <td className="px-4 py-3 text-emerald-400 font-medium text-xs font-data">
+                    <td className="px-4 py-3.5 text-emerald-400 font-medium text-xs font-data">
                       {(h.annualIncome || 0) > 0 ? formatMoney(h.annualIncome, 0) : <span className="text-gray-600">—</span>}
                     </td>
                     {/* Yield */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3.5">
                       {(h.yieldPercent || 0) > 0 ? (
                         <span className={`text-xs font-data font-medium ${h.yieldPercent >= 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
                           {formatPercent(h.yieldPercent)}
@@ -333,15 +333,15 @@ export default function Holdings() {
                       ) : <span className="text-gray-600 text-xs">—</span>}
                     </td>
                     {/* Frequency */}
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3.5 text-gray-400 text-xs">
                       {h.frequency && h.frequency !== 'N/A' ? h.frequency : <span className="text-gray-600">—</span>}
                     </td>
                     {/* Next payment */}
-                    <td className="px-4 py-3 text-gray-400 text-xs font-data whitespace-nowrap">
+                    <td className="px-4 py-3.5 text-gray-400 text-xs font-data whitespace-nowrap">
                       {h.nextPayDate && h.nextPayDate !== 'N/A' ? formatDateShort(h.nextPayDate) : <span className="text-gray-600">—</span>}
                     </td>
                     {/* Safety */}
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3.5">
                       <SafetyBadge rating={h.safetyRating} />
                     </td>
                   </tr>

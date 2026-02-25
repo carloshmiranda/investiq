@@ -156,7 +156,7 @@ export default function AIInsights() {
                   {msg.role === 'assistant' ? 'AI' : 'U'}
                 </div>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all ${msg.role === 'assistant'
-                  ? 'bg-white/[0.03] border border-white/5 rounded-tl-sm'
+                  ? 'bg-white/[0.04] border border-white/5 rounded-tl-sm border-l-2 border-l-[#7C5CFC]/40'
                   : 'bg-[#7C5CFC]/15 border border-[#7C5CFC]/20 rounded-tr-sm'
                   }`}>
                   <MarkdownText text={msg.content} />
@@ -166,7 +166,7 @@ export default function AIInsights() {
             {isTyping && (
               <div className="flex gap-3 animate-fadeIn">
                 <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center text-[10px] font-bold text-white shadow-md shadow-[#7C5CFC]/20">AI</div>
-                <div className="bg-navy-700/80 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3">
+                <div className="bg-white/[0.04] border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 border-l-2 border-l-[#7C5CFC]/40">
                   <div className="flex gap-1.5 items-center h-4">
                     {[0, 1, 2].map((i) => (
                       <div key={i} className="w-1.5 h-1.5 bg-[#7C5CFC]/60 rounded-full animate-bounce"

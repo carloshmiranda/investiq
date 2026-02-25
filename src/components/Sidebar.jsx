@@ -149,8 +149,8 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-200 group relative
                     ${isActive
-                      ? 'bg-[#7C5CFC]/10 text-[#a78bfa] border-l-2 border-[#7C5CFC] shadow-[inset_0_0_20px_rgba(124,92,252,0.05)]'
-                      : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border-l-2 border-transparent'
+                      ? 'bg-[#7C5CFC]/10 text-[#a78bfa] border-l-[3px] border-[#7C5CFC] shadow-[inset_0_0_20px_rgba(124,92,252,0.05)]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border-l-[3px] border-transparent'
                     }
                   `}
                 >
@@ -167,7 +167,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                   )}
                   {/* Tooltip on collapsed */}
                   {!showLabels && (
-                    <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-navy-700 text-white text-xs rounded-lg border border-white/10
+                    <div className="absolute left-full ml-2 px-2.5 py-1.5 glass-card text-white text-xs rounded-lg
                       opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
                       {item.label}
                     </div>
