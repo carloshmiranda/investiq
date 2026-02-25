@@ -12,7 +12,7 @@ export function CurrencyProvider({ children }) {
 
   const [rates, setRates] = useState({ USD: 1, EUR: 1, GBP: 1 })
   const [activeCurrency, setActiveCurrencyState] = useState(() => {
-    return localStorage.getItem('investiq_currency') || 'USD'
+    return localStorage.getItem('accrue_currency') || 'USD'
   })
   const [ratesLoaded, setRatesLoaded] = useState(false)
 
@@ -22,7 +22,7 @@ export function CurrencyProvider({ children }) {
   useEffect(() => {
     if (user?.currencyCode && SUPPORTED.includes(user.currencyCode)) {
       setActiveCurrencyState(user.currencyCode)
-      localStorage.setItem('investiq_currency', user.currencyCode)
+      localStorage.setItem('accrue_currency', user.currencyCode)
     }
   }, [user?.currencyCode])
 
@@ -48,7 +48,7 @@ export function CurrencyProvider({ children }) {
   const setActiveCurrency = useCallback(async (code) => {
     if (!SUPPORTED.includes(code)) return
     setActiveCurrencyState(code)
-    localStorage.setItem('investiq_currency', code)
+    localStorage.setItem('accrue_currency', code)
     try {
       await authAxios.patch('/api/user/currency', { currencyCode: code })
     } catch {

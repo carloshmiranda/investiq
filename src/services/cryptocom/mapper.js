@@ -20,7 +20,7 @@ export function getUsdPrice(currency, priceMap) {
 }
 
 /**
- * Map a Crypto.com balance to InvestIQ holding format.
+ * Map a Crypto.com balance to Accrue holding format.
  */
 export function mapBalance(balance, priceMap) {
   const price = getUsdPrice(balance.currency, priceMap);
@@ -88,7 +88,7 @@ export function mapStakingPosition(balance, priceMap) {
 }
 
 /**
- * Map a Crypto.com trade to InvestIQ income event.
+ * Map a Crypto.com trade to Accrue income event.
  */
 export function mapTrade(trade) {
   return {

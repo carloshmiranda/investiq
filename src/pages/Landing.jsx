@@ -86,7 +86,7 @@ function Nav({ scrolled }) {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Wordmark */}
         <Link to="/" className="text-white font-semibold text-lg tracking-tight" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>
-          Invest<span className="text-[#7C5CFC]">IQ</span>
+          Accrue
         </Link>
 
         {/* Center nav — desktop */}
@@ -278,7 +278,7 @@ function Features() {
             Everything in one place
           </h2>
           <p className="mt-4 text-white/35 max-w-md mx-auto">
-            No more juggling broker apps. InvestIQ pulls your data together and gives you the full picture.
+            No more juggling broker apps. Accrue pulls your data together and gives you the full picture.
           </p>
         </div>
 
@@ -319,7 +319,7 @@ function About() {
                 If you have stocks on DeGiro, ETFs on Trading 212, and crypto on Binance, you know the pain: no single view of your total portfolio, no unified income tracking, no coherent picture.
               </p>
               <p>
-                InvestIQ connects to your brokers directly via their APIs, pulls your real positions and dividend history, and presents everything in one clean dashboard. Your API keys are encrypted at rest — we never place trades or modify your accounts.
+                Accrue connects to your brokers directly via their APIs, pulls your real positions and dividend history, and presents everything in one clean dashboard. Your API keys are encrypted at rest — we never place trades or modify your accounts.
               </p>
               <p>
                 Add AI-powered analysis on top, and you get a personal portfolio terminal that actually understands your holdings.
@@ -371,7 +371,7 @@ function Pricing() {
           Free while in beta
         </h2>
         <p className="text-white/35 max-w-md mx-auto mb-12">
-          InvestIQ is free during the beta period. All features, all integrations, no limits.
+          Accrue is free during the beta period. All features, all integrations, no limits.
         </p>
 
         <div className="inline-block p-8 rounded-2xl border border-[#7C5CFC]/20 bg-[#7C5CFC]/[0.04] max-w-sm w-full">
@@ -413,7 +413,7 @@ function Footer() {
     <footer className="border-t border-white/[0.04] py-10 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <span className="text-sm text-white/20" style={{ fontFamily: '"DM Mono", monospace' }}>
-          InvestIQ &copy; {new Date().getFullYear()}
+          Accrue &copy; {new Date().getFullYear()}
         </span>
         <div className="flex items-center gap-6">
           <Link to="/login" className="text-xs text-white/25 hover:text-white/50 transition-colors">

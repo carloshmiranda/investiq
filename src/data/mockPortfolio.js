@@ -1,5 +1,5 @@
 // ============================================================
-// InvestIQ — Mock Portfolio Data Layer
+// Accrue — Mock Portfolio Data Layer
 // ============================================================
 
 export const stocks = [

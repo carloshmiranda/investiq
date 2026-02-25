@@ -109,7 +109,7 @@ export default function Holdings() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'investiq-holdings.csv';
+    a.download = 'accrue-holdings.csv';
     a.click();
     URL.revokeObjectURL(url);
   };

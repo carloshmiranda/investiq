@@ -1,5 +1,5 @@
 /**
- * Reusable skeleton loading components for InvestIQ.
+ * Reusable skeleton loading components for Accrue.
  * Uses shimmer animation defined in index.css.
  */
 

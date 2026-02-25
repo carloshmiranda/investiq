@@ -1,4 +1,4 @@
-# InvestIQ — Claude Code Project Rules
+# Accrue — Claude Code Project Rules
 
 ## VERCEL FUNCTION LIMIT — HARD CONSTRAINT
 

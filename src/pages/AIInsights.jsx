@@ -77,7 +77,7 @@ export default function AIInsights() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hello! I'm your InvestIQ AI advisor powered by Claude. I can analyze your connected portfolios across all brokers and exchanges.\n\nWhat would you like to know about your investments?`,
+      content: `Hello! I'm your Accrue AI advisor powered by Claude. I can analyze your connected portfolios across all brokers and exchanges.\n\nWhat would you like to know about your investments?`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -138,7 +138,7 @@ export default function AIInsights() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">InvestIQ AI</p>
+              <p className="text-sm font-semibold text-white">Accrue AI</p>
               <p className="text-[10px] text-[#a78bfa] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFC] animate-pulse" />
                 Online — portfolio context loaded

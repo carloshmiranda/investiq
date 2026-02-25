@@ -33,7 +33,7 @@ function getUsdPrice(asset, priceMap) {
 }
 
 /**
- * Map a Binance spot balance to InvestIQ holding format.
+ * Map a Binance spot balance to Accrue holding format.
  */
 export function mapBalance(balance, priceMap) {
   const price = getUsdPrice(balance.asset, priceMap);
@@ -68,7 +68,7 @@ export function mapBalance(balance, priceMap) {
 }
 
 /**
- * Map a flexible Simple Earn position to InvestIQ holding format.
+ * Map a flexible Simple Earn position to Accrue holding format.
  */
 export function mapFlexibleEarn(pos, priceMap) {
   const asset = pos.asset;
@@ -103,7 +103,7 @@ export function mapFlexibleEarn(pos, priceMap) {
 }
 
 /**
- * Map a locked Simple Earn position to InvestIQ holding format.
+ * Map a locked Simple Earn position to Accrue holding format.
  */
 export function mapLockedEarn(pos, priceMap) {
   const asset = pos.asset;
@@ -138,7 +138,7 @@ export function mapLockedEarn(pos, priceMap) {
 }
 
 /**
- * Map Binance asset dividend record to InvestIQ income event.
+ * Map Binance asset dividend record to Accrue income event.
  */
 export function mapDividend(div) {
   return {
@@ -153,7 +153,7 @@ export function mapDividend(div) {
 }
 
 /**
- * Map Binance Simple Earn reward to InvestIQ income event.
+ * Map Binance Simple Earn reward to Accrue income event.
  */
 export function mapEarnReward(reward) {
   return {

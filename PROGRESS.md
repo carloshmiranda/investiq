@@ -1,4 +1,4 @@
-# InvestIQ Progress Tracker
+# Accrue Progress Tracker
 
 ## CRITICAL: READ THIS FIRST, EVERY SESSION
 
@@ -58,12 +58,12 @@ Currency: USD/EUR/GBP switcher. Rates from open.exchangerate-api.com (free, no k
 Cached 1hr server-side. User preference stored in DB. Context-driven, zero page reloads.
 
 ## Live URLs
-- Frontend: https://investiq-nine.vercel.app
+- Frontend: https://accrue.vercel.app
 - API: served from Vercel Serverless Functions under /api
 - Database: Neon PostgreSQL via Vercel Marketplace (managed at vercel.com/storage)
 
 ## GitHub Repo
-https://github.com/carloshmiranda/investiq
+https://github.com/carloshmiranda/accrue
 
 ## Database
 - Provider: Neon PostgreSQL (free tier, scales to zero, never pauses)
@@ -192,7 +192,7 @@ https://github.com/carloshmiranda/investiq
 | 2026-02-19 | 0.1 | Monorepo restructure: client/ + server/ scaffold. Vercel root dir needs manual update to `client/`. Railway setup needed for server/. |
 | 2026-02-19 | Architecture migration | Replaced Railway+Express with Vercel Serverless Functions + Supabase. Folder structure flattened to single repo. vercel.json updated. |
 | 2026-02-19 | Fix: Vercel function limit | Consolidated 14 → 7 serverless functions to stay within Hobby plan (12 max). auth/[action].js, connections/[provider].js, brokers/[...path].js. |
-| 2026-02-19 | 0.1 | GitHub repo live, Vite+React+Tailwind built, /api/health returns {ok:true} in production. Frontend live at https://investiq-nine.vercel.app. |
+| 2026-02-19 | 0.1 | GitHub repo live, Vite+React+Tailwind built, /api/health returns {ok:true} in production. Frontend live at https://accrue.vercel.app. |
 | 2026-02-19 | 0.2 | Neon DB set up via Vercel Marketplace. Prisma schema migrated. 4 tables created: users, connections, portfolio_cache, sessions. DATABASE_URL injected automatically by Vercel. /api/db-check confirmed {ok:true,userCount:0} then deleted. |
 | 2026-02-19 | 0.3 | AuthContext (login/register/logout, in-memory token), ProtectedRoute, Login and Register pages. All protected routes redirect to /login when unauthenticated. |
 | 2026-02-19 | 1.1 | POST /api/auth/register live. bcrypt hash, Neon insert, jose JWT pair, httpOnly refresh cookie. Fixed vercel.json — removed /api rewrite that blocked serverless functions. |

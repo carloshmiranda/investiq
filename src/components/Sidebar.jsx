@@ -123,7 +123,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
               </svg>
             </div>
             {showLabels && (
-              <span className="font-display font-bold text-lg gradient-text whitespace-nowrap">InvestIQ</span>
+              <span className="font-display font-bold text-lg gradient-text whitespace-nowrap">Accrue</span>
             )}
           </div>
           <button

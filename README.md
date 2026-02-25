@@ -1,4 +1,4 @@
-# InvestIQ — Personal Investment Intelligence Platform
+# Accrue — Watch Your Passive Income Grow
 
 A full-stack fintech SPA for tracking and forecasting income from stocks, crypto, and DeFi in one unified dashboard.
 

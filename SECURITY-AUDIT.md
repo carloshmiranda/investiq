@@ -1,4 +1,4 @@
-# InvestIQ Security Audit
+# Accrue Security Audit
 
 **Date:** 2026-02-21
 **Auditor:** Claude Code (Opus 4.6) + Trail of Bits skills

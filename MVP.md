@@ -1,4 +1,4 @@
-# InvestIQ MVP Definition
+# Accrue MVP Definition
 
 ## What it is
 A multi-user personal investment dashboard that unifies stocks, crypto exchanges,
