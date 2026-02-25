@@ -200,58 +200,66 @@ export default function Dashboard() {
       )}
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
-        <KpiCard
-          title="Total Portfolio Value"
-          value={formatMoney(totalValue, 0)}
-          subtitle={`${connectedBrokers.length} broker${connectedBrokers.length !== 1 ? 's' : ''} connected`}
-          accentColor="emerald"
-          icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
-        <KpiCard
-          title="Annual Passive Income"
-          value={formatMoney(annualIncome, 0)}
-          subtitle={`${formatPercent(overallYield)} avg yield`}
-          accentColor="cyan"
-          icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          }
-        />
-        <KpiCard
-          title="Monthly Income"
-          value={formatMoney(monthlyIncome, 0)}
-          subtitle="Avg across all sources"
-          accentColor="amber"
-          icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          }
-        />
-        <KpiCard
-          title="YTD Income Received"
-          value={formatMoney(ytdIncome, 0)}
-          subtitle={ytdIncome > 0 ? `${currentMonthName} ${currentYear}` : 'No income recorded yet'}
-          accentColor="purple"
-          icon={
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          }
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="card-reveal" style={{ animationDelay: '0.04s' }}>
+          <KpiCard
+            title="Total Portfolio Value"
+            value={formatMoney(totalValue, 0)}
+            subtitle={`${connectedBrokers.length} broker${connectedBrokers.length !== 1 ? 's' : ''} connected`}
+            accentColor="emerald"
+            icon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
+        </div>
+        <div className="card-reveal" style={{ animationDelay: '0.08s' }}>
+          <KpiCard
+            title="Annual Passive Income"
+            value={formatMoney(annualIncome, 0)}
+            subtitle={`${formatPercent(overallYield)} avg yield`}
+            accentColor="cyan"
+            icon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            }
+          />
+        </div>
+        <div className="card-reveal" style={{ animationDelay: '0.12s' }}>
+          <KpiCard
+            title="Monthly Income"
+            value={formatMoney(monthlyIncome, 0)}
+            subtitle="Avg across all sources"
+            accentColor="amber"
+            icon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            }
+          />
+        </div>
+        <div className="card-reveal" style={{ animationDelay: '0.16s' }}>
+          <KpiCard
+            title="YTD Income Received"
+            value={formatMoney(ytdIncome, 0)}
+            subtitle={ytdIncome > 0 ? `${currentMonthName} ${currentYear}` : 'No income recorded yet'}
+            accentColor="purple"
+            icon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            }
+          />
+        </div>
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.12s' }}>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.22s' }}>
         {/* Income Chart — spans 2 cols */}
         <div className="xl:col-span-2 glass-card rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -349,7 +357,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 card-reveal" style={{ animationDelay: '0.2s' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 card-reveal" style={{ animationDelay: '0.3s' }}>
         {/* Upcoming Payments */}
         <div className="glass-card rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">

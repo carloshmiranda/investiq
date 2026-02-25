@@ -261,14 +261,14 @@ export default function Income() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Annual Income', value: formatMoney(annualIncome, 0), color: 'text-emerald-400' },
           { label: 'Monthly Avg', value: formatMoney(monthlyIncome, 0), color: 'text-cyan-400' },
           { label: 'Portfolio Yield', value: formatPercent(overallYield), color: 'text-amber-400' },
           { label: 'Income Sources', value: byType.length > 0 ? `${byType.length} Types` : 'N/A', color: 'text-purple-400' },
-        ].map((k) => (
-          <div key={k.label} className="glass-card rounded-xl p-4 transition-all duration-300">
+        ].map((k, i) => (
+          <div key={k.label} className="glass-card rounded-xl p-4 transition-all duration-300 card-reveal" style={{ animationDelay: `${0.04 + i * 0.04}s` }}>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">{k.label}</p>
             <p className={`text-xl font-data font-medium ${k.color}`}>{k.value}</p>
           </div>

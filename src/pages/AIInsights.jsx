@@ -225,7 +225,7 @@ export default function AIInsights() {
         <div className="space-y-4">
           {/* Insight cards */}
           {insightCards.map((card, i) => (
-            <div key={i} className="glass-card rounded-xl p-4 border border-white/5 transition-all duration-300 hover:border-white/10 group">
+            <div key={i} className="glass-card rounded-xl p-4 border border-white/5 transition-all duration-300 hover:border-white/10 group card-reveal" style={{ animationDelay: `${0.12 + i * 0.06}s` }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
                   <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${card.iconColor} flex items-center justify-center`}>

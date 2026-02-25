@@ -195,25 +195,18 @@ export default function Holdings() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 card-reveal" style={{ animationDelay: '0.05s' }}>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Holdings</p>
-          <p className="text-xl font-data font-medium text-white">{filtered.length}</p>
-        </div>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Value</p>
-          <p className="text-xl font-data font-medium text-emerald-400">{formatMoney(totalValue, 0)}</p>
-        </div>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Annual Income</p>
-          <p className="text-xl font-data font-medium text-cyan-400">{formatMoney(totalAnnualIncome, 0)}</p>
-        </div>
-        <div className="glass-card rounded-xl p-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Avg Yield</p>
-          <p className="text-xl font-data font-medium text-amber-400">
-            {formatPercent(totalValue > 0 ? (totalAnnualIncome / totalValue) * 100 : 0)}
-          </p>
-        </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Holdings', value: filtered.length, color: 'text-white' },
+          { label: 'Total Value', value: formatMoney(totalValue, 0), color: 'text-emerald-400' },
+          { label: 'Annual Income', value: formatMoney(totalAnnualIncome, 0), color: 'text-cyan-400' },
+          { label: 'Avg Yield', value: formatPercent(totalValue > 0 ? (totalAnnualIncome / totalValue) * 100 : 0), color: 'text-amber-400' },
+        ].map((k, i) => (
+          <div key={k.label} className="glass-card rounded-xl p-4 card-reveal" style={{ animationDelay: `${0.04 + i * 0.04}s` }}>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider">{k.label}</p>
+            <p className={`text-xl font-data font-medium ${k.color}`}>{k.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
