@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
+import PageHeader from '../components/PageHeader';
 
 const SUGGESTED_PROMPTS = [
   'How much passive income will I earn next year?',
@@ -121,10 +122,7 @@ export default function AIInsights() {
 
   return (
     <div className="space-y-6">
-      <div className="card-reveal">
-        <h1 className="text-3xl font-display font-bold text-white">AI Insights</h1>
-        <p className="text-gray-400 text-sm mt-1">Your intelligent investment advisor powered by Claude</p>
-      </div>
+      <PageHeader title="AI Insights" subtitle="Your intelligent investment advisor powered by Claude" />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>
         {/* Chat interface */}

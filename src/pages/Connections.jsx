@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCurrency } from '../context/CurrencyContext';
+import PageHeader from '../components/PageHeader';
 import { useDegiro } from '../context/DegiroContext';
 import { useTrading212 } from '../context/Trading212Context';
 import { useBinance } from '../context/BinanceContext';
@@ -896,10 +897,7 @@ export default function Connections() {
   return (
     <div className="space-y-8">
       {/* ── Header ── */}
-      <div>
-        <h1 className="text-3xl font-display font-bold text-white">Connections</h1>
-        <p className="text-gray-500 text-sm mt-1.5">Link your brokers, exchanges, and wallets to build a unified portfolio view</p>
-      </div>
+      <PageHeader title="Connections" subtitle="Link your brokers, exchanges, and wallets to build a unified portfolio view" />
 
       {/* ── Status summary ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -8,6 +8,7 @@ import { formatPercent, formatDateShort } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
 import KpiCard from '../components/KpiCard';
 import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#8b5cf6', '#ef4444', '#f97316'];
 
@@ -169,10 +170,7 @@ export default function Dashboard() {
   if (isEmpty) {
     return (
       <div className="space-y-6">
-        <div className="card-reveal">
-          <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
-          <p className="text-gray-400 text-sm mt-1">Your investment command center</p>
-        </div>
+        <PageHeader title="Dashboard" subtitle="Your investment command center" />
         <EmptyState />
       </div>
     );
@@ -181,10 +179,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Page title */}
-      <div className="card-reveal">
-        <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 text-sm mt-1">Your investment command center</p>
-      </div>
+      <PageHeader title="Dashboard" subtitle="Your investment command center" />
 
       {/* Connected brokers badges */}
       {connectedBrokers.length > 0 && (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
+import PageHeader from '../components/PageHeader'
 
 // ── Profile Section ────────────────────────────────────────────────────────
 
@@ -250,10 +251,7 @@ const btnDanger = `px-4 py-2.5 bg-red-500/10 border border-red-500/20 hover:bg-r
 export default function Settings() {
   return (
     <div className="space-y-6 max-w-2xl">
-      <div className="card-reveal">
-        <h1 className="text-3xl font-display font-bold text-white">Settings</h1>
-        <p className="text-gray-400 text-sm mt-1">Manage your account and security</p>
-      </div>
+      <PageHeader title="Settings" subtitle="Manage your account and security" />
 
       {/* Account section */}
       <div className="space-y-4">

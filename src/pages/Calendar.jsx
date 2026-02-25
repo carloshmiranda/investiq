@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { useCurrency } from '../context/CurrencyContext';
 import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 const typeColors = {
   Dividend: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', dot: 'bg-emerald-400', border: 'border-emerald-500/20', hex: '#10b981' },
@@ -112,10 +113,7 @@ export default function Calendar() {
   if (isEmpty) {
     return (
       <div className="space-y-6">
-        <div className="card-reveal">
-          <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
-          <p className="text-gray-400 text-sm mt-1">Track all upcoming income payments</p>
-        </div>
+        <PageHeader title="Dividend & Rewards Calendar" subtitle="Track all upcoming income payments" />
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
@@ -161,10 +159,7 @@ export default function Calendar() {
 
   return (
     <div className="space-y-6">
-      <div className="card-reveal">
-        <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
-        <p className="text-gray-400 text-sm mt-1">Track all upcoming income payments</p>
-      </div>
+      <PageHeader title="Dividend & Rewards Calendar" subtitle="Track all upcoming income payments" />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>
         {/* Calendar main */}

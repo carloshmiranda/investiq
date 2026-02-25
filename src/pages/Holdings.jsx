@@ -3,6 +3,7 @@ import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { formatPercent, formatNumber, formatDateShort } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
 import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 const safetyTooltips = {
   A: 'Excellent — Strong financials, consistent payout history, low risk of cut',
@@ -130,10 +131,7 @@ export default function Holdings() {
   if (isEmpty) {
     return (
       <div className="space-y-6">
-        <div className="card-reveal">
-          <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-400 text-sm mt-1">All assets unified — stocks, crypto, DeFi</p>
-        </div>
+        <PageHeader title="Holdings Terminal" subtitle="All assets unified — stocks, crypto, DeFi" />
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
@@ -178,10 +176,7 @@ export default function Holdings() {
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-reveal">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-400 text-sm mt-1">All assets unified — {connectedBrokers.map((b) => b.label).join(', ') || 'no brokers'}</p>
-        </div>
+        <PageHeader title="Holdings Terminal" subtitle={`All assets unified — ${connectedBrokers.map((b) => b.label).join(', ') || 'no brokers'}`} />
         <button
           onClick={exportCSV}
           className="flex items-center gap-2 px-4 py-2 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-[#a78bfa] text-sm font-medium rounded-lg hover:bg-[#7C5CFC]/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40"

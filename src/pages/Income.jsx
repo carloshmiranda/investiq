@@ -7,6 +7,7 @@ import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { formatPercent } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
 import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
@@ -228,10 +229,7 @@ export default function Income() {
   if (isEmpty) {
     return (
       <div className="space-y-6">
-        <div className="card-reveal">
-          <h1 className="text-3xl font-display font-bold text-white">Income Intelligence</h1>
-          <p className="text-gray-400 text-sm mt-1">Track, project, and optimize your passive income</p>
-        </div>
+        <PageHeader title="Income Intelligence" subtitle="Track, project, and optimize your passive income" />
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
@@ -255,10 +253,7 @@ export default function Income() {
 
   return (
     <div className="space-y-6">
-      <div className="card-reveal">
-        <h1 className="text-3xl font-display font-bold text-white">Income Intelligence</h1>
-        <p className="text-gray-400 text-sm mt-1">Track, project, and optimize your passive income</p>
-      </div>
+      <PageHeader title="Income Intelligence" subtitle="Track, project, and optimize your passive income" />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
