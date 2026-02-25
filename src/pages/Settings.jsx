@@ -167,7 +167,7 @@ function SessionsSection() {
                 <p className="text-sm text-white truncate">
                   {parseUA(s.userAgent)}
                   {s.isCurrent && (
-                    <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#7C5CFC]/20 text-[#a78bfa] border border-[#7C5CFC]/30">
                       Current
                     </span>
                   )}
@@ -221,7 +221,7 @@ function Field({ label, type = 'text', value, onChange, autoComplete }) {
         onChange={e => onChange(e.target.value)}
         autoComplete={autoComplete}
         className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white
-          placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:bg-white/8 transition-colors"
+          placeholder-gray-600 focus:outline-none focus:border-[#7C5CFC]/50 focus:bg-white/8 transition-colors"
       />
     </div>
   )
@@ -230,14 +230,14 @@ function Field({ label, type = 'text', value, onChange, autoComplete }) {
 function Msg({ msg }) {
   if (!msg) return null
   const cls = msg.type === 'ok'
-    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+    ? 'bg-[#7C5CFC]/10 border-[#7C5CFC]/20 text-[#a78bfa]'
     : 'bg-red-500/10 border-red-500/20 text-red-400'
   return <div className={`px-4 py-3 rounded-lg border text-sm ${cls}`}>{msg.text}</div>
 }
 
-const btnPrimary = `px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600
+const btnPrimary = `px-4 py-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0]
   text-white text-sm font-semibold rounded-lg transition-all duration-150
-  disabled:opacity-50 disabled:cursor-not-allowed`
+  disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#7C5CFC]/20`
 
 const btnSecondary = `px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10
   text-white text-sm font-medium rounded-lg transition-all duration-150`
@@ -250,7 +250,7 @@ const btnDanger = `px-4 py-2.5 bg-red-500/10 border border-red-500/20 hover:bg-r
 export default function Settings() {
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-bold text-white">Settings</h1>
+      <h1 className="text-2xl font-display font-bold text-white">Settings</h1>
       <ProfileSection />
       <PasswordSection />
       <SessionsSection />

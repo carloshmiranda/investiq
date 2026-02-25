@@ -30,7 +30,7 @@ function SortIcon({ field, sortField, sortDir }) {
     return <span className="text-gray-700 ml-1 opacity-40 group-hover:opacity-70 transition-opacity">⇅</span>;
   }
   return (
-    <span className="text-emerald-400 ml-1 font-data">
+    <span className="text-[#a78bfa] ml-1 font-data">
       {sortDir === 'asc' ? '▲' : '▼'}
     </span>
   );
@@ -144,7 +144,7 @@ export default function Holdings() {
             Connect a broker on the Connections page to see your positions here.
           </p>
           <Link to="/connections"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200">
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-[#a78bfa] text-sm font-medium rounded-lg hover:bg-[#7C5CFC]/20 transition-all duration-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -184,7 +184,7 @@ export default function Holdings() {
         </div>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="flex items-center gap-2 px-4 py-2 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-[#a78bfa] text-sm font-medium rounded-lg hover:bg-[#7C5CFC]/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -220,7 +220,7 @@ export default function Holdings() {
       <div className="flex flex-col sm:flex-row gap-3 card-reveal" style={{ animationDelay: '0.1s' }}>
         {/* Search */}
         <div className="relative flex-1 max-w-sm group">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-[#a78bfa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -228,7 +228,7 @@ export default function Holdings() {
             placeholder="Search ticker or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-navy-700 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+            className="w-full pl-9 pr-3 py-2 bg-white/[0.03] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200"
           />
         </div>
         {/* Source + Type filters */}
@@ -238,9 +238,9 @@ export default function Holdings() {
             const brokerInfo = BROKER_COLORS[s];
             return (
               <button key={s} onClick={() => setSourceFilter(s)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${
                   sourceFilter === s
-                    ? brokerInfo ? `text-white border-current` : 'bg-emerald-500 text-white border-emerald-500'
+                    ? brokerInfo ? `text-white border-current` : 'bg-[#7C5CFC] text-white border-[#7C5CFC]'
                     : 'bg-navy-700 text-gray-400 hover:text-white border-white/5'
                 }`}
                 style={sourceFilter === s && brokerInfo ? { background: brokerInfo.color, borderColor: brokerInfo.color } : {}}
@@ -253,8 +253,8 @@ export default function Holdings() {
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${typeFilter === t
-                ? 'bg-emerald-500 text-white'
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${typeFilter === t
+                ? 'bg-[#7C5CFC] text-white'
                 : 'bg-navy-700 text-gray-400 hover:text-white border border-white/5'
                 }`}
             >

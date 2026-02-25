@@ -41,7 +41,7 @@ export default function EmptyState({
       {action && (
         <button
           onClick={action}
-          className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="px-6 py-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0] text-white text-sm font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-[#7C5CFC]/20 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40"
         >
           {actionLabel}
         </button>

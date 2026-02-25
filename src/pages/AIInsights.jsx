@@ -27,7 +27,7 @@ function MarkdownText({ text }) {
           return <p key={i} className="text-white font-bold">{line.slice(2, -2)}</p>;
         }
         if (line.startsWith('- ')) {
-          return <p key={i} className="text-gray-300 pl-3 flex gap-2"><span className="text-emerald-400 flex-shrink-0">•</span><span>{renderBold(line.slice(2))}</span></p>;
+          return <p key={i} className="text-gray-300 pl-3 flex gap-2"><span className="text-[#a78bfa] flex-shrink-0">•</span><span>{renderBold(line.slice(2))}</span></p>;
         }
         if (/^\d+\./.test(line)) {
           return <p key={i} className="text-gray-300 pl-3">{renderBold(line)}</p>;
@@ -131,7 +131,7 @@ export default function AIInsights() {
         <div className="xl:col-span-2 flex flex-col glass-card rounded-xl overflow-hidden" style={{ height: 'min(600px, calc(100vh - 12rem))' }}>
           {/* Chat header */}
           <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/5 bg-white/[0.02]">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -139,8 +139,8 @@ export default function AIInsights() {
             </div>
             <div>
               <p className="text-sm font-semibold text-white">InvestIQ AI</p>
-              <p className="text-[10px] text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <p className="text-[10px] text-[#a78bfa] flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFC] animate-pulse" />
                 Online — portfolio context loaded
               </p>
             </div>
@@ -152,14 +152,14 @@ export default function AIInsights() {
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-fadeIn`}>
                 <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold shadow-md ${msg.role === 'assistant'
-                  ? 'bg-gradient-to-br from-cyan-500 to-emerald-500 text-white shadow-emerald-500/20'
+                  ? 'bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] text-white shadow-[#7C5CFC]/20'
                   : 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-purple-500/20'
                   }`}>
                   {msg.role === 'assistant' ? 'AI' : 'U'}
                 </div>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all ${msg.role === 'assistant'
-                  ? 'bg-navy-700/80 border border-white/5 rounded-tl-sm'
-                  : 'bg-emerald-500/15 border border-emerald-500/20 rounded-tr-sm'
+                  ? 'bg-white/[0.03] border border-white/5 rounded-tl-sm'
+                  : 'bg-[#7C5CFC]/15 border border-[#7C5CFC]/20 rounded-tr-sm'
                   }`}>
                   <MarkdownText text={msg.content} />
                 </div>
@@ -167,11 +167,11 @@ export default function AIInsights() {
             ))}
             {isTyping && (
               <div className="flex gap-3 animate-fadeIn">
-                <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-[10px] font-bold text-white shadow-md shadow-emerald-500/20">AI</div>
+                <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center text-[10px] font-bold text-white shadow-md shadow-[#7C5CFC]/20">AI</div>
                 <div className="bg-navy-700/80 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3">
                   <div className="flex gap-1.5 items-center h-4">
                     {[0, 1, 2].map((i) => (
-                      <div key={i} className="w-1.5 h-1.5 bg-emerald-400/60 rounded-full animate-bounce"
+                      <div key={i} className="w-1.5 h-1.5 bg-[#7C5CFC]/60 rounded-full animate-bounce"
                         style={{ animationDelay: `${i * 0.15}s` }} />
                     ))}
                   </div>
@@ -190,7 +190,7 @@ export default function AIInsights() {
                   <button
                     key={p}
                     onClick={() => sendMessage(p)}
-                    className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                    className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/30"
                   >
                     {p}
                   </button>
@@ -206,13 +206,13 @@ export default function AIInsights() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about your portfolio..."
-              className="flex-1 px-4 py-2.5 bg-navy-700 border border-white/10 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+              className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200"
               disabled={isTyping}
             />
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="p-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/20"
+              className="p-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 hover:shadow-lg hover:shadow-[#7C5CFC]/20"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -240,7 +240,7 @@ export default function AIInsights() {
               <p className="text-xs text-gray-400 leading-relaxed">{card.content}</p>
               <button
                 onClick={() => sendMessage(card.title)}
-                className="mt-3 text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors group-hover:underline focus:outline-none"
+                className="mt-3 text-[11px] text-[#a78bfa] hover:text-[#7C5CFC] transition-colors group-hover:underline focus:outline-none"
               >
                 Ask AI about this →
               </button>
@@ -255,7 +255,7 @@ export default function AIInsights() {
                 <button
                   key={p}
                   onClick={() => sendMessage(p)}
-                  className="w-full text-left text-[11px] px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  className="w-full text-left text-[11px] px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20"
                 >
                   → {p}
                 </button>

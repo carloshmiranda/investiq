@@ -114,7 +114,7 @@ function DRIPSimulator({ annualIncome, totalValue }) {
           </div>
           <button
             onClick={() => setDrip(!drip)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${drip ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.3)]' : 'bg-gray-700'}`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${drip ? 'bg-[#7C5CFC] shadow-[0_0_12px_rgba(124,92,252,0.3)]' : 'bg-gray-700'}`}
           >
             <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-300 ${drip ? 'translate-x-5.5' : 'translate-x-1'}`} />
           </button>
@@ -144,9 +144,9 @@ function DRIPSimulator({ annualIncome, totalValue }) {
               <button
                 key={y}
                 onClick={() => setYears(y)}
-                className={`flex-1 text-xs font-data font-medium py-1.5 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${years === y
-                  ? 'bg-emerald-500 text-white shadow-[0_0_8px_rgba(16,185,129,0.25)]'
-                  : 'bg-navy-600 text-gray-400 hover:text-white hover:bg-navy-500'
+                className={`flex-1 text-xs font-data font-medium py-1.5 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${years === y
+                  ? 'bg-[#7C5CFC] text-white shadow-[0_0_8px_rgba(124,92,252,0.25)]'
+                  : 'bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08]'
                   }`}
               >
                 {y}yr
@@ -242,7 +242,7 @@ export default function Income() {
             Connect a broker to start tracking dividends, staking rewards, and passive income.
           </p>
           <Link to="/connections"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200">
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-[#a78bfa] text-sm font-medium rounded-lg hover:bg-[#7C5CFC]/20 transition-all duration-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>

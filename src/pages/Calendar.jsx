@@ -49,12 +49,12 @@ function CalendarGrid({ year, month, payments, onDayClick, selectedDay }) {
         key={d}
         onClick={() => onDayClick(d, dayPayments)}
         className={`relative p-1.5 rounded-lg cursor-pointer min-h-[56px] transition-all duration-200
-          ${isToday ? 'border border-emerald-500/40 bg-emerald-500/5' : 'border border-transparent'}
-          ${isSelected ? 'bg-white/[0.06] ring-1 ring-emerald-500/30' : 'hover:bg-white/[0.04]'}
+          ${isToday ? 'border border-[#7C5CFC]/40 bg-[#7C5CFC]/5' : 'border border-transparent'}
+          ${isSelected ? 'bg-white/[0.06] ring-1 ring-[#7C5CFC]/30' : 'hover:bg-white/[0.04]'}
           ${hasPayments ? 'hover:scale-[1.02]' : ''}
         `}
       >
-        <span className={`text-xs font-medium ${isToday ? 'text-emerald-400 font-data' : 'text-gray-400'}`}>{d}</span>
+        <span className={`text-xs font-medium ${isToday ? 'text-[#a78bfa] font-data' : 'text-gray-400'}`}>{d}</span>
         {/* Payment dots for compact view */}
         {dayPayments.length > 0 && dayPayments.length <= 2 && (
           <div className="flex flex-wrap gap-0.5 mt-1">
@@ -126,7 +126,7 @@ export default function Calendar() {
             Connect a broker to see upcoming dividend and reward payment dates.
           </p>
           <Link to="/connections"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium rounded-lg hover:bg-emerald-500/20 transition-all duration-200">
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 text-[#a78bfa] text-sm font-medium rounded-lg hover:bg-[#7C5CFC]/20 transition-all duration-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -172,7 +172,7 @@ export default function Calendar() {
           {/* Calendar header */}
           <div className="flex items-center justify-between mb-4">
             <button onClick={() => navigateMonth(-1)}
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -184,7 +184,7 @@ export default function Calendar() {
               </p>
             </div>
             <button onClick={() => navigateMonth(1)}
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -199,7 +199,7 @@ export default function Calendar() {
                 <button
                   key={t}
                   onClick={() => setTypeFilter(t)}
-                  className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${typeFilter === t
+                  className={`px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${typeFilter === t
                     ? c ? `${c.bg} ${c.text} ${c.border}` : 'bg-white/10 text-white border-white/20'
                     : 'bg-transparent text-gray-500 border-white/5 hover:text-gray-300 hover:bg-white/[0.03]'
                     }`}

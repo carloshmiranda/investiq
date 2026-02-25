@@ -108,7 +108,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
       <aside
         className={`
           fixed top-0 left-0 h-full z-30 flex flex-col
-          bg-[#0d1526]/95 backdrop-blur-md border-r border-white/5
+          bg-[#080808]/95 backdrop-blur-md border-r border-white/[0.04]
           transition-all duration-300 ease-in-out
           ${sidebarWidth} ${sidebarTranslate}
         `}
@@ -116,7 +116,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-white/5 flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#7C5CFC]/20">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -149,7 +149,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-200 group relative
                     ${isActive
-                      ? 'bg-emerald-500/10 text-emerald-400 border-l-2 border-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.05)]'
+                      ? 'bg-[#7C5CFC]/10 text-[#a78bfa] border-l-2 border-[#7C5CFC] shadow-[inset_0_0_20px_rgba(124,92,252,0.05)]'
                       : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border-l-2 border-transparent'
                     }
                   `}
@@ -159,7 +159,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                     <>
                       <span className="whitespace-nowrap">{item.label}</span>
                       {item.badge && (
-                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30">
+                        <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#7C5CFC]/15 text-[#a78bfa] border border-[#7C5CFC]/30">
                           {item.badge}
                         </span>
                       )}
@@ -186,7 +186,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
             </NavLink>
             {showLabels && (
               <div className="min-w-0 flex-1">
-                <NavLink to="/settings" className="block text-sm font-medium text-white truncate hover:text-emerald-400 transition-colors">
+                <NavLink to="/settings" className="block text-sm font-medium text-white truncate hover:text-[#a78bfa] transition-colors">
                   {user?.name ?? 'User'}
                 </NavLink>
                 <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-red-400 transition-colors focus:outline-none">

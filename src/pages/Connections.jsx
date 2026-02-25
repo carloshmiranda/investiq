@@ -38,10 +38,10 @@ function StatusBadge({ connected }) {
   return (
     <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
       connected
-        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        ? 'bg-[#7C5CFC]/10 text-[#a78bfa] border border-[#7C5CFC]/20'
         : 'bg-white/[0.03] text-gray-600 border border-white/5'
     }`}>
-      <span className={`relative w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-400 status-ping' : 'bg-gray-700'}`} />
+      <span className={`relative w-1.5 h-1.5 rounded-full ${connected ? 'bg-[#7C5CFC] status-ping' : 'bg-gray-700'}`} />
       {connected ? 'Live' : 'Off'}
     </div>
   );
@@ -129,10 +129,10 @@ function TestButton({ provider, testing, result, onTest }) {
       {result && (
         <div className={`mt-1.5 px-2.5 py-1.5 rounded-lg text-[10px] flex items-center gap-1.5 ${
           result.reachable
-            ? 'bg-emerald-500/[0.06] border border-emerald-500/15 text-emerald-400'
+            ? 'bg-[#7C5CFC]/[0.06] border border-[#7C5CFC]/15 text-[#a78bfa]'
             : 'bg-red-500/[0.06] border border-red-500/15 text-red-400'
         }`}>
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${result.reachable ? 'bg-emerald-400' : 'bg-red-400'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${result.reachable ? 'bg-[#7C5CFC]' : 'bg-red-400'}`} />
           {result.reachable ? `Reachable — ${result.latency}ms` : (result.error || 'Unreachable')}
         </div>
       )}
@@ -143,7 +143,7 @@ function TestButton({ provider, testing, result, onTest }) {
 // ── Type config ──────────────────────────────────────────────────────────────
 
 const typeConfig = {
-  broker:     { label: 'Broker',     color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+  broker:     { label: 'Broker',     color: 'text-[#a78bfa]', bg: 'bg-[#7C5CFC]/10', border: 'border-[#7C5CFC]/20' },
   exchange:   { label: 'Exchange',   color: 'text-cyan-400',    bg: 'bg-cyan-500/10',    border: 'border-cyan-500/20' },
   wallet:     { label: 'Wallet',     color: 'text-purple-400',  bg: 'bg-purple-500/10',  border: 'border-purple-500/20' },
   hardware:   { label: 'Hardware',   color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/20' },
@@ -199,13 +199,13 @@ function ModalSuccess({ message, detail, brandColor, syncing, onClose }) {
         </>
       ) : (
         <>
-          <div className="w-14 h-14 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto border border-emerald-500/20">
-            <CheckIcon className="w-7 h-7 text-emerald-400" />
+          <div className="w-14 h-14 rounded-full bg-[#7C5CFC]/15 flex items-center justify-center mx-auto border border-[#7C5CFC]/20">
+            <CheckIcon className="w-7 h-7 text-[#a78bfa]" />
           </div>
-          <p className="text-emerald-400 font-semibold text-lg">{message}</p>
+          <p className="text-[#a78bfa] font-semibold text-lg">{message}</p>
           {detail && <p className="text-xs text-gray-500">{detail}</p>}
           <button onClick={onClose}
-            className="mt-3 px-8 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-colors">
+            className="mt-3 px-8 py-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0] text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-[#7C5CFC]/20">
             View Portfolio
           </button>
         </>
@@ -693,7 +693,7 @@ function DegiroCard({ onOpenModal, onTest, testing, testResult }) {
           <BrandIcon label="DG" color={brand} />
           <div>
             <p className="text-sm font-semibold text-white">DeGiro</p>
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#7C5CFC]/10 text-[#a78bfa] border border-[#7C5CFC]/15">
               Broker
             </span>
           </div>
@@ -742,7 +742,7 @@ function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
           <BrandIcon label="T2" color={brand} />
           <div>
             <p className="text-sm font-semibold text-white">Trading 212</p>
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#7C5CFC]/10 text-[#a78bfa] border border-[#7C5CFC]/15">
               Broker
             </span>
           </div>

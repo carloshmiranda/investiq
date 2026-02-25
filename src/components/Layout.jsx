@@ -33,7 +33,7 @@ export default function Layout() {
   const marginLeft = isMobile ? '0' : collapsed ? '4rem' : '15rem';
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e]">
+    <div className="min-h-screen bg-[#050505]">
       <Sidebar
         collapsed={collapsed}
         setCollapsed={setCollapsed}
