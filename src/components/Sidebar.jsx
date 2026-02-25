@@ -189,7 +189,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                 <NavLink to="/settings" className="block text-sm font-medium text-white truncate hover:text-[#a78bfa] transition-colors">
                   {user?.name ?? 'User'}
                 </NavLink>
-                <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-red-400 transition-colors focus:outline-none">
+                <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-red-400 transition-colors focus:outline-none">
                   Sign out
                 </button>
               </div>

@@ -158,11 +158,11 @@ function SessionsSection() {
           ))}
         </div>
       ) : sessions.length === 0 ? (
-        <p className="text-sm text-gray-500">No active sessions.</p>
+        <p className="text-sm text-gray-400">No active sessions.</p>
       ) : (
         <ul className="space-y-2">
           {sessions.map(s => (
-            <li key={s.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-white/5 border border-white/5">
+            <li key={s.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-white/[0.03] border border-white/5">
               <div className="min-w-0">
                 <p className="text-sm text-white truncate">
                   {parseUA(s.userAgent)}
@@ -172,7 +172,7 @@ function SessionsSection() {
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {s.ipAddress ?? 'Unknown IP'} &middot; Created {new Date(s.createdAt).toLocaleDateString()}
                 </p>
               </div>
@@ -204,8 +204,8 @@ function SessionsSection() {
 
 function Card({ title, children }) {
   return (
-    <div className="glass-card rounded-2xl p-6">
-      <h2 className="text-lg font-semibold text-white mb-4">{title}</h2>
+    <div className="glass-card rounded-xl p-5">
+      <h2 className="text-sm font-semibold text-white mb-4">{title}</h2>
       {children}
     </div>
   )
@@ -221,7 +221,7 @@ function Field({ label, type = 'text', value, onChange, autoComplete }) {
         onChange={e => onChange(e.target.value)}
         autoComplete={autoComplete}
         className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white
-          placeholder-gray-600 focus:outline-none focus:border-[#7C5CFC]/50 focus:bg-white/8 transition-colors"
+          placeholder-gray-500 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 focus:bg-white/8 transition-all duration-200"
       />
     </div>
   )
@@ -236,24 +236,45 @@ function Msg({ msg }) {
 }
 
 const btnPrimary = `px-4 py-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0]
-  text-white text-sm font-semibold rounded-lg transition-all duration-150
+  text-white text-sm font-semibold rounded-lg transition-all duration-200
   disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#7C5CFC]/20`
 
 const btnSecondary = `px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10
-  text-white text-sm font-medium rounded-lg transition-all duration-150`
+  text-white text-sm font-medium rounded-lg transition-all duration-200`
 
 const btnDanger = `px-4 py-2.5 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20
-  text-red-400 text-sm font-medium rounded-lg transition-all duration-150`
+  text-red-400 text-sm font-medium rounded-lg transition-all duration-200`
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 
 export default function Settings() {
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-display font-bold text-white">Settings</h1>
-      <ProfileSection />
-      <PasswordSection />
-      <SessionsSection />
+      <div className="card-reveal">
+        <h1 className="text-3xl font-display font-bold text-white">Settings</h1>
+        <p className="text-gray-400 text-sm mt-1">Manage your account and security</p>
+      </div>
+
+      {/* Account section */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.06s' }}>Account</p>
+        <div className="card-reveal" style={{ animationDelay: '0.1s' }}>
+          <ProfileSection />
+        </div>
+      </div>
+
+      {/* Security section */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.14s' }}>Security</p>
+        <div className="space-y-4">
+          <div className="card-reveal" style={{ animationDelay: '0.18s' }}>
+            <PasswordSection />
+          </div>
+          <div className="card-reveal" style={{ animationDelay: '0.22s' }}>
+            <SessionsSection />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

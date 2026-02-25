@@ -27,7 +27,7 @@ function SafetyBadge({ rating }) {
 
 function SortIcon({ field, sortField, sortDir }) {
   if (sortField !== field) {
-    return <span className="text-gray-700 ml-1 opacity-40 group-hover:opacity-70 transition-opacity">⇅</span>;
+    return <span className="text-gray-500 ml-1 opacity-50 group-hover:opacity-80 transition-opacity">⇅</span>;
   }
   return (
     <span className="text-[#a78bfa] ml-1 font-data">
@@ -132,7 +132,7 @@ export default function Holdings() {
       <div className="space-y-6">
         <div className="card-reveal">
           <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-500 text-sm mt-1">All assets unified — stocks, crypto, DeFi</p>
+          <p className="text-gray-400 text-sm mt-1">All assets unified — stocks, crypto, DeFi</p>
         </div>
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ export default function Holdings() {
               d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
           <h2 className="text-xl font-display font-bold text-white mb-2">No Holdings Yet</h2>
-          <p className="text-gray-500 text-sm mb-5 max-w-sm mx-auto">
+          <p className="text-gray-400 text-sm mb-5 max-w-sm mx-auto">
             Connect a broker on the Connections page to see your positions here.
           </p>
           <Link to="/connections"
@@ -180,7 +180,7 @@ export default function Holdings() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-reveal">
         <div>
           <h1 className="text-3xl font-display font-bold text-white">Holdings Terminal</h1>
-          <p className="text-gray-500 text-sm mt-1">All assets unified — {connectedBrokers.map((b) => b.label).join(', ') || 'no brokers'}</p>
+          <p className="text-gray-400 text-sm mt-1">All assets unified — {connectedBrokers.map((b) => b.label).join(', ') || 'no brokers'}</p>
         </div>
         <button
           onClick={exportCSV}

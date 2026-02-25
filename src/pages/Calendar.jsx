@@ -114,7 +114,7 @@ export default function Calendar() {
       <div className="space-y-6">
         <div className="card-reveal">
           <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
-          <p className="text-gray-500 text-sm mt-1">Track all upcoming income payments</p>
+          <p className="text-gray-400 text-sm mt-1">Track all upcoming income payments</p>
         </div>
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +122,7 @@ export default function Calendar() {
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <h2 className="text-xl font-display font-bold text-white mb-2">No Upcoming Payments</h2>
-          <p className="text-gray-500 text-sm mb-5 max-w-sm mx-auto">
+          <p className="text-gray-400 text-sm mb-5 max-w-sm mx-auto">
             Connect a broker to see upcoming dividend and reward payment dates.
           </p>
           <Link to="/connections"
@@ -163,7 +163,7 @@ export default function Calendar() {
     <div className="space-y-6">
       <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Dividend & Rewards Calendar</h1>
-        <p className="text-gray-500 text-sm mt-1">Track all upcoming income payments</p>
+        <p className="text-gray-400 text-sm mt-1">Track all upcoming income payments</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>

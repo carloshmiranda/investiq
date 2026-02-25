@@ -123,7 +123,7 @@ export default function AIInsights() {
     <div className="space-y-6">
       <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">AI Insights</h1>
-        <p className="text-gray-500 text-sm mt-1">Your intelligent investment advisor powered by Claude</p>
+        <p className="text-gray-400 text-sm mt-1">Your intelligent investment advisor powered by Claude</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>
@@ -144,7 +144,7 @@ export default function AIInsights() {
                 Online — portfolio context loaded
               </p>
             </div>
-            <div className="ml-auto text-[10px] font-data text-gray-600">claude-sonnet-4-6</div>
+            <div className="ml-auto text-[10px] font-data text-gray-500">claude-sonnet-4-6</div>
           </div>
 
           {/* Messages */}
@@ -184,7 +184,7 @@ export default function AIInsights() {
           {/* Suggested prompts */}
           {messages.length < 3 && (
             <div className="px-4 pb-2">
-              <p className="text-[10px] text-gray-600 mb-1.5 uppercase tracking-wider">Suggested questions</p>
+              <p className="text-[10px] text-gray-500 mb-1.5 uppercase tracking-wider">Suggested questions</p>
               <div className="flex flex-wrap gap-1.5">
                 {SUGGESTED_PROMPTS.slice(0, 3).map((p) => (
                   <button
@@ -206,7 +206,7 @@ export default function AIInsights() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about your portfolio..."
-              className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200"
+              className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200"
               disabled={isTyping}
             />
             <button

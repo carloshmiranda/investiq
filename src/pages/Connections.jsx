@@ -391,7 +391,7 @@ function DegiroModal({ onClose }) {
           <SubmitButton loading={loading} disabled={totp.length !== 6}
             label="Verify & Connect" loadingLabel="Verifying…" color="#f59e0b" />
           <button type="button" onClick={() => setStep('credentials')}
-            className="w-full text-xs text-gray-600 hover:text-gray-300 transition-colors py-1">
+            className="w-full text-xs text-gray-500 hover:text-gray-300 transition-colors py-1">
             ← Back to login
           </button>
         </form>
@@ -424,7 +424,7 @@ function DegiroModal({ onClose }) {
           <SubmitButton loading={loading} disabled={!manualSessionId.trim()}
             label="Connect with Session" loadingLabel="Validating Session…" color="#f59e0b" />
           <button type="button" onClick={() => { setStep('credentials'); setError(null); }}
-            className="w-full text-xs text-gray-600 hover:text-gray-300 transition-colors py-1">
+            className="w-full text-xs text-gray-500 hover:text-gray-300 transition-colors py-1">
             ← Back to login
           </button>
         </form>
@@ -717,8 +717,8 @@ function DegiroCard({ onOpenModal, onTest, testing, testResult }) {
         </div>
       ) : (
         <div className="mb-4 py-4 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">European broker — unofficial API</p>
+          <p className="text-xs text-gray-500">Not connected</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">European broker — unofficial API</p>
         </div>
       )}
 
@@ -765,8 +765,8 @@ function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
         </div>
       ) : (
         <div className="mb-4 py-4 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">Official API — read-only access</p>
+          <p className="text-xs text-gray-500">Not connected</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">Official API — read-only access</p>
         </div>
       )}
 
@@ -813,8 +813,8 @@ function BinanceCard({ onOpenModal, onTest, testing, testResult }) {
         </div>
       ) : (
         <div className="mb-4 py-4 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — browser-direct API</p>
+          <p className="text-xs text-gray-500">Not connected</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">Crypto exchange — browser-direct API</p>
         </div>
       )}
 
@@ -861,8 +861,8 @@ function CryptocomCard({ onOpenModal, onTest, testing, testResult }) {
         </div>
       ) : (
         <div className="mb-4 py-4 text-center">
-          <p className="text-xs text-gray-600">Not connected</p>
-          <p className="text-[10px] text-gray-700 mt-0.5">Crypto exchange — signed API</p>
+          <p className="text-xs text-gray-500">Not connected</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">Crypto exchange — signed API</p>
         </div>
       )}
 
@@ -908,19 +908,19 @@ export default function Connections() {
           <p className="text-3xl font-data font-medium text-emerald-400 leading-tight">
             {liveSourceCount}
           </p>
-          <p className="text-xs text-gray-600 mt-1">of 4 available</p>
+          <p className="text-xs text-gray-500 mt-1">of 4 available</p>
         </div>
         <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '60ms' }}>
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Tracked Value</p>
           <p className="text-3xl font-data font-medium text-white leading-tight">{totalTrackedValue > 0 ? formatMoney(totalTrackedValue, 0) : '—'}</p>
-          <p className="text-xs text-gray-600 mt-1">across connected sources</p>
+          <p className="text-xs text-gray-500 mt-1">across connected sources</p>
         </div>
         <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '120ms' }}>
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">Total Positions</p>
           <p className="text-3xl font-data font-medium text-emerald-400 leading-tight">
             {liveSourceCount > 0 ? totalLivePositions : '—'}
           </p>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             {liveSourceCount > 0
               ? [degiroConnected && 'DeGiro', t212Connected && 'T212', binanceConnected && 'Binance', cryptocomConnected && 'Crypto.com'].filter(Boolean).join(' + ')
               : 'No sources connected'}

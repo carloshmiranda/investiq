@@ -26,9 +26,13 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
 
   return (
     <header className="fixed top-0 right-0 z-20 h-16 flex items-center px-3 sm:px-4 gap-2 sm:gap-4
-      bg-[#080808]/90 backdrop-blur-md border-b border-white/[0.04]
+      bg-[#080808]/90 backdrop-blur-md
       transition-all duration-300"
-      style={{ left: headerLeft }}
+      style={{
+        left: headerLeft,
+        borderImage: 'linear-gradient(to right, transparent, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.06) 80%, transparent) 1',
+        borderBottom: '1px solid',
+      }}
     >
       {/* Mobile hamburger */}
       <button
@@ -40,13 +44,13 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
         </svg>
       </button>
 
-      {/* Live portfolio value */}
-      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+      {/* Live portfolio value — pill treatment */}
+      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06]">
         <div className="relative flex-shrink-0">
           <div className={`w-2 h-2 rounded-full bg-[#7C5CFC] transition-opacity duration-500 ${pulse ? 'opacity-100' : 'opacity-40'}`} />
           <div className="absolute inset-0 w-2 h-2 rounded-full bg-[#7C5CFC] animate-ping opacity-20" />
         </div>
-        <span className="text-gray-500 text-sm hidden md:inline">Portfolio</span>
+        <span className="text-gray-400 text-sm hidden md:inline">Portfolio</span>
         <span className="text-sm sm:text-lg font-data font-medium text-white value-pulse truncate">
           {formatMoney(totalValue)}
         </span>
@@ -85,7 +89,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
 
       {/* Date/Time */}
       <div className="text-right hidden sm:block">
-        <p className="text-xs text-gray-500">{formattedDate}</p>
+        <p className="text-xs text-gray-400">{formattedDate}</p>
         <p className="text-sm font-data text-gray-300">{formattedTime}</p>
       </div>
     </header>

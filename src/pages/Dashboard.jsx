@@ -58,7 +58,7 @@ function HealthGauge({ score }) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-3xl font-data font-medium" style={{ color }}>{score}</span>
-          <span className="text-[9px] text-gray-500 uppercase tracking-wider">score</span>
+          <span className="text-[9px] text-gray-400 uppercase tracking-wider">score</span>
         </div>
       </div>
       <span className="text-xs text-gray-400 mt-2 font-medium">Portfolio Health</span>
@@ -105,7 +105,7 @@ function EmptyState() {
           d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
       </svg>
       <h2 className="text-xl font-display font-bold text-white mb-2">Connect a Broker</h2>
-      <p className="text-gray-500 text-sm mb-5 max-w-sm mx-auto">
+      <p className="text-gray-400 text-sm mb-5 max-w-sm mx-auto">
         Link your brokerage accounts to see real portfolio data, income tracking, and analytics.
       </p>
       <Link
@@ -171,7 +171,7 @@ export default function Dashboard() {
       <div className="space-y-6">
         <div className="card-reveal">
           <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">Your investment command center</p>
+          <p className="text-gray-400 text-sm mt-1">Your investment command center</p>
         </div>
         <EmptyState />
       </div>
@@ -183,7 +183,7 @@ export default function Dashboard() {
       {/* Page title */}
       <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Your investment command center</p>
+        <p className="text-gray-400 text-sm mt-1">Your investment command center</p>
       </div>
 
       {/* Connected brokers badges */}
@@ -292,7 +292,7 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[220px] text-gray-600 text-sm">
+            <div className="flex items-center justify-center h-[220px] text-gray-500 text-sm">
               No income data yet — dividends and rewards will appear here
             </div>
           )}
@@ -394,7 +394,7 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[180px] text-gray-600 text-sm">
+            <div className="flex items-center justify-center h-[180px] text-gray-500 text-sm">
               No upcoming payments scheduled
             </div>
           )}

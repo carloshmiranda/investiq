@@ -91,7 +91,7 @@ function DRIPSimulator({ annualIncome, totalValue }) {
     return (
       <div className="glass-card rounded-xl p-5">
         <h3 className="text-sm font-semibold text-white mb-4">DRIP Simulator & Long-Term Projection</h3>
-        <div className="flex items-center justify-center h-[180px] text-gray-600 text-sm">
+        <div className="flex items-center justify-center h-[180px] text-gray-500 text-sm">
           Connect a broker with income-generating assets to use the DRIP simulator
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function Income() {
       <div className="space-y-6">
         <div className="card-reveal">
           <h1 className="text-3xl font-display font-bold text-white">Income Intelligence</h1>
-          <p className="text-gray-500 text-sm mt-1">Track, project, and optimize your passive income</p>
+          <p className="text-gray-400 text-sm mt-1">Track, project, and optimize your passive income</p>
         </div>
         <div className="glass-card rounded-xl p-8 text-center card-reveal" style={{ animationDelay: '0.05s' }}>
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +238,7 @@ export default function Income() {
               d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <h2 className="text-xl font-display font-bold text-white mb-2">No Income Data Yet</h2>
-          <p className="text-gray-500 text-sm mb-5 max-w-sm mx-auto">
+          <p className="text-gray-400 text-sm mb-5 max-w-sm mx-auto">
             Connect a broker to start tracking dividends, staking rewards, and passive income.
           </p>
           <Link to="/connections"
@@ -257,7 +257,7 @@ export default function Income() {
     <div className="space-y-6">
       <div className="card-reveal">
         <h1 className="text-3xl font-display font-bold text-white">Income Intelligence</h1>
-        <p className="text-gray-500 text-sm mt-1">Track, project, and optimize your passive income</p>
+        <p className="text-gray-400 text-sm mt-1">Track, project, and optimize your passive income</p>
       </div>
 
       {/* KPIs */}
@@ -299,7 +299,7 @@ export default function Income() {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-[260px] text-gray-600 text-sm">
+          <div className="flex items-center justify-center h-[260px] text-gray-500 text-sm">
             No income received yet — dividends and rewards will appear here as they come in
           </div>
         )}
