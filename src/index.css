@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/cal-sans@1.0.1/index.css');
 
 @tailwind base;
 @tailwind components;
@@ -187,4 +188,14 @@ body {
 
 .card-accent-connected::before {
   box-shadow: 0 0 8px 1px var(--accent);
+}
+
+/* ── Landing page animations ──────────────────────────────── */
+@keyframes landingFadeUp {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.landing-fade-up {
+  animation: landingFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

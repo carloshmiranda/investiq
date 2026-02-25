@@ -8,7 +8,9 @@ import { BinanceProvider } from './context/BinanceContext'
 import { CryptocomProvider } from './context/CryptocomContext'
 import DebugPanel from './components/DebugPanel'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
 import Layout from './components/Layout'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -36,14 +38,16 @@ export default function App() {
         <CryptocomProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* Public routes — redirect to dashboard if already logged in */}
+            <Route element={<PublicRoute />}>
+              <Route index element={<Landing />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+            </Route>
 
-            {/* Protected routes */}
+            {/* Protected routes — redirect to login if not authenticated */}
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="income" element={<Income />} />
                 <Route path="holdings" element={<Holdings />} />
@@ -54,7 +58,7 @@ export default function App() {
               </Route>
             </Route>
 
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <DebugOverlay />
         </BrowserRouter>
