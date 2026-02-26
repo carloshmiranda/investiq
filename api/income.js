@@ -181,6 +181,24 @@ async function cryptocomFetch(method, apiKey, apiSecret, params = {}) {
   return data.result || {}
 }
 
+const CRYPTOCOM_REWARD_KEYWORDS = [
+  'staking', 'stake', 'earn', 'reward', 'interest',
+  'rebate', 'referral_bonus', 'supercharger', 'airdrop', 'distribution',
+]
+
+function isCryptocomReward(trade) {
+  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase()
+  return CRYPTOCOM_REWARD_KEYWORDS.some((k) => desc.includes(k))
+}
+
+function classifyCryptocomType(trade) {
+  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase()
+  if (desc.includes('staking') || desc.includes('stake') || desc.includes('supercharger') || desc.includes('validator')) return 'Staking Reward'
+  if (desc.includes('earn') || desc.includes('interest') || desc.includes('savings') || desc.includes('yield')) return 'Earn Interest'
+  if (desc.includes('airdrop') || desc.includes('distribution') || desc.includes('referral') || desc.includes('rebate')) return 'Distribution'
+  return 'Distribution'
+}
+
 async function fetchCryptocomIncome(apiKey, apiSecret) {
   let trades = []
   try {
@@ -188,20 +206,19 @@ async function fetchCryptocomIncome(apiKey, apiSecret) {
     trades = result.data || []
   } catch {}
 
-  return trades.map((t) => ({
-    id: `cryptocom-trade-${t.trade_id || t.order_id}-${t.create_time}`,
-    date: t.create_time ? new Date(t.create_time).toISOString() : new Date().toISOString(),
-    ticker: t.instrument_name || '',
-    name: t.instrument_name || '',
-    amount: parseFloat(t.fees || 0),
-    currency: t.fee_currency || 'USD',
-    type: 'Trade',
-    source: 'cryptocom',
-    broker: 'Crypto.com',
-    side: t.side,
-    quantity: parseFloat(t.traded_quantity || 0),
-    price: parseFloat(t.traded_price || 0),
-  }))
+  return trades
+    .filter(isCryptocomReward)
+    .map((t) => ({
+      id: `cryptocom-reward-${t.trade_id || t.order_id}-${t.create_time}`,
+      date: t.create_time ? new Date(t.create_time).toISOString() : new Date().toISOString(),
+      ticker: t.instrument_name || '',
+      name: t.instrument_name || '',
+      amount: Math.abs(parseFloat(t.traded_quantity || t.fees || 0)),
+      currency: t.fee_currency || 'USD',
+      type: classifyCryptocomType(t),
+      source: 'cryptocom',
+      broker: 'Crypto.com',
+    }))
 }
 
 // ─── Fetch fresh income data from all providers ────────────────────────────

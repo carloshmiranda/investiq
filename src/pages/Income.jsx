@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { useUnifiedPortfolio } from '../hooks/useUnifiedPortfolio';
 import { formatPercent } from '../utils/formatters';
+import { classifyIncome, INCOME_CATEGORIES } from '../utils/classifyIncome';
 import { useCurrency } from '../context/CurrencyContext';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
@@ -15,17 +16,6 @@ const SOURCE_LABELS = {
   binance: 'Binance',
   cryptocom: 'Crypto.com',
 };
-
-function classifyDividend(d) {
-  const type = (d.type || '').toLowerCase();
-  const source = (d.source || '').toLowerCase();
-  if (type.includes('interest')) return 'interest';
-  if (type.includes('stak') || type.includes('supercharger')) return 'stakingRewards';
-  if (type.includes('earn') || type.includes('yield') || type.includes('flexible') || type.includes('locked')) return 'earnYield';
-  if (source === 'degiro' || source === 'trading212') return 'stockDividends';
-  if (source === 'binance' || source === 'cryptocom') return 'stakingRewards';
-  return 'stockDividends';
-}
 
 function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
@@ -51,19 +41,19 @@ function CustomTooltip({ active, payload, label, formatMoney }) {
 function IncomeChartGradients() {
   return (
     <defs>
-      <linearGradient id="incGradStockDiv" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradDividends" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
         <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradStakeReward" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradStakingRewards" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
         <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradEarnYield" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradYieldInterest" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
         <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradInt" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradDistributions" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#a78bfa" stopOpacity={1} />
         <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.7} />
       </linearGradient>
@@ -238,7 +228,7 @@ export default function Income() {
     if (sourceFilter === 'All') return incomeHistory;
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-    const emptyBucket = () => ({ stockDividends: 0, stakingRewards: 0, earnYield: 0, interest: 0, total: 0 });
+    const emptyBucket = () => ({ dividends: 0, stakingRewards: 0, yieldInterest: 0, distributions: 0, total: 0 });
     const buckets = {};
     filteredDividends.forEach((d) => {
       const dDate = new Date(d.date);
@@ -247,7 +237,7 @@ export default function Income() {
       if (!buckets[key]) buckets[key] = { month: key, ...emptyBucket() };
       const bucket = buckets[key];
       const amt = d.amount || 0;
-      bucket[classifyDividend(d)] += amt;
+      bucket[classifyIncome(d)] += amt;
       bucket.total += amt;
     });
     const result = [];
@@ -261,36 +251,21 @@ export default function Income() {
 
   // Income by type with broker source badges
   const byType = useMemo(() => {
-    const buckets = {
-      'Stock Dividends': { total: 0, sources: new Set() },
-      'Staking Rewards': { total: 0, sources: new Set() },
-      'Earn/Yield': { total: 0, sources: new Set() },
-      'Interest': { total: 0, sources: new Set() },
-    };
-    const classMap = {
-      stockDividends: 'Stock Dividends',
-      stakingRewards: 'Staking Rewards',
-      earnYield: 'Earn/Yield',
-      interest: 'Interest',
-    };
+    const buckets = {};
+    for (const [key, meta] of Object.entries(INCOME_CATEGORIES)) {
+      buckets[key] = { label: meta.label, color: meta.color, total: 0, sources: new Set() };
+    }
     filteredDividends.forEach((d) => {
-      const cls = classifyDividend(d);
-      const label = classMap[cls];
-      buckets[label].total += (d.amount || 0);
-      if (d.source) buckets[label].sources.add(d.source);
+      const cls = classifyIncome(d);
+      buckets[cls].total += (d.amount || 0);
+      if (d.source) buckets[cls].sources.add(d.source);
     });
-    const colors = {
-      'Stock Dividends': '#10b981',
-      'Staking Rewards': '#06b6d4',
-      'Earn/Yield': '#f59e0b',
-      'Interest': '#8b5cf6',
-    };
-    return Object.entries(buckets)
-      .filter(([, b]) => b.total > 0)
-      .map(([name, b]) => ({
-        name,
+    return Object.values(buckets)
+      .filter((b) => b.total > 0)
+      .map((b) => ({
+        name: b.label,
         value: Math.round(b.total),
-        color: colors[name],
+        color: b.color,
         sources: [...b.sources].map((s) => SOURCE_LABELS[s] || s),
       }));
   }, [filteredDividends]);
@@ -299,7 +274,7 @@ export default function Income() {
 
   // Income sources count = unique broker+type combos
   const incomeSourceCount = useMemo(() => {
-    const combos = new Set(dividends.map((d) => `${d.source}-${classifyDividend(d)}`));
+    const combos = new Set(dividends.map((d) => `${d.source}-${classifyIncome(d)}`));
     return combos.size;
   }, [dividends]);
 
@@ -392,10 +367,10 @@ export default function Income() {
               <YAxis tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false}
                 tickFormatter={(v) => formatLocal(convert(v), 0)} />
               <Tooltip content={<CustomTooltip formatMoney={formatMoney} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-              <Bar dataKey="stockDividends" name="Stock Dividends" stackId="a" fill="url(#incGradStockDiv)" />
-              <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#incGradStakeReward)" />
-              <Bar dataKey="earnYield" name="Earn/Yield" stackId="a" fill="url(#incGradEarnYield)" />
-              <Bar dataKey="interest" name="Interest" stackId="a" fill="url(#incGradInt)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#incGradDividends)" />
+              <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#incGradStakingRewards)" />
+              <Bar dataKey="yieldInterest" name="Yield & Interest" stackId="a" fill="url(#incGradYieldInterest)" />
+              <Bar dataKey="distributions" name="Distributions" stackId="a" fill="url(#incGradDistributions)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (

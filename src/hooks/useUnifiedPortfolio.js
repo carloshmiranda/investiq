@@ -4,6 +4,7 @@ import { useTrading212 } from '../context/Trading212Context';
 import { useBinance } from '../context/BinanceContext';
 import { useCryptocom } from '../context/CryptocomContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { classifyIncome } from '../utils/classifyIncome';
 
 const BROKER_COLORS = {
   degiro: { label: 'DeGiro', abbr: 'DG', color: '#ff6600' },
@@ -84,20 +85,7 @@ export function useUnifiedPortfolio() {
     const monthlyIncome = annualIncome / 12;
     const overallYield = totalValue > 0 ? (annualIncome / totalValue) * 100 : 0;
 
-    // Classify income type using source + type for accuracy
-    const classifyIncome = (d) => {
-      const type = (d.type || '').toLowerCase();
-      const source = (d.source || '').toLowerCase();
-      if (type.includes('interest')) return 'interest';
-      if (type.includes('stak') || type.includes('supercharger')) return 'stakingRewards';
-      if (type.includes('earn') || type.includes('yield') || type.includes('flexible') || type.includes('locked')) return 'earnYield';
-      // Stock sources default to stockDividends, crypto sources to stakingRewards
-      if (source === 'degiro' || source === 'trading212') return 'stockDividends';
-      if (source === 'binance' || source === 'cryptocom') return 'stakingRewards';
-      return 'stockDividends';
-    };
-
-    const emptyBucket = () => ({ stockDividends: 0, stakingRewards: 0, earnYield: 0, interest: 0, total: 0 });
+    const emptyBucket = () => ({ dividends: 0, stakingRewards: 0, yieldInterest: 0, distributions: 0, total: 0 });
 
     const monthBuckets = {};
     dividends.forEach((d) => {
