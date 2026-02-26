@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import * as cryptocomApi from '../services/cryptocom/api.js';
-import { buildPriceMap, mapBalance, mapStakingPosition, mapTrade } from '../services/cryptocom/mapper.js';
+import { buildPriceMap, mapBalance, mapStakingPosition, separateTransactions } from '../services/cryptocom/mapper.js';
 
 const CryptocomContext = createContext(null);
 
@@ -11,6 +11,7 @@ const INITIAL_STATE = {
   error: null,
   holdings: [],
   trades: [],
+  dividends: [],
   assetCount: 0,
   totalValue: 0,
   lastSync: null,
@@ -82,12 +83,13 @@ export function CryptocomProvider({ children }) {
 
       const holdings = [...spotHoldings, ...stakingHoldings];
       const totalValue = holdings.reduce((sum, h) => sum + (h.value || 0), 0);
-      const trades = rawTrades.map(mapTrade);
+      const { trades, rewards } = separateTransactions(rawTrades, priceMap);
 
       setState((prev) => ({
         ...prev,
         holdings,
         trades,
+        dividends: rewards,
         assetCount: holdings.length,
         totalValue,
         lastSync: new Date().toISOString(),

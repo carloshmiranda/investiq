@@ -67,7 +67,7 @@ export function useUnifiedPortfolio() {
       ...degiro.dividends,
       ...t212.dividends,
       ...binance.dividends,
-      ...(cryptocom.trades || []).filter((t) => t.type === 'Dividend' || t.type === 'Staking' || t.type === 'Earn'),
+      ...(cryptocom.dividends || []),
     ].map((d) => {
       if (!d.currency || d.currency === 'USD') return d;
       return { ...d, amount: toUSD(d.amount, d.currency), currency: 'USD' };
@@ -84,26 +84,32 @@ export function useUnifiedPortfolio() {
     const monthlyIncome = annualIncome / 12;
     const overallYield = totalValue > 0 ? (annualIncome / totalValue) * 100 : 0;
 
+    // Classify income type using source + type for accuracy
+    const classifyIncome = (d) => {
+      const type = (d.type || '').toLowerCase();
+      const source = (d.source || '').toLowerCase();
+      if (type.includes('interest')) return 'interest';
+      if (type.includes('stak') || type.includes('supercharger')) return 'stakingRewards';
+      if (type.includes('earn') || type.includes('yield') || type.includes('flexible') || type.includes('locked')) return 'earnYield';
+      // Stock sources default to stockDividends, crypto sources to stakingRewards
+      if (source === 'degiro' || source === 'trading212') return 'stockDividends';
+      if (source === 'binance' || source === 'cryptocom') return 'stakingRewards';
+      return 'stockDividends';
+    };
+
+    const emptyBucket = () => ({ stockDividends: 0, stakingRewards: 0, earnYield: 0, interest: 0, total: 0 });
+
     const monthBuckets = {};
     dividends.forEach((d) => {
       const dDate = new Date(d.date);
       if (dDate < twelveMonthsAgo) return;
       const key = getMonthKey(d.date);
       if (!monthBuckets[key]) {
-        monthBuckets[key] = { month: key, dividends: 0, staking: 0, yield: 0, interest: 0, total: 0 };
+        monthBuckets[key] = { month: key, ...emptyBucket() };
       }
       const bucket = monthBuckets[key];
       const amt = d.amount || 0;
-      const type = (d.type || '').toLowerCase();
-      if (type.includes('stak')) {
-        bucket.staking += amt;
-      } else if (type.includes('yield') || type.includes('earn')) {
-        bucket.yield += amt;
-      } else if (type.includes('interest')) {
-        bucket.interest += amt;
-      } else {
-        bucket.dividends += amt;
-      }
+      bucket[classifyIncome(d)] += amt;
       bucket.total += amt;
     });
 
@@ -112,7 +118,7 @@ export function useUnifiedPortfolio() {
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      incomeHistory.push(monthBuckets[key] || { month: key, dividends: 0, staking: 0, yield: 0, interest: 0, total: 0 });
+      incomeHistory.push(monthBuckets[key] || { month: key, ...emptyBucket() });
     }
 
     // ── Income projections — simple extrapolation from last 3 months ─────
@@ -223,7 +229,7 @@ export function useUnifiedPortfolio() {
     degiro.positions, degiro.dividends, degiro.connected, degiro.syncing,
     t212.positions, t212.dividends, t212.connected, t212.syncing,
     binance.holdings, binance.dividends, binance.connected, binance.syncing,
-    cryptocom.holdings, cryptocom.trades, cryptocom.connected, cryptocom.syncing,
+    cryptocom.holdings, cryptocom.dividends, cryptocom.connected, cryptocom.syncing,
     ratesLoaded,
   ]);
 }

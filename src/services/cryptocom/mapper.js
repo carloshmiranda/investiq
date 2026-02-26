@@ -88,7 +88,45 @@ export function mapStakingPosition(balance, priceMap) {
 }
 
 /**
- * Map a Crypto.com trade to Accrue income event.
+ * Detect if a Crypto.com transaction is an income event (staking, earn, reward).
+ */
+const REWARD_TYPES = [
+  'staking', 'stake', 'reward', 'earn', 'interest',
+  'rebate', 'referral_bonus', 'supercharger',
+];
+
+function isRewardTransaction(trade) {
+  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase();
+  return REWARD_TYPES.some((t) => desc.includes(t));
+}
+
+function classifyRewardType(trade) {
+  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase();
+  if (desc.includes('stak') || desc.includes('supercharger')) return 'Staking Reward';
+  if (desc.includes('earn') || desc.includes('interest')) return 'Earn/Yield';
+  return 'Staking Reward'; // default for other reward types
+}
+
+/**
+ * Map a Crypto.com reward/earn/staking transaction to Accrue income event.
+ */
+export function mapReward(trade, priceMap) {
+  const currency = trade.currency || trade.fee_currency || '';
+  const amount = Math.abs(parseFloat(trade.amount || trade.native_amount || 0));
+  const price = priceMap ? getUsdPrice(currency, priceMap) : 1;
+  return {
+    date: new Date(trade.create_time || trade.update_time || trade.timestamp).toISOString(),
+    ticker: currency,
+    name: currency,
+    amount: amount * price,
+    currency: 'USD',
+    type: classifyRewardType(trade),
+    source: 'cryptocom',
+  };
+}
+
+/**
+ * Map a Crypto.com trade to Accrue trade event.
  */
 export function mapTrade(trade) {
   return {
@@ -103,6 +141,22 @@ export function mapTrade(trade) {
     quantity: parseFloat(trade.traded_quantity || 0),
     price: parseFloat(trade.traded_price || 0),
   };
+}
+
+/**
+ * Separate raw transactions into trades and rewards.
+ */
+export function separateTransactions(rawTrades, priceMap) {
+  const trades = [];
+  const rewards = [];
+  for (const t of rawTrades) {
+    if (isRewardTransaction(t)) {
+      rewards.push(mapReward(t, priceMap));
+    } else {
+      trades.push(mapTrade(t));
+    }
+  }
+  return { trades, rewards };
 }
 
 /**

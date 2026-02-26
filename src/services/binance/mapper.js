@@ -74,6 +74,8 @@ export function mapFlexibleEarn(pos, priceMap) {
   const asset = pos.asset;
   const amount = parseFloat(pos.totalAmount || 0);
   const price = getUsdPrice(asset, priceMap);
+  const value = amount * price;
+  const yieldPercent = parseFloat(pos.latestAnnualPercentageRate || 0) * 100;
 
   return {
     id: `binance-earn-flex-${asset}`,
@@ -86,10 +88,10 @@ export function mapFlexibleEarn(pos, priceMap) {
     sector: 'Staking',
     quantity: amount,
     price,
-    value: amount * price,
+    value,
     currency: 'USD',
-    annualIncome: 0,
-    yieldPercent: parseFloat(pos.latestAnnualPercentageRate || 0) * 100,
+    annualIncome: value * (yieldPercent / 100),
+    yieldPercent,
     frequency: 'Daily',
     nextPayDate: 'N/A',
     safetyRating: 'C',
@@ -109,6 +111,8 @@ export function mapLockedEarn(pos, priceMap) {
   const asset = pos.asset;
   const amount = parseFloat(pos.amount || 0);
   const price = getUsdPrice(asset, priceMap);
+  const value = amount * price;
+  const yieldPercent = parseFloat(pos.apy || 0) * 100;
 
   return {
     id: `binance-earn-locked-${asset}-${pos.positionId || ''}`,
@@ -121,10 +125,10 @@ export function mapLockedEarn(pos, priceMap) {
     sector: 'Staking',
     quantity: amount,
     price,
-    value: amount * price,
+    value,
     currency: 'USD',
-    annualIncome: 0,
-    yieldPercent: parseFloat(pos.apy || 0) * 100,
+    annualIncome: value * (yieldPercent / 100),
+    yieldPercent,
     frequency: 'Daily',
     nextPayDate: 'N/A',
     safetyRating: 'C',

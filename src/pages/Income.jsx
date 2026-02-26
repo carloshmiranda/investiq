@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart,
@@ -8,6 +8,24 @@ import { formatPercent } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
+
+const SOURCE_LABELS = {
+  degiro: 'DeGiro',
+  trading212: 'Trading 212',
+  binance: 'Binance',
+  cryptocom: 'Crypto.com',
+};
+
+function classifyDividend(d) {
+  const type = (d.type || '').toLowerCase();
+  const source = (d.source || '').toLowerCase();
+  if (type.includes('interest')) return 'interest';
+  if (type.includes('stak') || type.includes('supercharger')) return 'stakingRewards';
+  if (type.includes('earn') || type.includes('yield') || type.includes('flexible') || type.includes('locked')) return 'earnYield';
+  if (source === 'degiro' || source === 'trading212') return 'stockDividends';
+  if (source === 'binance' || source === 'cryptocom') return 'stakingRewards';
+  return 'stockDividends';
+}
 
 function CustomTooltip({ active, payload, label, formatMoney }) {
   if (active && payload && payload.length) {
@@ -30,19 +48,18 @@ function CustomTooltip({ active, payload, label, formatMoney }) {
   return null;
 }
 
-// Chart gradient definitions
 function IncomeChartGradients() {
   return (
     <defs>
-      <linearGradient id="incGradDiv" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradStockDiv" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
         <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradStake" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradStakeReward" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
         <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradYield" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradEarnYield" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
         <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
       </linearGradient>
@@ -203,27 +220,91 @@ export default function Income() {
     incomeHistory, incomeProjections, dividends, isEmpty,
   } = useUnifiedPortfolio();
 
-  // Income by type from real dividends
-  const byType = (() => {
-    const buckets = { Dividends: 0, Staking: 0, 'Yield/Earn': 0, Interest: 0 };
-    dividends.forEach((d) => {
-      const type = (d.type || '').toLowerCase();
-      if (type.includes('stak')) buckets.Staking += (d.amount || 0);
-      else if (type.includes('yield') || type.includes('earn')) buckets['Yield/Earn'] += (d.amount || 0);
-      else if (type.includes('interest')) buckets.Interest += (d.amount || 0);
-      else buckets.Dividends += (d.amount || 0);
+  const [sourceFilter, setSourceFilter] = useState('All');
+
+  // Derive available source options from dividends
+  const sourceOptions = useMemo(() => {
+    const sources = new Set(dividends.map((d) => d.source).filter(Boolean));
+    return ['All', ...sources];
+  }, [dividends]);
+
+  // Filter dividends by selected source
+  const filteredDividends = useMemo(() =>
+    sourceFilter === 'All' ? dividends : dividends.filter((d) => d.source === sourceFilter),
+  [dividends, sourceFilter]);
+
+  // Recompute filtered income history for the chart
+  const filteredIncomeHistory = useMemo(() => {
+    if (sourceFilter === 'All') return incomeHistory;
+    const now = new Date();
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+    const emptyBucket = () => ({ stockDividends: 0, stakingRewards: 0, earnYield: 0, interest: 0, total: 0 });
+    const buckets = {};
+    filteredDividends.forEach((d) => {
+      const dDate = new Date(d.date);
+      if (dDate < twelveMonthsAgo) return;
+      const key = dDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      if (!buckets[key]) buckets[key] = { month: key, ...emptyBucket() };
+      const bucket = buckets[key];
+      const amt = d.amount || 0;
+      bucket[classifyDividend(d)] += amt;
+      bucket.total += amt;
     });
-    return [
-      { name: 'Dividends', value: Math.round(buckets.Dividends), color: '#10b981' },
-      { name: 'Staking', value: Math.round(buckets.Staking), color: '#06b6d4' },
-      { name: 'Yield/Earn', value: Math.round(buckets['Yield/Earn']), color: '#f59e0b' },
-      { name: 'Interest', value: Math.round(buckets.Interest), color: '#8b5cf6' },
-    ].filter((b) => b.value > 0);
-  })();
+    const result = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      result.push(buckets[key] || { month: key, ...emptyBucket() });
+    }
+    return result;
+  }, [filteredDividends, sourceFilter, incomeHistory]);
+
+  // Income by type with broker source badges
+  const byType = useMemo(() => {
+    const buckets = {
+      'Stock Dividends': { total: 0, sources: new Set() },
+      'Staking Rewards': { total: 0, sources: new Set() },
+      'Earn/Yield': { total: 0, sources: new Set() },
+      'Interest': { total: 0, sources: new Set() },
+    };
+    const classMap = {
+      stockDividends: 'Stock Dividends',
+      stakingRewards: 'Staking Rewards',
+      earnYield: 'Earn/Yield',
+      interest: 'Interest',
+    };
+    filteredDividends.forEach((d) => {
+      const cls = classifyDividend(d);
+      const label = classMap[cls];
+      buckets[label].total += (d.amount || 0);
+      if (d.source) buckets[label].sources.add(d.source);
+    });
+    const colors = {
+      'Stock Dividends': '#10b981',
+      'Staking Rewards': '#06b6d4',
+      'Earn/Yield': '#f59e0b',
+      'Interest': '#8b5cf6',
+    };
+    return Object.entries(buckets)
+      .filter(([, b]) => b.total > 0)
+      .map(([name, b]) => ({
+        name,
+        value: Math.round(b.total),
+        color: colors[name],
+        sources: [...b.sources].map((s) => SOURCE_LABELS[s] || s),
+      }));
+  }, [filteredDividends]);
+
   const totalByType = byType.reduce((s, x) => s + x.value, 0);
 
-  const incomeTotal = incomeHistory.reduce((s, m) => s + m.total, 0);
-  const hasIncomeData = incomeTotal > 0;
+  // Income sources count = unique broker+type combos
+  const incomeSourceCount = useMemo(() => {
+    const combos = new Set(dividends.map((d) => `${d.source}-${classifyDividend(d)}`));
+    return combos.size;
+  }, [dividends]);
+
+  const filteredTotal = filteredIncomeHistory.reduce((s, m) => s + m.total, 0);
+  const hasIncomeData = filteredTotal > 0;
   const hasProjections = incomeProjections.length > 0;
 
   if (isEmpty) {
@@ -261,7 +342,7 @@ export default function Income() {
           { label: 'Annual Income', value: formatMoney(annualIncome, 0), color: 'text-emerald-400' },
           { label: 'Monthly Avg', value: formatMoney(monthlyIncome, 0), color: 'text-cyan-400' },
           { label: 'Portfolio Yield', value: formatPercent(overallYield), color: 'text-amber-400' },
-          { label: 'Income Sources', value: byType.length > 0 ? `${byType.length} Types` : 'N/A', color: 'text-purple-400' },
+          { label: 'Income Sources', value: incomeSourceCount > 0 ? `${incomeSourceCount} Sources` : 'N/A', color: 'text-purple-400' },
         ].map((k, i) => (
           <div key={k.label} className="glass-card rounded-xl p-4 transition-all duration-300 card-reveal" style={{ animationDelay: `${0.04 + i * 0.04}s` }}>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">{k.label}</p>
@@ -272,30 +353,56 @@ export default function Income() {
 
       {/* Income Timeline */}
       <div className="glass-card rounded-xl p-5 card-reveal" style={{ animationDelay: '0.1s' }}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-white">Income Timeline — Last 12 Months</h3>
           {hasIncomeData && (
-            <span className="text-xs font-data text-gray-500">{formatMoney(incomeTotal, 0)} total</span>
+            <span className="text-xs font-data text-gray-500">{formatMoney(filteredTotal, 0)} total</span>
           )}
         </div>
+
+        {/* Source filter pills */}
+        {sourceOptions.length > 2 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {sourceOptions.map((src) => {
+              const label = src === 'All' ? 'All' : (SOURCE_LABELS[src] || src);
+              const active = sourceFilter === src;
+              return (
+                <button
+                  key={src}
+                  onClick={() => setSourceFilter(src)}
+                  className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all duration-200 ${
+                    active
+                      ? 'bg-[#7C5CFC]/15 border-[#7C5CFC]/30 text-[#a78bfa]'
+                      : 'bg-white/[0.03] border-white/[0.06] text-gray-500 hover:text-gray-300 hover:border-white/10'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {hasIncomeData ? (
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={incomeHistory} barSize={20}>
+            <BarChart data={filteredIncomeHistory} barSize={20}>
               <IncomeChartGradients />
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
               <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false}
                 tickFormatter={(v) => formatLocal(convert(v), 0)} />
               <Tooltip content={<CustomTooltip formatMoney={formatMoney} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-              <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#incGradDiv)" />
-              <Bar dataKey="staking" name="Staking" stackId="a" fill="url(#incGradStake)" />
-              <Bar dataKey="yield" name="Yield" stackId="a" fill="url(#incGradYield)" />
+              <Bar dataKey="stockDividends" name="Stock Dividends" stackId="a" fill="url(#incGradStockDiv)" />
+              <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#incGradStakeReward)" />
+              <Bar dataKey="earnYield" name="Earn/Yield" stackId="a" fill="url(#incGradEarnYield)" />
               <Bar dataKey="interest" name="Interest" stackId="a" fill="url(#incGradInt)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex items-center justify-center h-[260px] text-gray-500 text-sm">
-            No income received yet — dividends and rewards will appear here as they come in
+            {sourceFilter !== 'All'
+              ? `No income from ${SOURCE_LABELS[sourceFilter] || sourceFilter} in the last 12 months`
+              : 'No income received yet — dividends and rewards will appear here as they come in'}
           </div>
         )}
       </div>
@@ -349,7 +456,14 @@ export default function Income() {
             {byType.map((item) => (
               <div key={item.name}>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-300">{item.name}</span>
+                  <span className="text-gray-300">
+                    {item.name}
+                    {item.sources.length > 0 && (
+                      <span className="text-gray-500 ml-1.5 text-[10px]">
+                        · {item.sources.join(', ')}
+                      </span>
+                    )}
+                  </span>
                   <span className="font-data font-medium" style={{ color: item.color }}>
                     {formatMoney(item.value, 0)} ({totalByType > 0 ? ((item.value / totalByType) * 100).toFixed(0) : 0}%)
                   </span>

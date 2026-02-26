@@ -78,15 +78,15 @@ const typeColors = {
 function ChartGradients() {
   return (
     <defs>
-      <linearGradient id="gradDividends" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="gradStockDividends" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
         <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="gradStaking" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="gradStakingRewards" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
         <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="gradYield" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="gradEarnYield" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
         <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
       </linearGradient>
@@ -142,9 +142,9 @@ export default function Dashboard() {
   const recentIncome = useMemo(() =>
     incomeHistory.slice(-6).map((m) => ({
       month: m.month,
-      dividends: convert(m.dividends),
-      staking: convert(m.staking),
-      yield: convert(m.yield),
+      stockDividends: convert(m.stockDividends),
+      stakingRewards: convert(m.stakingRewards),
+      earnYield: convert(m.earnYield),
       interest: convert(m.interest),
     })),
   [incomeHistory, convert]);
@@ -261,7 +261,7 @@ export default function Dashboard() {
             <h3 className="text-sm font-semibold text-white">Income Last 6 Months</h3>
             <span className="text-xs text-gray-500">All sources</span>
           </div>
-          {recentIncome.some((m) => m.dividends + m.staking + m.yield + m.interest > 0) ? (
+          {recentIncome.some((m) => m.stockDividends + m.stakingRewards + m.earnYield + m.interest > 0) ? (
             <>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={recentIncome} barSize={20}>
@@ -271,14 +271,14 @@ export default function Dashboard() {
                   <YAxis tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false}
                     tickFormatter={(v) => formatLocal(v, 0)} />
                   <Tooltip content={<CustomTooltip formatMoney={(v) => formatLocal(v)} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                  <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#gradDividends)" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="staking" name="Staking" stackId="a" fill="url(#gradStaking)" />
-                  <Bar dataKey="yield" name="Yield" stackId="a" fill="url(#gradYield)" />
+                  <Bar dataKey="stockDividends" name="Stock Dividends" stackId="a" fill="url(#gradStockDividends)" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#gradStakingRewards)" />
+                  <Bar dataKey="earnYield" name="Earn/Yield" stackId="a" fill="url(#gradEarnYield)" />
                   <Bar dataKey="interest" name="Interest" stackId="a" fill="url(#gradInterest)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
               <div className="flex flex-wrap gap-4 mt-3">
-                {[['Dividends', '#10b981'], ['Staking', '#06b6d4'], ['Yield', '#f59e0b'], ['Interest', '#8b5cf6']].map(([label, color]) => (
+                {[['Stock Dividends', '#10b981'], ['Staking Rewards', '#06b6d4'], ['Earn/Yield', '#f59e0b'], ['Interest', '#8b5cf6']].map(([label, color]) => (
                   <div key={label} className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
                     <span className="text-xs text-gray-400">{label}</span>
