@@ -114,9 +114,9 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         `}
       >
         {/* Logo */}
-        <div className="flex items-center h-16 px-4 border-b border-white/5 flex-shrink-0">
+        <div className={`flex items-center h-16 ${showLabels ? 'px-4' : 'justify-center px-2'} border-b border-white/5 flex-shrink-0 relative`}>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#7C5CFC]/20">
+            <div className="sidebar-logo-icon w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#7C5CFC]/20">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -126,16 +126,28 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
               <span className="font-display font-bold text-lg gradient-text whitespace-nowrap">Accrue</span>
             )}
           </div>
-          <button
-            onClick={() => isMobile ? setMobileOpen(false) : setCollapsed(!collapsed)}
-            className="ml-auto p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-white/20"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {collapsed
-                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />}
-            </svg>
-          </button>
+          {/* Collapse toggle: floats on sidebar edge when collapsed, inline when expanded */}
+          {!showLabels && !isMobile ? (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="sidebar-toggle-collapsed absolute -right-3 top-1/2 -translate-y-1/2 z-40 w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 focus:outline-none"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onClick={() => isMobile ? setMobileOpen(false) : setCollapsed(!collapsed)}
+              className="ml-auto p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-white/20"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobile
+                  ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />}
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Nav items */}
