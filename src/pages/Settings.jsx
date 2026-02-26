@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import PageHeader from '../components/PageHeader'
 
 // ── Profile Section ────────────────────────────────────────────────────────
@@ -246,6 +247,50 @@ const btnSecondary = `px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-whi
 const btnDanger = `px-4 py-2.5 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20
   text-red-400 text-sm font-medium rounded-lg transition-all duration-200`
 
+// ── Theme Section ─────────────────────────────────────────────────────────
+
+function ThemeSection() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <Card title="Appearance">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-white font-medium">Theme</p>
+          <p className="text-xs text-gray-400 mt-0.5">Choose your preferred appearance</p>
+        </div>
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+          {[
+            { value: 'dark', label: 'Dark', icon: (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )},
+            { value: 'light', label: 'Light', icon: (
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            )},
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setTheme(opt.value)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${
+                theme === opt.value
+                  ? 'bg-[#7C5CFC] text-white shadow-lg shadow-[#7C5CFC]/20'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {opt.icon}
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────
 
 export default function Settings() {
@@ -253,22 +298,30 @@ export default function Settings() {
     <div className="space-y-6 max-w-2xl">
       <PageHeader title="Settings" subtitle="Manage your account and security" />
 
+      {/* Appearance section */}
+      <div className="space-y-4">
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.06s' }}>Appearance</p>
+        <div className="card-reveal" style={{ animationDelay: '0.1s' }}>
+          <ThemeSection />
+        </div>
+      </div>
+
       {/* Account section */}
       <div className="space-y-4">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.06s' }}>Account</p>
-        <div className="card-reveal" style={{ animationDelay: '0.1s' }}>
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.14s' }}>Account</p>
+        <div className="card-reveal" style={{ animationDelay: '0.18s' }}>
           <ProfileSection />
         </div>
       </div>
 
       {/* Security section */}
       <div className="space-y-4">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.14s' }}>Security</p>
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest card-reveal" style={{ animationDelay: '0.22s' }}>Security</p>
         <div className="space-y-4">
-          <div className="card-reveal" style={{ animationDelay: '0.18s' }}>
+          <div className="card-reveal" style={{ animationDelay: '0.26s' }}>
             <PasswordSection />
           </div>
-          <div className="card-reveal" style={{ animationDelay: '0.22s' }}>
+          <div className="card-reveal" style={{ animationDelay: '0.3s' }}>
             <SessionsSection />
           </div>
         </div>

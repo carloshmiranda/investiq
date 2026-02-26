@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
 import { DebugProvider, useDebugContext } from './context/DebugContext'
@@ -30,6 +31,7 @@ function DebugOverlay() {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <CurrencyProvider>
         <DebugProvider>
@@ -71,5 +73,6 @@ export default function App() {
         </DebugProvider>
       </CurrencyProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
