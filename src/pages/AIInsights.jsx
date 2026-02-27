@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import PageHeader from '../components/PageHeader';
@@ -73,7 +74,7 @@ const insightCards = [
 ];
 
 export default function AIInsights() {
-  const { authAxios } = useAuth();
+  const { authAxios, user } = useAuth();
   const { formatMoney } = useCurrency();
   const [messages, setMessages] = useState([
     {
@@ -83,14 +84,18 @@ export default function AIInsights() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [quota, setQuota] = useState(null);
   const messagesEndRef = useRef(null);
+
+  const isPro = user?.plan === 'pro';
+  const isExhausted = quota && quota.remaining <= 0 && !isPro;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isExhausted) return;
     const userMsg = { role: 'user', content: text };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
@@ -106,10 +111,27 @@ export default function AIInsights() {
         messages: chatHistory,
       });
 
+      if (data.quota) setQuota(data.quota);
       setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
     } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Failed to get AI response. Please try again.';
-      setMessages((prev) => [...prev, { role: 'assistant', content: `**Error:** ${errorMsg}` }]);
+      if (err.response?.status === 429 && err.response?.data?.queriesUsed != null) {
+        setQuota({
+          used: err.response.data.queriesUsed,
+          limit: err.response.data.queriesLimit,
+          remaining: 0,
+          plan: user?.plan || 'free',
+        });
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: `**Query limit reached.** You've used all ${err.response.data.queriesLimit} AI queries for this month. Upgrade to Pro for unlimited AI insights.`,
+          },
+        ]);
+      } else {
+        const errorMsg = err.response?.data?.error || 'Failed to get AI response. Please try again.';
+        setMessages((prev) => [...prev, { role: 'assistant', content: `**Error:** ${errorMsg}` }]);
+      }
     } finally {
       setIsTyping(false);
     }
@@ -142,7 +164,21 @@ export default function AIInsights() {
                 Online — portfolio context loaded
               </p>
             </div>
-            <div className="ml-auto text-[10px] font-data text-gray-500">claude-sonnet-4-6</div>
+            {/* Quota counter */}
+            <div className="ml-auto flex items-center gap-2">
+              {quota && (
+                <span className={`text-[10px] font-data px-2 py-0.5 rounded-full border ${
+                  quota.remaining <= 0
+                    ? 'text-red-400 bg-red-500/10 border-red-500/20'
+                    : quota.remaining <= 2
+                      ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                      : 'text-gray-400 bg-white/5 border-white/10'
+                }`}>
+                  {quota.used}/{quota.limit} queries
+                </span>
+              )}
+              <span className="text-[10px] font-data text-gray-500">claude-sonnet-4-6</span>
+            </div>
           </div>
 
           {/* Messages */}
@@ -179,8 +215,29 @@ export default function AIInsights() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Upgrade CTA when exhausted */}
+          {isExhausted && (
+            <div className="px-4 pb-2">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#7C5CFC]/10 border border-[#7C5CFC]/20">
+                <svg className="w-5 h-5 text-[#7C5CFC] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-white">Monthly AI limit reached</p>
+                  <p className="text-[10px] text-gray-400">Upgrade to Pro for unlimited AI queries, CSV export, and more.</p>
+                </div>
+                <Link
+                  to="/billing"
+                  className="text-[11px] font-medium text-white bg-[#7C5CFC] hover:bg-[#6B4FE0] px-4 py-1.5 rounded-lg transition-colors"
+                >
+                  Upgrade
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Suggested prompts */}
-          {messages.length < 3 && (
+          {messages.length < 3 && !isExhausted && (
             <div className="px-4 pb-2">
               <p className="text-[10px] text-gray-500 mb-1.5 uppercase tracking-wider">Suggested questions</p>
               <div className="flex flex-wrap gap-1.5">
@@ -203,13 +260,13 @@ export default function AIInsights() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about your portfolio..."
-              className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200"
-              disabled={isTyping}
+              placeholder={isExhausted ? 'AI query limit reached — upgrade to Pro' : 'Ask about your portfolio...'}
+              className="flex-1 px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#7C5CFC]/50 focus:ring-2 focus:ring-[#7C5CFC]/20 transition-all duration-200 disabled:opacity-50"
+              disabled={isTyping || isExhausted}
             />
             <button
               type="submit"
-              disabled={!input.trim() || isTyping}
+              disabled={!input.trim() || isTyping || isExhausted}
               className="p-2.5 bg-[#7C5CFC] hover:bg-[#6B4FE0] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 hover:shadow-lg hover:shadow-[#7C5CFC]/20"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +295,8 @@ export default function AIInsights() {
               <p className="text-xs text-gray-400 leading-relaxed">{card.content}</p>
               <button
                 onClick={() => sendMessage(card.title)}
-                className="mt-3 text-[11px] text-[#a78bfa] hover:text-[#7C5CFC] transition-colors group-hover:underline focus:outline-none"
+                disabled={isExhausted}
+                className="mt-3 text-[11px] text-[#a78bfa] hover:text-[#7C5CFC] transition-colors group-hover:underline focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Ask AI about this →
               </button>
@@ -253,7 +311,8 @@ export default function AIInsights() {
                 <button
                   key={p}
                   onClick={() => sendMessage(p)}
-                  className="w-full text-left text-[11px] px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20"
+                  disabled={isExhausted}
+                  className="w-full text-left text-[11px] px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   → {p}
                 </button>

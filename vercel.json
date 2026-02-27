@@ -7,6 +7,7 @@
     { "source": "/api/binance/:action*", "destination": "/api/connections?provider=binance&action=:action*" },
     { "source": "/api/cryptocom/:action*", "destination": "/api/connections?provider=cryptocom&action=:action*" },
     { "source": "/api/ai/:action*", "destination": "/api/ai?action=:action*" },
+    { "source": "/api/billing/:action*", "destination": "/api/billing?action=:action*" },
     { "source": "/api/brokers/:path*", "destination": "/api/brokers?path=:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],

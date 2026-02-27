@@ -1,7 +1,9 @@
 // api/ai.js
-// POST /api/ai/chat — Claude claude-sonnet-4-6, portfolio context injected
+// POST /api/ai/chat — Claude claude-sonnet-4-6, portfolio context injected, quota enforced
 import { createProtectedHandler } from '../lib/apiHandler.js'
 import { getCache } from '../lib/cache.js'
+import { prisma } from '../lib/prisma.js'
+import { getPlan } from '../lib/plans.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const MODEL = 'claude-sonnet-4-6'
@@ -73,6 +75,30 @@ Important:
 - Do NOT make up holdings or data not in the portfolio context
 - If the user has no connected brokers, guide them to connect one first`
 
+// ─── Quota helpers ─────────────────────────────────────────────────────────
+function getCurrentMonth() {
+  const now = new Date()
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+async function getUsage(userId, month) {
+  return prisma.aiUsage.findUnique({
+    where: { userId_month: { userId, month } },
+  })
+}
+
+async function incrementUsage(userId, month, inputTokens, outputTokens) {
+  return prisma.aiUsage.upsert({
+    where: { userId_month: { userId, month } },
+    create: { userId, month, queryCount: 1, inputTokens, outputTokens },
+    update: {
+      queryCount: { increment: 1 },
+      inputTokens: { increment: inputTokens },
+      outputTokens: { increment: outputTokens },
+    },
+  })
+}
+
 export default createProtectedHandler({
   POST: async (req, res) => {
     if (!ANTHROPIC_API_KEY) {
@@ -82,6 +108,25 @@ export default createProtectedHandler({
     const { messages } = req.body || {}
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'messages array is required' })
+    }
+
+    // ── Quota check ──────────────────────────────────────────────────────
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: { plan: true },
+    })
+    const plan = getPlan(user?.plan)
+    const month = getCurrentMonth()
+    const usage = await getUsage(req.userId, month)
+    const queriesUsed = usage?.queryCount ?? 0
+
+    if (queriesUsed >= plan.aiQueriesPerMonth) {
+      return res.status(429).json({
+        error: 'AI query limit reached for this month.',
+        queriesUsed,
+        queriesLimit: plan.aiQueriesPerMonth,
+        upgradeUrl: '/billing',
+      })
     }
 
     // Fetch cached portfolio + income data for context
@@ -124,10 +169,24 @@ export default createProtectedHandler({
     const data = await response.json()
     const reply = data.content?.[0]?.text || 'No response generated.'
 
+    // ── Track usage ──────────────────────────────────────────────────────
+    const inputTokens = data.usage?.input_tokens ?? 0
+    const outputTokens = data.usage?.output_tokens ?? 0
+    await incrementUsage(req.userId, month, inputTokens, outputTokens)
+
+    const remaining = Math.max(0, plan.aiQueriesPerMonth - (queriesUsed + 1))
+    res.setHeader('X-AI-Queries-Remaining', String(remaining))
+
     return res.json({
       reply,
       model: data.model,
       usage: data.usage,
+      quota: {
+        used: queriesUsed + 1,
+        limit: plan.aiQueriesPerMonth,
+        remaining,
+        plan: user?.plan || 'free',
+      },
     })
   },
 })

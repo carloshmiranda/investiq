@@ -9,16 +9,34 @@ datasource db {
 }
 
 model User {
-  id           String       @id @default(uuid())
-  name         String
-  email        String       @unique
-  passwordHash String
-  createdAt    DateTime     @default(now())
-  currencyCode String       @default("USD")
-  updatedAt    DateTime     @updatedAt
-  connections  Connection[]
-  cache        PortfolioCache[]
-  sessions     Session[]
+  id                    String       @id @default(uuid())
+  name                  String
+  email                 String       @unique
+  passwordHash          String
+  createdAt             DateTime     @default(now())
+  currencyCode          String       @default("USD")
+  updatedAt             DateTime     @updatedAt
+  plan                  String       @default("free") // 'free' | 'pro'
+  stripeCustomerId      String?      @unique
+  stripeSubId           String?      @unique
+  subStatus             String?      // 'active' | 'past_due' | 'canceled' | 'unpaid'
+  subCurrentPeriodEnd   DateTime?
+  connections           Connection[]
+  cache                 PortfolioCache[]
+  sessions              Session[]
+  aiUsage               AiUsage[]
+}
+
+model AiUsage {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month        String   // 'YYYY-MM' format
+  queryCount   Int      @default(0)
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+
+  @@unique([userId, month])
 }
 
 model Connection {

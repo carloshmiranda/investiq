@@ -22,6 +22,7 @@ import Calendar from './pages/Calendar'
 import Connections from './pages/Connections'
 import AIInsights from './pages/AIInsights'
 import Settings from './pages/Settings'
+import Billing from './pages/Billing'
 
 function DebugOverlay() {
   const debug = useDebugContext()
@@ -58,6 +59,7 @@ export default function App() {
                 <Route path="connections" element={<Connections />} />
                 <Route path="ai-insights" element={<AIInsights />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="billing" element={<Billing />} />
               </Route>
             </Route>
 

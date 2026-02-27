@@ -66,7 +66,7 @@ async function handleRegister(req, res) {
 
   const user = await prisma.user.create({
     data: { name, email, passwordHash },
-    select: { id: true, name: true, email: true, currencyCode: true },
+    select: { id: true, name: true, email: true, currencyCode: true, plan: true },
   })
 
   const [accessToken, refreshToken] = await Promise.all([
@@ -129,7 +129,7 @@ async function handleLogin(req, res) {
   setRefreshCookie(res, refreshToken)
   return res.status(200).json({
     accessToken,
-    user: { id: user.id, name: user.name, email: user.email, currencyCode: user.currencyCode },
+    user: { id: user.id, name: user.name, email: user.email, currencyCode: user.currencyCode, plan: user.plan },
   })
 }
 
@@ -155,7 +155,7 @@ async function handleRefresh(req, res) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, name: true, email: true, currencyCode: true },
+    select: { id: true, name: true, email: true, currencyCode: true, plan: true },
   })
   if (!user) {
     return res.status(401).json({ error: 'User not found' })
@@ -196,7 +196,7 @@ async function handleLogout(req, res) {
 async function getProfile(req, res) {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, name: true, email: true, currencyCode: true, createdAt: true },
+    select: { id: true, name: true, email: true, currencyCode: true, plan: true, createdAt: true },
   })
   if (!user) return res.status(404).json({ error: 'User not found' })
   return res.status(200).json(user)
@@ -223,7 +223,7 @@ async function updateProfile(req, res) {
   const user = await prisma.user.update({
     where: { id: req.userId },
     data,
-    select: { id: true, name: true, email: true, currencyCode: true },
+    select: { id: true, name: true, email: true, currencyCode: true, plan: true },
   })
 
   return res.status(200).json(user)
@@ -319,7 +319,7 @@ async function updateCurrency(req, res) {
   const user = await prisma.user.update({
     where: { id: req.userId },
     data: { currencyCode },
-    select: { id: true, name: true, email: true, currencyCode: true },
+    select: { id: true, name: true, email: true, currencyCode: true, plan: true },
   })
 
   return res.status(200).json(user)

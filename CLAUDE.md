@@ -19,8 +19,8 @@ This rule overrides all backlog items and feature requests.
 
 ## CURRENT FUNCTION BUDGET
 Limit:    12
-Used:     8  (after consolidation)
-Reserved: 4  (for future features)
+Used:     9  (after billing addition)
+Reserved: 3  (for future features)
 
 ## Architecture Rules
 - One catch-all function per domain (/api/auth.js, /api/connections.js, etc.)
@@ -28,7 +28,7 @@ Reserved: 4  (for future features)
 - All functions use the createHandler/createProtectedHandler wrapper from /lib/apiHandler.js
 - Broker-specific routes rewritten to /api/connections.js via vercel.json
 
-## API Route Map (8 functions)
+## API Route Map (9 functions)
 | File                | Routes handled                                      |
 |---------------------|-----------------------------------------------------|
 | api/health.js       | GET /api/health                                     |
@@ -40,4 +40,5 @@ Reserved: 4  (for future features)
 | api/connections.js  | /api/degiro/*, /api/trading212/*,                    |
 |                     | /api/binance/*, /api/cryptocom/*                    |
 | api/brokers.js      | /api/brokers/* (reserved for future proxy routes)   |
-| api/ai.js           | POST /api/ai/chat                                   |
+| api/ai.js           | POST /api/ai/chat (quota enforced, usage tracked)   |
+| api/billing.js      | /api/billing/* (checkout, portal, status, webhook)  |
