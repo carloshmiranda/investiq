@@ -141,18 +141,25 @@ export async function getEarnDirect(apiKey, apiSecret) {
   return { flexible, locked };
 }
 
+const EARN_REWARD_TYPES = ['BONUS', 'REALTIME', 'REWARDS'];
+
 async function paginateEarnRewards(path, apiKey, apiSecret) {
   const all = [];
-  let current = 1;
-  while (true) {
-    const d = await binanceFetchDirect(path, apiKey, apiSecret, {
-      signed: true,
-      params: { size: 100, type: 'REWARDS', current },
-    });
-    const rows = d.rows || [];
-    all.push(...rows);
-    if (rows.length < 100 || all.length >= d.total) break;
-    current++;
+  for (const type of EARN_REWARD_TYPES) {
+    let current = 1;
+    while (true) {
+      let d;
+      try {
+        d = await binanceFetchDirect(path, apiKey, apiSecret, {
+          signed: true,
+          params: { size: 100, type, current },
+        });
+      } catch { break; }
+      const rows = d.rows || [];
+      all.push(...rows);
+      if (rows.length < 100 || all.length >= (d.total || 0)) break;
+      current++;
+    }
   }
   return all;
 }

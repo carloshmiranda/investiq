@@ -155,37 +155,40 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
     }
   } catch {}
 
-  // Paginate flexible + locked earn rewards
+  // Paginate flexible + locked earn rewards across all reward types
+  const REWARD_TYPES = ['BONUS', 'REALTIME', 'REWARDS']
   for (const path of [
     '/sapi/v1/simple-earn/flexible/history/rewardsRecord',
     '/sapi/v1/simple-earn/locked/history/rewardsRecord',
   ]) {
-    try {
-      let page = 1
-      let fetched = 0
-      while (true) {
-        const data = await binanceFetch(path, apiKey, apiSecret, {
-          signed: true, params: { size: 100, type: 'REWARDS', current: page },
-        })
-        const rows = data.rows || []
-        for (const r of rows) {
-          events.push({
-            id: `binance-earn-reward-${r.asset}-${r.time}`,
-            date: r.time ? new Date(r.time).toISOString() : new Date().toISOString(),
-            ticker: r.asset || '',
-            name: r.asset || '',
-            amount: parseFloat(r.rewards || 0),
-            currency: 'USD',
-            type: 'Yield',
-            source: 'binance',
-            broker: 'Binance Earn',
+    for (const type of REWARD_TYPES) {
+      try {
+        let page = 1
+        let fetched = 0
+        while (true) {
+          const data = await binanceFetch(path, apiKey, apiSecret, {
+            signed: true, params: { size: 100, type, current: page },
           })
+          const rows = data.rows || []
+          for (const r of rows) {
+            events.push({
+              id: `binance-earn-reward-${r.asset}-${r.time}-${type}`,
+              date: r.time ? new Date(r.time).toISOString() : new Date().toISOString(),
+              ticker: r.asset || '',
+              name: r.asset || '',
+              amount: parseFloat(r.rewards || 0),
+              currency: 'USD',
+              type: 'Yield',
+              source: 'binance',
+              broker: 'Binance Earn',
+            })
+          }
+          fetched += rows.length
+          if (rows.length < 100 || fetched >= (data.total || 0)) break
+          page++
         }
-        fetched += rows.length
-        if (rows.length < 100 || fetched >= data.total) break
-        page++
-      }
-    } catch {}
+      } catch {}
+    }
   }
 
   return events
