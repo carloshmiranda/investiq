@@ -144,12 +144,25 @@ export function mapLockedEarn(pos, priceMap) {
 }
 
 /**
- * Returns true if a Binance asset dividend record is actual yield income
- * (not an earn subscribe/redeem/deposit operation).
+ * Earn-related keywords in Binance's enInfo field.
+ * Actual earn rewards are fetched via the dedicated rewardsRecord endpoint,
+ * so any assetDividend entry matching these is a principal movement (not yield).
+ */
+const BINANCE_EARN_KEYWORDS = [
+  'earn', 'savings', 'flexible', 'locked', 'staking',
+  'lending', 'launchpool', 'simple earn',
+];
+
+/**
+ * Returns true if a Binance asset dividend record is actual income
+ * (airdrop, referral bonus, etc.) — not an earn principal movement.
  */
 export function isDividendIncome(div) {
   const desc = (div.enInfo || '').toLowerCase();
-  return !isExcludedFromIncome(desc);
+  if (isExcludedFromIncome(desc)) return false;
+  // Earn-related entries are principal movements, not yield — skip them
+  if (BINANCE_EARN_KEYWORDS.some((k) => desc.includes(k))) return false;
+  return true;
 }
 
 /**

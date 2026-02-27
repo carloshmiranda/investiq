@@ -121,18 +121,26 @@ async function binanceFetch(path, apiKey, apiSecret, { signed = false, params = 
   return text ? JSON.parse(text) : {}
 }
 
+// Earn-related keywords in Binance's enInfo — mirrors src/services/binance/mapper.js
+// Actual earn rewards are fetched via the dedicated rewardsRecord endpoint,
+// so any assetDividend entry matching these is a principal movement (not yield).
+const BINANCE_EARN_KEYWORDS = [
+  'earn', 'savings', 'flexible', 'locked', 'staking',
+  'lending', 'launchpool', 'simple earn',
+]
+
 async function fetchBinanceIncome(apiKey, apiSecret) {
   const events = []
 
-  // Asset dividends (airdrops, staking rewards)
+  // Asset dividends (airdrops, referral bonuses — NOT earn principal movements)
   try {
     const data = await binanceFetch('/sapi/v1/asset/assetDividend', apiKey, apiSecret, {
       signed: true, params: { limit: 500 },
     })
     for (const d of (data.rows || [])) {
-      // Skip earn subscribe/redeem/deposit — not actual yield income
       const enInfo = (d.enInfo || '').toLowerCase()
       if (INCOME_EXCLUSION_KEYWORDS.some((k) => enInfo.includes(k))) continue
+      if (BINANCE_EARN_KEYWORDS.some((k) => enInfo.includes(k))) continue
       events.push({
         id: `binance-div-${d.id || d.tranId}`,
         date: d.divTime ? new Date(d.divTime).toISOString() : new Date().toISOString(),
