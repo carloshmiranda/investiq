@@ -199,7 +199,7 @@ export default function Income() {
   const { formatMoney, formatLocal, convert } = useCurrency();
   const {
     annualIncome, monthlyIncome, overallYield, totalValue,
-    incomeHistory, incomeProjections, dividends, isEmpty,
+    incomeHistory, incomeProjections, dividends, isEmpty, holdings,
   } = useUnifiedPortfolio();
 
   const [sourceFilter, setSourceFilter] = useState('All');
@@ -274,6 +274,23 @@ export default function Income() {
   const hasIncomeData = filteredTotal > 0;
   const hasProjections = incomeProjections.length > 0;
 
+  // Filtered DRIP values — recompute annual income and portfolio value for selected source
+  const filteredAnnualIncome = useMemo(() => {
+    if (sourceFilter === 'All') return annualIncome;
+    const now = new Date();
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+    return filteredDividends
+      .filter((d) => new Date(d.date) >= twelveMonthsAgo)
+      .reduce((s, d) => s + (d.amount || 0), 0);
+  }, [filteredDividends, sourceFilter, annualIncome]);
+
+  const filteredTotalValue = useMemo(() => {
+    if (sourceFilter === 'All') return totalValue;
+    return holdings
+      .filter((h) => h.source === sourceFilter)
+      .reduce((s, h) => s + (h.value || 0), 0);
+  }, [holdings, sourceFilter, totalValue]);
+
   if (isEmpty) {
     return (
       <div className="space-y-6">
@@ -306,9 +323,9 @@ export default function Income() {
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Annual Income', value: formatMoney(annualIncome, 0), color: 'text-emerald-400' },
-          { label: 'Monthly Avg', value: formatMoney(monthlyIncome, 0), color: 'text-cyan-400' },
-          { label: 'Portfolio Yield', value: formatPercent(overallYield), color: 'text-amber-400' },
+          { label: 'Annual Income', value: formatMoney(filteredAnnualIncome, 0), color: 'text-emerald-400' },
+          { label: 'Monthly Avg', value: formatMoney(filteredAnnualIncome / 12, 0), color: 'text-cyan-400' },
+          { label: 'Portfolio Yield', value: formatPercent(filteredTotalValue > 0 ? (filteredAnnualIncome / filteredTotalValue) * 100 : 0), color: 'text-amber-400' },
           { label: 'Income Sources', value: incomeSourceCount > 0 ? `${incomeSourceCount} Sources` : 'N/A', color: 'text-purple-400' },
         ].map((k, i) => (
           <div key={k.label} className="glass-card rounded-xl p-4 transition-all duration-300 card-reveal" style={{ animationDelay: `${0.04 + i * 0.04}s` }}>
@@ -444,7 +461,7 @@ export default function Income() {
 
       {/* DRIP Simulator */}
       <div className="card-reveal" style={{ animationDelay: '0.28s' }}>
-        <DRIPSimulator annualIncome={annualIncome} totalValue={totalValue} />
+        <DRIPSimulator annualIncome={filteredAnnualIncome} totalValue={filteredTotalValue} />
       </div>
     </div>
   );
