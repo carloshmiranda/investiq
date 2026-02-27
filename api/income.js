@@ -121,13 +121,6 @@ async function binanceFetch(path, apiKey, apiSecret, { signed = false, params = 
   return text ? JSON.parse(text) : {}
 }
 
-// Earn-related keywords in Binance's enInfo — mirrors src/services/binance/mapper.js
-// Actual earn rewards are fetched via the dedicated rewardsRecord endpoint,
-// so any assetDividend entry matching these is a principal movement (not yield).
-const BINANCE_EARN_KEYWORDS = [
-  'earn', 'savings', 'flexible', 'locked', 'staking',
-  'lending', 'launchpool', 'simple earn',
-]
 
 async function fetchBinanceIncome(apiKey, apiSecret) {
   const events = []
@@ -140,7 +133,6 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
     for (const d of (data.rows || [])) {
       const enInfo = (d.enInfo || '').toLowerCase()
       if (INCOME_EXCLUSION_KEYWORDS.some((k) => enInfo.includes(k))) continue
-      if (BINANCE_EARN_KEYWORDS.some((k) => enInfo.includes(k))) continue
       events.push({
         id: `binance-div-${d.id || d.tranId}`,
         date: d.divTime ? new Date(d.divTime).toISOString() : new Date().toISOString(),
@@ -188,7 +180,16 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
     } catch {}
   }
 
-  return events
+  // Deduplicate — same reward can appear in both assetDividend and rewardsRecord
+  const seen = new Set()
+  const deduped = []
+  for (const e of events) {
+    const key = `${e.ticker}-${e.date?.split('T')[0]}-${e.amount.toFixed(8)}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    deduped.push(e)
+  }
+  return deduped
 }
 
 // ─── Crypto.com helpers ─────────────────────────────────────────────────────
