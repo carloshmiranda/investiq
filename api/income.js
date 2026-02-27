@@ -174,17 +174,19 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
     }
   } catch {}
 
-  // Paginate flexible + locked earn rewards
+  // Paginate flexible + locked earn rewards (REALTIME = daily APR, REWARDS = historical)
+  const REWARD_TYPES = ['REALTIME', 'REWARDS']
   for (const path of [
     '/sapi/v1/simple-earn/flexible/history/rewardsRecord',
     '/sapi/v1/simple-earn/locked/history/rewardsRecord',
   ]) {
+    for (const type of REWARD_TYPES) {
     try {
       let page = 1
       let fetched = 0
       while (true) {
         const data = await binanceFetch(path, apiKey, apiSecret, {
-          signed: true, params: { size: 100, type: 'REWARDS', current: page },
+          signed: true, params: { size: 100, type, current: page },
         })
         const rows = data.rows || []
         for (const r of rows) {
@@ -208,6 +210,7 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
         page++
       }
     } catch {}
+    }
   }
 
   // Deduplicate — same reward can appear in both assetDividend and rewardsRecord
