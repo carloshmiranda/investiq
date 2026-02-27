@@ -122,10 +122,34 @@ async function binanceFetch(path, apiKey, apiSecret, { signed = false, params = 
 }
 
 
+function binanceGetUsdPrice(asset, priceMap) {
+  const stables = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'TUSD', 'DAI']
+  if (stables.includes(asset) || asset === 'USD') return 1
+  const variants = [asset]
+  if (asset.startsWith('LD')) variants.push(asset.slice(2))
+  if (asset === 'BETH') variants.push('ETH')
+  for (const a of variants) {
+    for (const quote of ['USDT', 'USDC', 'BUSD', 'FDUSD']) {
+      const key = `${a}${quote}`
+      if (priceMap[key]) return priceMap[key]
+    }
+  }
+  return 0
+}
+
 async function fetchBinanceIncome(apiKey, apiSecret) {
   const events = []
 
-  // Asset dividends (airdrops, referral bonuses — NOT earn principal movements)
+  // Fetch prices for token → USD conversion
+  let priceMap = {}
+  try {
+    const prices = await binanceFetch('/api/v3/ticker/price', apiKey, apiSecret)
+    for (const p of (Array.isArray(prices) ? prices : [])) {
+      priceMap[p.symbol] = parseFloat(p.price)
+    }
+  } catch {}
+
+  // Asset dividends
   try {
     const data = await binanceFetch('/sapi/v1/asset/assetDividend', apiKey, apiSecret, {
       signed: true, params: { limit: 500 },
@@ -133,12 +157,15 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
     for (const d of (data.rows || [])) {
       const enInfo = (d.enInfo || '').toLowerCase()
       if (INCOME_EXCLUSION_KEYWORDS.some((k) => enInfo.includes(k))) continue
+      const rawAmount = parseFloat(d.amount || 0)
+      const price = binanceGetUsdPrice(d.asset, priceMap)
       events.push({
         id: `binance-div-${d.id || d.tranId}`,
         date: d.divTime ? new Date(d.divTime).toISOString() : new Date().toISOString(),
         ticker: d.asset || '',
         name: d.asset || '',
-        amount: parseFloat(d.amount || 0),
+        amount: rawAmount * price,
+        rawAmount,
         currency: 'USD',
         type: d.enInfo || 'Distribution',
         source: 'binance',
@@ -161,12 +188,15 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
         })
         const rows = data.rows || []
         for (const r of rows) {
+          const rawAmount = parseFloat(r.rewards || 0)
+          const price = binanceGetUsdPrice(r.asset, priceMap)
           events.push({
             id: `binance-earn-reward-${r.asset}-${r.time}`,
             date: r.time ? new Date(r.time).toISOString() : new Date().toISOString(),
             ticker: r.asset || '',
             name: r.asset || '',
-            amount: parseFloat(r.rewards || 0),
+            amount: rawAmount * price,
+            rawAmount,
             currency: 'USD',
             type: 'Yield',
             source: 'binance',
@@ -184,7 +214,7 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
   const seen = new Set()
   const deduped = []
   for (const e of events) {
-    const key = `${e.ticker}-${e.date?.split('T')[0]}-${e.amount.toFixed(8)}`
+    const key = `${e.ticker}-${e.date?.split('T')[0]}-${(e.rawAmount || e.amount).toFixed(8)}`
     if (seen.has(key)) continue
     seen.add(key)
     deduped.push(e)

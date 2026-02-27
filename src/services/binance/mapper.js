@@ -16,7 +16,7 @@ export function buildPriceMap(prices) {
  * Get USD value for an asset using price map.
  * Tries ASSETUSDT, ASSETBUSD, ASSETUSDC; stablecoins return 1:1.
  */
-function getUsdPrice(asset, priceMap) {
+export function getUsdPrice(asset, priceMap) {
   const stables = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'TUSD', 'DAI'];
   if (stables.includes(asset) || asset === 'USD') return 1;
 
@@ -156,13 +156,17 @@ export function isDividendIncome(div) {
 
 /**
  * Map Binance asset dividend record to Accrue income event.
+ * If priceMap is provided, converts token amount to USD value.
  */
-export function mapDividend(div) {
+export function mapDividend(div, priceMap) {
+  const rawAmount = parseFloat(div.amount);
+  const price = priceMap ? getUsdPrice(div.asset, priceMap) : 1;
   return {
     date: new Date(div.divTime).toISOString(),
     ticker: div.asset,
     name: div.asset,
-    amount: parseFloat(div.amount),
+    amount: rawAmount * price,
+    rawAmount,
     currency: 'USD',
     type: div.enInfo || 'Distribution',
     source: 'binance',
@@ -171,13 +175,17 @@ export function mapDividend(div) {
 
 /**
  * Map Binance Simple Earn reward to Accrue income event.
+ * If priceMap is provided, converts token amount to USD value.
  */
-export function mapEarnReward(reward) {
+export function mapEarnReward(reward, priceMap) {
+  const rawAmount = parseFloat(reward.rewards || 0);
+  const price = priceMap ? getUsdPrice(reward.asset, priceMap) : 1;
   return {
     date: new Date(reward.time).toISOString(),
     ticker: reward.asset,
     name: reward.asset,
-    amount: parseFloat(reward.rewards || 0),
+    amount: rawAmount * price,
+    rawAmount,
     currency: 'USD',
     type: 'Yield',
     source: 'binance',

@@ -95,15 +95,15 @@ export function BinanceProvider({ children }) {
       const holdings = [...spotHoldings, ...flexHoldings, ...lockedHoldings];
       const totalValue = holdings.reduce((sum, h) => sum + h.value, 0);
 
-      // Map dividends + earn rewards, deduplicate by asset+date+amount
+      // Map dividends + earn rewards (convert to USD), deduplicate by asset+date+amount
       const allIncome = [
-        ...(divData.dividends || []).filter(isDividendIncome).map(mapDividend),
-        ...(divData.earnRewards || []).map(mapEarnReward),
+        ...(divData.dividends || []).filter(isDividendIncome).map((d) => mapDividend(d, priceMap)),
+        ...(divData.earnRewards || []).map((r) => mapEarnReward(r, priceMap)),
       ];
       const seen = new Set();
       const dividends = allIncome
         .filter((d) => {
-          const key = `${d.ticker}-${d.date?.split('T')[0]}-${d.amount.toFixed(8)}`;
+          const key = `${d.ticker}-${d.date?.split('T')[0]}-${(d.rawAmount || d.amount).toFixed(8)}`;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
