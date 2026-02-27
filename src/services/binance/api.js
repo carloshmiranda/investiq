@@ -141,18 +141,40 @@ export async function getEarnDirect(apiKey, apiSecret) {
   return { flexible, locked };
 }
 
+async function paginateEarnRewards(path, apiKey, apiSecret) {
+  const all = [];
+  let current = 1;
+  while (true) {
+    const d = await binanceFetchDirect(path, apiKey, apiSecret, {
+      signed: true,
+      params: { size: 100, type: 'REWARDS', current },
+    });
+    const rows = d.rows || [];
+    all.push(...rows);
+    if (rows.length < 100 || all.length >= d.total) break;
+    current++;
+  }
+  return all;
+}
+
 export async function getDividendsDirect(apiKey, apiSecret) {
   let dividends = [];
   try {
     const d = await binanceFetchDirect('/sapi/v1/asset/assetDividend', apiKey, apiSecret, { signed: true, params: { limit: 500 } });
     dividends = d.rows || [];
   } catch { /* no dividends */ }
-  let earnRewards = [];
+
+  let flexRewards = [];
   try {
-    const d = await binanceFetchDirect('/sapi/v1/simple-earn/flexible/history/rewardsRecord', apiKey, apiSecret, { signed: true, params: { size: 100, type: 'REWARDS' } });
-    earnRewards = d.rows || [];
-  } catch { /* no earn rewards */ }
-  return { dividends, earnRewards };
+    flexRewards = await paginateEarnRewards('/sapi/v1/simple-earn/flexible/history/rewardsRecord', apiKey, apiSecret);
+  } catch { /* no flexible rewards */ }
+
+  let lockedRewards = [];
+  try {
+    lockedRewards = await paginateEarnRewards('/sapi/v1/simple-earn/locked/history/rewardsRecord', apiKey, apiSecret);
+  } catch { /* no locked rewards */ }
+
+  return { dividends, earnRewards: [...flexRewards, ...lockedRewards] };
 }
 
 export async function getPricesDirect() {

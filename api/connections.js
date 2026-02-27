@@ -566,9 +566,34 @@ async function handleBinance(req, res, action) {
   if (action === 'dividends') {
     let dividends = []
     try { const d = await binanceFetch('/sapi/v1/asset/assetDividend', creds.apiKey, creds.apiSecret, { signed: true, params: { limit: 500 } }); dividends = d.rows || [] } catch {}
-    let earnRewards = []
-    try { const d = await binanceFetch('/sapi/v1/simple-earn/flexible/history/rewardsRecord', creds.apiKey, creds.apiSecret, { signed: true, params: { size: 100, type: 'REWARDS' } }); earnRewards = d.rows || [] } catch {}
-    return res.json({ dividends, earnRewards })
+
+    // Paginate flexible earn rewards
+    let flexRewards = []
+    try {
+      let page = 1
+      while (true) {
+        const d = await binanceFetch('/sapi/v1/simple-earn/flexible/history/rewardsRecord', creds.apiKey, creds.apiSecret, { signed: true, params: { size: 100, type: 'REWARDS', current: page } })
+        const rows = d.rows || []
+        flexRewards.push(...rows)
+        if (rows.length < 100 || flexRewards.length >= d.total) break
+        page++
+      }
+    } catch {}
+
+    // Paginate locked earn rewards
+    let lockedRewards = []
+    try {
+      let page = 1
+      while (true) {
+        const d = await binanceFetch('/sapi/v1/simple-earn/locked/history/rewardsRecord', creds.apiKey, creds.apiSecret, { signed: true, params: { size: 100, type: 'REWARDS', current: page } })
+        const rows = d.rows || []
+        lockedRewards.push(...rows)
+        if (rows.length < 100 || lockedRewards.length >= d.total) break
+        page++
+      }
+    } catch {}
+
+    return res.json({ dividends, earnRewards: [...flexRewards, ...lockedRewards] })
   }
   if (action === 'prices') {
     const prices = await binanceFetch('/api/v3/ticker/price', creds.apiKey, creds.apiSecret)
