@@ -1,3 +1,5 @@
+import { isExcludedFromIncome } from '../../utils/incomeContract.js';
+
 /**
  * Build a price lookup map from Binance ticker prices.
  * Returns { BTCUSDT: 65000.12, ETHUSDT: 3200.50, ... }
@@ -139,6 +141,15 @@ export function mapLockedEarn(pos, priceMap) {
     unrealizedPnLPct: 0,
     earnType: 'locked',
   };
+}
+
+/**
+ * Returns true if a Binance asset dividend record is actual yield income
+ * (not an earn subscribe/redeem/deposit operation).
+ */
+export function isDividendIncome(div) {
+  const desc = (div.enInfo || '').toLowerCase();
+  return !isExcludedFromIncome(desc);
 }
 
 /**

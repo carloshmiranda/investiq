@@ -6,6 +6,14 @@ import { decrypt } from '../lib/encryption.js'
 import { getCache, setCache, invalidateCache } from '../lib/cache.js'
 import { createHmac } from 'crypto'
 
+// Exclusion keywords — mirrors src/utils/incomeContract.js (source of truth)
+// If a transaction description matches any of these, it is NOT income
+const INCOME_EXCLUSION_KEYWORDS = [
+  'deposit', 'withdraw', 'redeem', 'unstake', 'unsubscribe',
+  'subscribe', 'purchase', 'sell', 'swap', 'convert',
+  'transfer_in', 'transfer_out',
+]
+
 // ─── DeGiro helpers ─────────────────────────────────────────────────────────
 const DEGIRO_BASE = process.env.DEGIRO_BASE_URL || 'https://trader.degiro.nl'
 
@@ -122,6 +130,9 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
       signed: true, params: { limit: 500 },
     })
     for (const d of (data.rows || [])) {
+      // Skip earn subscribe/redeem/deposit — not actual yield income
+      const enInfo = (d.enInfo || '').toLowerCase()
+      if (INCOME_EXCLUSION_KEYWORDS.some((k) => enInfo.includes(k))) continue
       events.push({
         id: `binance-div-${d.id || d.tranId}`,
         date: d.divTime ? new Date(d.divTime).toISOString() : new Date().toISOString(),
@@ -188,6 +199,7 @@ const CRYPTOCOM_REWARD_KEYWORDS = [
 
 function isCryptocomReward(trade) {
   const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase()
+  if (INCOME_EXCLUSION_KEYWORDS.some((k) => desc.includes(k))) return false
   return CRYPTOCOM_REWARD_KEYWORDS.some((k) => desc.includes(k))
 }
 

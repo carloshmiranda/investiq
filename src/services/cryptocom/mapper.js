@@ -1,3 +1,5 @@
+import { isExcludedFromIncome } from '../../utils/incomeContract.js';
+
 /**
  * Build a price map from Crypto.com ticker data.
  * Returns { BTC: 65000, ETH: 3500, ... }
@@ -97,6 +99,7 @@ const REWARD_TYPES = [
 
 function isRewardTransaction(trade) {
   const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase();
+  if (isExcludedFromIncome(desc)) return false;
   return REWARD_TYPES.some((t) => desc.includes(t));
 }
 

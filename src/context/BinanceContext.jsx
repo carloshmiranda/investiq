@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import * as binanceApi from '../services/binance/api.js';
 import {
   buildPriceMap, mapBalance, mapFlexibleEarn, mapLockedEarn,
-  mapDividend, mapEarnReward,
+  mapDividend, mapEarnReward, isDividendIncome,
 } from '../services/binance/mapper.js';
 
 const BinanceContext = createContext(null);
@@ -97,7 +97,7 @@ export function BinanceProvider({ children }) {
 
       // Map dividends + earn rewards
       const dividends = [
-        ...(divData.dividends || []).map(mapDividend),
+        ...(divData.dividends || []).filter(isDividendIncome).map(mapDividend),
         ...(divData.earnRewards || []).map(mapEarnReward),
       ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
