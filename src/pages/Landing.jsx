@@ -34,7 +34,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'AI Insights',
-    description: 'Claude-powered analysis of your portfolio. Ask questions, get context-aware answers based on your real holdings.',
+    description: 'AI-powered analysis of your portfolio. Ask questions, get context-aware answers based on your real holdings.',
   },
   {
     icon: (
@@ -42,8 +42,8 @@ const FEATURES = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
       </svg>
     ),
-    title: '4 Broker Integrations',
-    description: 'DeGiro, Trading 212, Binance, and Crypto.com connected live. Your keys stay encrypted at rest.',
+    title: 'Broker & Exchange Integrations',
+    description: 'Connect your brokers, exchanges, and crypto wallets. Your API keys stay encrypted at rest — we never place trades.',
   },
   {
     icon: (
@@ -251,7 +251,7 @@ function Hero() {
             ))}
           </div>
           <p className="text-xs text-white/25" style={{ fontFamily: '"DM Mono", monospace' }}>
-            4 brokers connected &middot; Live data
+            Multiple brokers &amp; exchanges &middot; Live data
           </p>
         </div>
       </div>
@@ -316,7 +316,7 @@ function About() {
             </h2>
             <div className="space-y-4 text-sm text-white/40 leading-relaxed">
               <p>
-                If you have stocks on DeGiro, ETFs on Trading 212, and crypto on Binance, you know the pain: no single view of your total portfolio, no unified income tracking, no coherent picture.
+                If you invest across multiple brokers and exchanges, you know the pain: no single view of your total portfolio, no unified income tracking, no coherent picture.
               </p>
               <p>
                 Accrue connects to your brokers directly via their APIs, pulls your real positions and dividend history, and presents everything in one clean dashboard. Your API keys are encrypted at rest — we never place trades or modify your accounts.
@@ -332,7 +332,7 @@ function About() {
             <div className="aspect-square rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 flex flex-col justify-center">
               <div className="space-y-4">
                 {[
-                  { label: 'Brokers connected', value: '4', color: '#7C5CFC' },
+                  { label: 'Integrations', value: 'Growing', color: '#7C5CFC' },
                   { label: 'Data encrypted', value: 'AES-256', color: '#22c55e' },
                   { label: 'API calls', value: 'Read-only', color: '#f59e0b' },
                   { label: 'Cost', value: 'Free', color: '#06b6d4' },
