@@ -85,7 +85,7 @@ export function useUnifiedPortfolio() {
     const monthlyIncome = annualIncome / 12;
     const overallYield = totalValue > 0 ? (annualIncome / totalValue) * 100 : 0;
 
-    const emptyBucket = () => ({ dividends: 0, stakingRewards: 0, yieldInterest: 0, distributions: 0, total: 0 });
+    const emptyBucket = () => ({ dividends: 0, yield: 0, total: 0 });
 
     const monthBuckets = {};
     dividends.forEach((d) => {

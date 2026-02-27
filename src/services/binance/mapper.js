@@ -190,7 +190,7 @@ export function mapEarnReward(reward) {
     name: reward.asset,
     amount: parseFloat(reward.rewards || 0),
     currency: 'USD',
-    type: 'Staking Reward',
+    type: 'Yield',
     source: 'binance',
   };
 }

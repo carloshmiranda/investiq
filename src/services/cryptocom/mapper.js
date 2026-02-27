@@ -103,11 +103,8 @@ function isRewardTransaction(trade) {
   return REWARD_TYPES.some((t) => desc.includes(t));
 }
 
-function classifyRewardType(trade) {
-  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase();
-  if (desc.includes('stak') || desc.includes('supercharger')) return 'Staking Reward';
-  if (desc.includes('earn') || desc.includes('interest')) return 'Earn/Yield';
-  return 'Staking Reward'; // default for other reward types
+function classifyRewardType() {
+  return 'Yield';
 }
 
 /**

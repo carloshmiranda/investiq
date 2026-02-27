@@ -168,7 +168,7 @@ async function fetchBinanceIncome(apiKey, apiSecret) {
         name: r.asset || '',
         amount: parseFloat(r.rewards || 0),
         currency: 'USD',
-        type: 'Staking Reward',
+        type: 'Yield',
         source: 'binance',
         broker: 'Binance Earn',
       })
@@ -211,12 +211,8 @@ function isCryptocomReward(trade) {
   return CRYPTOCOM_REWARD_KEYWORDS.some((k) => desc.includes(k))
 }
 
-function classifyCryptocomType(trade) {
-  const desc = ((trade.description || '') + ' ' + (trade.journal_type || '') + ' ' + (trade.transaction_type || '')).toLowerCase()
-  if (desc.includes('staking') || desc.includes('stake') || desc.includes('supercharger') || desc.includes('validator')) return 'Staking Reward'
-  if (desc.includes('earn') || desc.includes('interest') || desc.includes('savings') || desc.includes('yield')) return 'Earn Interest'
-  if (desc.includes('airdrop') || desc.includes('distribution') || desc.includes('referral') || desc.includes('rebate')) return 'Distribution'
-  return 'Distribution'
+function classifyCryptocomType() {
+  return 'Yield'
 }
 
 async function fetchCryptocomIncome(apiKey, apiSecret) {

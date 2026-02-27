@@ -45,17 +45,9 @@ function IncomeChartGradients() {
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
         <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
       </linearGradient>
-      <linearGradient id="incGradStakingRewards" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="incGradYield" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
         <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
-      </linearGradient>
-      <linearGradient id="incGradYieldInterest" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
-        <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
-      </linearGradient>
-      <linearGradient id="incGradDistributions" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#a78bfa" stopOpacity={1} />
-        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.7} />
       </linearGradient>
     </defs>
   );
@@ -228,7 +220,7 @@ export default function Income() {
     if (sourceFilter === 'All') return incomeHistory;
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-    const emptyBucket = () => ({ dividends: 0, stakingRewards: 0, yieldInterest: 0, distributions: 0, total: 0 });
+    const emptyBucket = () => ({ dividends: 0, yield: 0, total: 0 });
     const buckets = {};
     filteredDividends.forEach((d) => {
       const dDate = new Date(d.date);
@@ -368,9 +360,7 @@ export default function Income() {
                 tickFormatter={(v) => formatLocal(convert(v), 0)} />
               <Tooltip content={<CustomTooltip formatMoney={formatMoney} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
               <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#incGradDividends)" />
-              <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#incGradStakingRewards)" />
-              <Bar dataKey="yieldInterest" name="Yield & Interest" stackId="a" fill="url(#incGradYieldInterest)" />
-              <Bar dataKey="distributions" name="Distributions" stackId="a" fill="url(#incGradDistributions)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="yield" name="Yield" stackId="a" fill="url(#incGradYield)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
