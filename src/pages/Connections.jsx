@@ -163,8 +163,11 @@ const brandColors = {
 
 function ModalShell({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="glass-card rounded-2xl p-6 w-full max-w-md border border-white/[0.08] shadow-2xl shadow-black/40 card-reveal">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+    >
+      <div className="modal-glass rounded-2xl p-6 w-full max-w-md card-reveal">
         {children}
       </div>
     </div>
