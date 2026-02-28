@@ -326,34 +326,43 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Sector pie */}
-          {sectorData.length > 0 && (
-            <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">Allocation by Type</p>
-              <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                  <Pie data={sectorData} cx="50%" cy="50%" innerRadius={35} outerRadius={55}
-                    dataKey="value" paddingAngle={2} stroke="none">
-                    {sectorData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(v) => formatLocal(v, 0)} contentStyle={{
-                    background: 'rgba(17, 24, 39, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
-                    backdropFilter: 'blur(8px)',
-                  }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
-                {sectorData.slice(0, 4).map((s, i) => (
-                  <div key={s.name} className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                    <span className="text-[10px] text-gray-500">{s.name}</span>
-                  </div>
-                ))}
+          {/* Sector pie — D1: always reserve space, show skeleton while data loads */}
+          <div className="mt-4 min-h-[140px]">
+            <p className="text-xs text-gray-500 mb-2">Allocation by Type</p>
+            {sectorData.length > 0 ? (
+              <>
+                <ResponsiveContainer width="100%" height={120}>
+                  <PieChart>
+                    <Pie data={sectorData} cx="50%" cy="50%" innerRadius={35} outerRadius={55}
+                      dataKey="value" paddingAngle={2} stroke="none">
+                      {sectorData.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(v) => formatLocal(v, 0)} contentStyle={{
+                      background: 'rgba(17, 24, 39, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                      backdropFilter: 'blur(8px)',
+                    }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                  {sectorData.slice(0, 4).map((s, i) => (
+                    <div key={s.name} className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-[10px] text-gray-500">{s.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-[120px]">
+                <div className="relative w-[110px] h-[110px]">
+                  <div className="absolute inset-0 rounded-full skeleton-shimmer opacity-40" />
+                  <div className="absolute inset-[18px] rounded-full" style={{ background: 'rgba(12,12,20,0.8)' }} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

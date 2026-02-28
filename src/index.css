@@ -319,12 +319,14 @@ body::before {
 [data-theme="light"] .badge-D { background: rgba(249, 115, 22, 0.1); color: #ea580c; border-color: rgba(249, 115, 22, 0.25); }
 [data-theme="light"] .badge-F { background: rgba(239, 68, 68, 0.1); color: #dc2626; border-color: rgba(239, 68, 68, 0.25); }
 
-/* Card accent — reduce glow, increase opacity for light bg */
+/* L3 — KPI accent bars: fully vivid in light mode; only card background adapts */
 [data-theme="light"] .card-accent::before {
-  opacity: 0.9;
+  opacity: 1;
+  box-shadow: 0 0 10px 2px var(--accent);
 }
 [data-theme="light"] .card-accent:hover::before {
-  box-shadow: 0 0 8px 1px var(--accent);
+  opacity: 1;
+  box-shadow: 0 0 18px 4px var(--accent);
 }
 
 /* ── Text color overrides ──
@@ -461,6 +463,11 @@ header,
 aside,
 main {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* G3 — Header frosted glass: light theme uses warm-ivory translucent background */
+[data-theme="light"] .bg-\[\#080808\]\/60 {
+  background-color: rgba(248, 247, 244, 0.78);
 }
 
 /* Header border on light — warm gray instead of white opacity */

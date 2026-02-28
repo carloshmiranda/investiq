@@ -400,7 +400,39 @@ function About() {
   );
 }
 
+function PricingCheck({ included }) {
+  return included ? (
+    <svg className="w-4 h-4 text-[#7C5CFC] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ) : (
+    <svg className="w-4 h-4 text-white/15 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 function Pricing() {
+  const FREE_FEATURES = [
+    { text: 'Dashboard, Holdings, Income, Calendar', included: true },
+    { text: 'All broker connections', included: true },
+    { text: 'DRIP Simulator', included: true },
+    { text: 'Multi-currency (USD, EUR, GBP)', included: true },
+    { text: '5 AI queries / month', included: true },
+    { text: 'CSV export', included: false },
+    { text: 'Auto sync (daily)', included: false },
+    { text: 'Full income history', included: false },
+  ];
+
+  const PRO_FEATURES = [
+    { text: 'Everything in Free', included: true },
+    { text: 'Unlimited AI queries', included: true },
+    { text: 'CSV export', included: true },
+    { text: 'Auto sync (daily)', included: true },
+    { text: 'Full income history', included: true },
+    { text: 'Priority support', included: true },
+  ];
+
   return (
     <section id="pricing" className="relative py-32 px-6">
       <div className="max-w-3xl mx-auto text-center">
@@ -408,40 +440,64 @@ function Pricing() {
           Pricing
         </p>
         <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-4" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>
-          Free while in beta
+          Start free, upgrade when ready
         </h2>
         <p className="text-white/35 max-w-md mx-auto mb-12">
-          Accrue is free during the beta period. All features, all integrations, no limits.
+          All core features are free. Upgrade to Pro for unlimited AI, CSV export, and daily auto sync.
         </p>
 
-        <div className="inline-block p-8 rounded-2xl border border-[#7C5CFC]/20 bg-[#7C5CFC]/[0.04] max-w-sm w-full">
-          <div className="mb-6">
-            <span className="text-4xl font-bold text-white" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>$0</span>
-            <span className="text-white/25 text-sm ml-1">/month</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
+          {/* Free card */}
+          <div className="p-7 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-left">
+            <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>Free</h3>
+            <div className="mb-6">
+              <span className="text-3xl font-bold text-white" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>$0</span>
+              <span className="text-white/25 text-sm ml-1">/month</span>
+            </div>
+            <ul className="space-y-2.5 text-sm mb-8">
+              {FREE_FEATURES.map((f) => (
+                <li key={f.text} className="flex items-center gap-3">
+                  <PricingCheck included={f.included} />
+                  <span className={f.included ? 'text-white/55' : 'text-white/20'}>{f.text}</span>
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/register"
+              className="block w-full text-sm font-medium text-center text-white/70 border border-white/[0.1] hover:border-white/[0.2] hover:text-white py-2.5 rounded-full transition-all duration-200"
+            >
+              Get Started Free
+            </Link>
           </div>
-          <ul className="space-y-3 text-sm text-white/45 text-left mb-8">
-            {[
-              'Unlimited broker connections',
-              'Real-time portfolio sync',
-              'Dividend & income tracking',
-              'AI-powered insights',
-              'Multi-currency support',
-              'AES-256 encrypted credentials',
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-3">
-                <svg className="w-4 h-4 text-[#7C5CFC] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <Link
-            to="/register"
-            className="block w-full text-sm font-medium text-white bg-[#7C5CFC] hover:bg-[#6B4CE0] py-3 rounded-full transition-all duration-200 shadow-[0_0_20px_rgba(124,92,252,0.25)] hover:shadow-[0_0_30px_rgba(124,92,252,0.4)]"
-          >
-            Get Started Free
-          </Link>
+
+          {/* Pro card */}
+          <div className="relative p-7 rounded-2xl border border-[#7C5CFC]/30 bg-[#7C5CFC]/[0.04] text-left shadow-[0_0_40px_rgba(124,92,252,0.1)]">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#7C5CFC] text-white tracking-wider uppercase" style={{ fontFamily: '"DM Mono", monospace' }}>
+                Most Popular
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>Pro</h3>
+            <div className="mb-6">
+              <span className="text-3xl font-bold text-white" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>$8</span>
+              <span className="text-white/25 text-sm ml-1">/month</span>
+              <span className="text-white/20 text-[11px] ml-2" style={{ fontFamily: '"DM Mono", monospace' }}>($80/yr)</span>
+            </div>
+            <ul className="space-y-2.5 text-sm mb-8">
+              {PRO_FEATURES.map((f) => (
+                <li key={f.text} className="flex items-center gap-3">
+                  <PricingCheck included={f.included} />
+                  <span className="text-white/55">{f.text}</span>
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/register"
+              className="block w-full text-sm font-medium text-center text-white bg-[#7C5CFC] hover:bg-[#6B4CE0] py-2.5 rounded-full transition-all duration-200 shadow-[0_0_20px_rgba(124,92,252,0.3)] hover:shadow-[0_0_30px_rgba(124,92,252,0.5)]"
+            >
+              Get Early Access
+            </Link>
+          </div>
         </div>
       </div>
     </section>
