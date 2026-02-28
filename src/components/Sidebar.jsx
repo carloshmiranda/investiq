@@ -114,15 +114,20 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — G4: glass panel with blur(16px) saturate(180%) */}
       <aside
         className={`
           fixed top-0 left-0 h-full z-30 flex flex-col
-          bg-[#080808]/95 backdrop-blur-md border-r border-white/[0.04]
+          bg-[#080808]/75 border-r border-white/[0.04]
           transition-all duration-300 ease-in-out
           ${sidebarWidth} ${sidebarTranslate}
         `}
-        style={{ paddingTop: 'var(--safe-top)', paddingLeft: 'var(--safe-left)' }}
+        style={{
+          paddingTop: 'var(--safe-top)',
+          paddingLeft: 'var(--safe-left)',
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+        }}
       >
         {/* Logo */}
         <div className={`flex items-center h-16 ${showLabels ? 'px-4' : 'justify-center px-2'} border-b border-white/[0.08] flex-shrink-0 relative`}>

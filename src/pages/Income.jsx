@@ -41,13 +41,14 @@ function CustomTooltip({ active, payload, label, formatMoney }) {
 function IncomeChartGradients() {
   return (
     <defs>
+      {/* L4: bumped bottom stopOpacity 0.7→0.85 so bars stay vivid on light bg */}
       <linearGradient id="incGradDividends" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
-        <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#10b981" stopOpacity={0.85} />
       </linearGradient>
       <linearGradient id="incGradYield" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
-        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.85} />
       </linearGradient>
     </defs>
   );
@@ -179,8 +180,9 @@ function DRIPSimulator({ annualIncome, totalValue }) {
         <AreaChart data={projection}>
           <defs>
             <linearGradient id="dripIncomeGrad" x1="0" y1="0" x2="0" y2="1">
+              {/* L4: bumped bottom stop 0.02→0.12 so area fill is visible on light bg */}
               <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+              <stop offset="95%" stopColor="#10b981" stopOpacity={0.12} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -409,13 +411,14 @@ export default function Income() {
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={incomeProjections}>
               <defs>
+                {/* L4: bumped bottom stops 0.01→0.10 so forecast fills show on light bg */}
                 <linearGradient id="consGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.01} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.10} />
                 </linearGradient>
                 <linearGradient id="optGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.01} />
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.08} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />

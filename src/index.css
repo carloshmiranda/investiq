@@ -470,6 +470,11 @@ main {
   background-color: rgba(248, 247, 244, 0.78);
 }
 
+/* G4 — Sidebar glass panel: light theme. Also fixes L2 (sidebar separation). */
+[data-theme="light"] .bg-\[\#080808\]\/75 {
+  background-color: rgba(248, 247, 244, 0.85);
+}
+
 /* Header border on light — warm gray instead of white opacity */
 [data-theme="light"] header {
   border-image: linear-gradient(to right, transparent, rgba(0,0,0,0.06) 20%, rgba(0,0,0,0.06) 80%, transparent) 1 !important;

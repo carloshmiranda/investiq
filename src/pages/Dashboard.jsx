@@ -78,21 +78,22 @@ const typeColors = {
 function ChartGradients() {
   return (
     <defs>
+      {/* L4: bumped bottom stopOpacity 0.7→0.85 so bars stay vivid on light bg */}
       <linearGradient id="gradStockDividends" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#34d399" stopOpacity={1} />
-        <stop offset="100%" stopColor="#10b981" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#10b981" stopOpacity={0.85} />
       </linearGradient>
       <linearGradient id="gradStakingRewards" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
-        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.85} />
       </linearGradient>
       <linearGradient id="gradEarnYield" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#fbbf24" stopOpacity={1} />
-        <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.85} />
       </linearGradient>
       <linearGradient id="gradInterest" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#a78bfa" stopOpacity={1} />
-        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.7} />
+        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.85} />
       </linearGradient>
     </defs>
   );

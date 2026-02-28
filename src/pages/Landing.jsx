@@ -400,6 +400,84 @@ function About() {
   );
 }
 
+function TrustBar() {
+  const TRUST_ITEMS = [
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+      title: 'AES-256 Encrypted',
+      desc: 'API keys encrypted at rest. Never stored in plain text, never logged.',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      title: 'Read-Only API Access',
+      desc: 'We read your positions and history. No trades, no withdrawals — ever.',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        </svg>
+      ),
+      title: 'Your Data, Private',
+      desc: 'Portfolio data is yours alone. Never sold, never shared with third parties.',
+    },
+  ];
+
+  return (
+    <section className="relative py-20 px-6 border-y border-white/[0.04]">
+      <div className="max-w-5xl mx-auto">
+        {/* Broker logo strip */}
+        <div className="text-center mb-14">
+          <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] mb-6" style={{ fontFamily: '"DM Mono", monospace' }}>
+            Works with
+          </p>
+          <div className="flex items-center justify-center flex-wrap gap-6 md:gap-10">
+            {BROKERS.map((b) => (
+              <div key={b.name} className="flex items-center gap-2.5 group">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+                  style={{ background: b.color }}
+                >
+                  {b.name[0]}
+                </div>
+                <span className="text-sm text-white/35 group-hover:text-white/60 transition-colors duration-200">
+                  {b.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Security callouts */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TRUST_ITEMS.map((item) => (
+            <div
+              key={item.title}
+              className="flex gap-4 p-5 rounded-2xl border border-white/[0.05] bg-white/[0.02] hover:border-white/[0.09] transition-all duration-300"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 flex items-center justify-center text-[#9B7DFF] flex-shrink-0">
+                {item.icon}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white mb-1">{item.title}</p>
+                <p className="text-xs text-white/30 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PricingCheck({ included }) {
   return included ? (
     <svg className="w-4 h-4 text-[#7C5CFC] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,6 +617,7 @@ export default function Landing() {
       <Hero />
       <Features />
       <About />
+      <TrustBar />
       <Pricing />
       <Footer />
     </div>
