@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: 'Features', href: '#features' },
   { label: 'About', href: '#about' },
   { label: 'Pricing', href: '#pricing' },
+  { label: 'Blog', to: '/blog' },
 ];
 
 const FEATURES = [
@@ -91,7 +92,15 @@ function Nav({ scrolled }) {
 
         {/* Center nav — desktop */}
         <div className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
+          {NAV_LINKS.map((link) => link.to ? (
+            <Link
+              key={link.label}
+              to={link.to}
+              className="text-sm text-white/45 hover:text-white transition-colors duration-200"
+            >
+              {link.label}
+            </Link>
+          ) : (
             <a
               key={link.label}
               href={link.href}
@@ -136,7 +145,16 @@ function Nav({ scrolled }) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-white/[0.06] px-6 py-4 space-y-3">
-          {NAV_LINKS.map((link) => (
+          {NAV_LINKS.map((link) => link.to ? (
+            <Link
+              key={link.label}
+              to={link.to}
+              onClick={() => setMobileOpen(false)}
+              className="block text-sm text-white/45 hover:text-white py-2"
+            >
+              {link.label}
+            </Link>
+          ) : (
             <a
               key={link.label}
               href={link.href}

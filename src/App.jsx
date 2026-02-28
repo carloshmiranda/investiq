@@ -24,6 +24,8 @@ import Connections from './pages/Connections'
 import AIInsights from './pages/AIInsights'
 import Settings from './pages/Settings'
 import Billing from './pages/Billing'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 
 function DebugOverlay() {
   const debug = useDebugContext()
@@ -63,6 +65,10 @@ export default function App() {
                 <Route path="billing" element={<Billing />} />
               </Route>
             </Route>
+
+            {/* Blog routes — open to everyone, no auth gate */}
+            <Route path="blog" element={<Blog />} />
+            <Route path="blog/:slug" element={<BlogPost />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

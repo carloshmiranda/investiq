@@ -1,7 +1,7 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { getPost, formatDate } from '../blog/index.js'
+import { posts, getPost, formatDate } from '../blog/index.js'
 
 // ── Category badge colours (mirrors Blog.jsx) ─────────────────────────────
 const CATEGORY_COLORS = {
@@ -57,14 +57,14 @@ const mdComponents = {
   ol: ({ children }) => (
     <ol className="space-y-2 mb-5 ml-1 list-decimal list-inside">{children}</ol>
   ),
-  li: ({ children }) => (
+  li: ({ children, ordered }) => ordered ? (
+    <li className="text-[15px] text-gray-300 leading-relaxed">{children}</li>
+  ) : (
     <li className="text-[15px] text-gray-300 leading-relaxed flex gap-2 items-start">
       <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#7C5CFC]/60 flex-shrink-0" />
       <span>{children}</span>
     </li>
   ),
-  // Ordered list item — override to not double-render bullet
-  // (remark-gfm handles ordered items as <li> too, but with list-inside they self-label)
   // Code blocks
   code: ({ inline, children }) =>
     inline ? (
@@ -239,8 +239,6 @@ export default function BlogPost() {
 
 // ── Related posts strip ────────────────────────────────────────────────────
 function RelatedPosts({ currentSlug }) {
-  // Import all posts lazily to avoid circular dep at top level
-  const { posts } = require('../blog/index.js')
   const related = posts.filter((p) => p.slug !== currentSlug).slice(0, 2)
   if (related.length === 0) return null
 
