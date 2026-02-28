@@ -110,7 +110,7 @@ export default function Holdings() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'accrue-holdings.csv';
+    a.download = 'flolio-holdings.csv';
     a.click();
     URL.revokeObjectURL(url);
   };

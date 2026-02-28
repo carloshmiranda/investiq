@@ -345,7 +345,7 @@ function DegiroModal({ onClose }) {
         <form onSubmit={handleLogin} className="space-y-4">
           <InfoBanner>
             <span className="font-semibold">Read-only access.</span>{' '}
-            Your credentials are sent directly to DeGiro's servers and never stored by Accrue.
+            Your credentials are sent directly to DeGiro's servers and never stored by Flolio.
           </InfoBanner>
 
           <ErrorBanner error={error} />
@@ -962,7 +962,7 @@ export default function Connections() {
           <div>
             <p className="text-sm font-semibold text-amber-400 mb-1">Read-Only Security</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              All API keys are encrypted at rest (AES-256-GCM). Accrue requests read-only access only —
+              All API keys are encrypted at rest (AES-256-GCM). Flolio requests read-only access only —
               no trading or withdrawal permissions are ever used. DeGiro sessions are proxied server-side.
             </p>
           </div>

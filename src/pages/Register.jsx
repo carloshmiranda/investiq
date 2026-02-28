@@ -64,7 +64,7 @@ export default function Register() {
                 </svg>
               </div>
             </div>
-            <span className="text-2xl font-display font-bold gradient-text">Accrue</span>
+            <span className="text-2xl font-display font-bold gradient-text">Flolio</span>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function Register() {
                 </svg>
               </div>
             </div>
-            <span className="text-2xl font-display font-bold gradient-text">Accrue</span>
+            <span className="text-2xl font-display font-bold gradient-text">Flolio</span>
           </div>
 
           {/* Form card */}

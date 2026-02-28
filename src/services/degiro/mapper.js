@@ -1,6 +1,6 @@
 /**
- * Accrue — DeGiro data mapper
- * Converts raw DeGiro API responses to Accrue's unified holding/income formats.
+ * Flolio — DeGiro data mapper
+ * Converts raw DeGiro API responses to Flolio's unified holding/income formats.
  */
 
 // ── Product type mapping ──────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ function getVal(arr, name) {
   return arr.find((v) => v.name === name)?.value;
 }
 
-// ── Map a single portfolio position to Accrue holding format ────────────────
+// ── Map a single portfolio position to Flolio holding format ────────────────
 export function mapPosition(position, productInfo = {}) {
   const productId = getVal(position.value, 'id');
   const size = getVal(position.value, 'size') ?? 0;
@@ -77,7 +77,7 @@ export function mapPosition(position, productInfo = {}) {
   };
 }
 
-// ── Map DeGiro corporate action (dividend) to Accrue income format ──────────
+// ── Map DeGiro corporate action (dividend) to Flolio income format ──────────
 export function mapDividend(ca) {
   return {
     date: ca.exDate ?? ca.paymentDate ?? new Date().toISOString().slice(0, 10),
@@ -106,7 +106,7 @@ export function mergeHoldings(mockHoldings, degiroHoldings) {
   return [...mockHoldings, ...unique];
 }
 
-// ── Merge DeGiro dividends into Accrue income history ───────────────────────
+// ── Merge DeGiro dividends into Flolio income history ───────────────────────
 export function mergeDividendHistory(incomeHistory, degiroDividends) {
   // Group DeGiro dividends by month (same format as incomeHistory)
   const byMonth = {};

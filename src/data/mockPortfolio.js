@@ -1,5 +1,5 @@
 // ============================================================
-// Accrue — Mock Portfolio Data Layer
+// Flolio — Mock Portfolio Data Layer
 // ============================================================
 
 export const stocks = [

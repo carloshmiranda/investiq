@@ -35,7 +35,7 @@ export function getUsdPrice(asset, priceMap) {
 }
 
 /**
- * Map a Binance spot balance to Accrue holding format.
+ * Map a Binance spot balance to Flolio holding format.
  */
 export function mapBalance(balance, priceMap) {
   const price = getUsdPrice(balance.asset, priceMap);
@@ -70,7 +70,7 @@ export function mapBalance(balance, priceMap) {
 }
 
 /**
- * Map a flexible Simple Earn position to Accrue holding format.
+ * Map a flexible Simple Earn position to Flolio holding format.
  */
 export function mapFlexibleEarn(pos, priceMap) {
   const asset = pos.asset;
@@ -107,7 +107,7 @@ export function mapFlexibleEarn(pos, priceMap) {
 }
 
 /**
- * Map a locked Simple Earn position to Accrue holding format.
+ * Map a locked Simple Earn position to Flolio holding format.
  */
 export function mapLockedEarn(pos, priceMap) {
   const asset = pos.asset;
@@ -155,7 +155,7 @@ export function isDividendIncome(div) {
 }
 
 /**
- * Map Binance asset dividend record to Accrue income event.
+ * Map Binance asset dividend record to Flolio income event.
  * If priceMap is provided, converts token amount to USD value.
  */
 export function mapDividend(div, priceMap) {
@@ -174,7 +174,7 @@ export function mapDividend(div, priceMap) {
 }
 
 /**
- * Map Binance Simple Earn reward to Accrue income event.
+ * Map Binance Simple Earn reward to Flolio income event.
  * If priceMap is provided, converts token amount to USD value.
  */
 export function mapEarnReward(reward, priceMap) {

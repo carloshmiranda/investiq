@@ -1,5 +1,5 @@
 /**
- * Reusable skeleton loading components for Accrue.
+ * Reusable skeleton loading components for Flolio.
  * Uses shimmer animation defined in index.css.
  */
 

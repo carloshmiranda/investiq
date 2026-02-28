@@ -139,7 +139,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
               </svg>
             </div>
             {showLabels && (
-              <span className="font-display font-bold text-lg gradient-text whitespace-nowrap">Accrue</span>
+              <span className="font-display font-bold text-lg gradient-text whitespace-nowrap">Flolio</span>
             )}
           </div>
           {/* Collapse toggle: floats on sidebar edge when collapsed, inline when expanded */}

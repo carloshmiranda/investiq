@@ -1,5 +1,5 @@
 {
-  "name": "accrue",
+  "name": "flolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -26,12 +26,15 @@
     "@vercel/analytics": "^1.6.1",
     "axios": "^1.13.5",
     "bcryptjs": "^2.4.3",
+    "gray-matter": "^4.0.3",
     "jose": "^5.0.0",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.30.3",
     "recharts": "^3.7.0",
+    "remark-gfm": "^4.0.1",
     "stripe": "^20.4.0"
   },
   "devDependencies": {

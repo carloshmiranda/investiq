@@ -21,7 +21,7 @@ function normalizeCurrency(rawCurrency, price) {
 }
 
 /**
- * Map Trading 212 position to Accrue holding format.
+ * Map Trading 212 position to Flolio holding format.
  * T212 API nests instrument data: pos.instrument.{ticker, name, isin, currency}
  */
 export function mapPosition(pos) {
@@ -76,7 +76,7 @@ export function mapPosition(pos) {
 }
 
 /**
- * Map Trading 212 dividend to Accrue income event.
+ * Map Trading 212 dividend to Flolio income event.
  */
 export function mapDividend(div) {
   const ticker = cleanTicker(div.ticker) || div.ticker || 'UNKNOWN';

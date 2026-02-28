@@ -22,7 +22,7 @@ export function getUsdPrice(currency, priceMap) {
 }
 
 /**
- * Map a Crypto.com balance to Accrue holding format.
+ * Map a Crypto.com balance to Flolio holding format.
  */
 export function mapBalance(balance, priceMap) {
   const price = getUsdPrice(balance.currency, priceMap);
@@ -108,7 +108,7 @@ function classifyRewardType() {
 }
 
 /**
- * Map a Crypto.com reward/earn/staking transaction to Accrue income event.
+ * Map a Crypto.com reward/earn/staking transaction to Flolio income event.
  */
 export function mapReward(trade, priceMap) {
   const currency = trade.currency || trade.fee_currency || '';
@@ -126,7 +126,7 @@ export function mapReward(trade, priceMap) {
 }
 
 /**
- * Map a Crypto.com trade to Accrue trade event.
+ * Map a Crypto.com trade to Flolio trade event.
  */
 export function mapTrade(trade) {
   return {

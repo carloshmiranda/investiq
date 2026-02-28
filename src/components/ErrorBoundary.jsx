@@ -11,7 +11,7 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[Accrue] Error boundary caught:', error, errorInfo);
+    console.error('[Flolio] Error boundary caught:', error, errorInfo);
   }
 
   render() {

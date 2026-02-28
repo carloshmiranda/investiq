@@ -1,4 +1,4 @@
-# Accrue — Watch Your Passive Income Grow
+# Flolio — Watch Your Passive Income Grow
 
 A full-stack fintech SPA for tracking and forecasting passive income from stocks, crypto, and DeFi in one unified dashboard.
 

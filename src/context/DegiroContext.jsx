@@ -49,7 +49,7 @@ export function DegiroProvider({ children }) {
         productInfo = await fetchProductDetails(authAxios, sessionId, intAccount, productIds);
       }
 
-      // 4. Map to Accrue format
+      // 4. Map to Flolio format
       const positions = productPositions.map((p) => mapPosition(p, productInfo));
 
       // 5. Fetch dividend history

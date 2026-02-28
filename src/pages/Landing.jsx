@@ -86,7 +86,7 @@ function Nav({ scrolled }) {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Wordmark */}
         <Link to="/" className="text-white font-semibold text-lg tracking-tight" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>
-          Accrue
+          Flolio
         </Link>
 
         {/* Center nav — desktop */}
@@ -361,7 +361,7 @@ function AppPreview() {
               {/* URL bar */}
               <div className="flex-1 h-5 rounded bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-4">
                 <span className="text-[9px] text-white/20" style={{ fontFamily: '"DM Mono", monospace' }}>
-                  accrue-io.vercel.app/dashboard
+                  flolio.app/dashboard
                 </span>
               </div>
             </div>
@@ -457,7 +457,7 @@ function Features() {
             Everything in one place
           </h2>
           <p className="mt-4 text-white/35 max-w-md mx-auto">
-            No more juggling broker apps. Accrue pulls your data together and gives you the full picture.
+            No more juggling broker apps. Flolio pulls your data together and gives you the full picture.
           </p>
         </div>
 
@@ -498,7 +498,7 @@ function About() {
                 If you invest across multiple brokers and exchanges, you know the pain: no single view of your total portfolio, no unified income tracking, no coherent picture.
               </p>
               <p>
-                Accrue connects to your brokers directly via their APIs, pulls your real positions and dividend history, and presents everything in one clean dashboard. Your API keys are encrypted at rest — we never place trades or modify your accounts.
+                Flolio connects to your brokers directly via their APIs, pulls your real positions and dividend history, and presents everything in one clean dashboard. Your API keys are encrypted at rest — we never place trades or modify your accounts.
               </p>
               <p>
                 Add AI-powered analysis on top, and you get a personal portfolio terminal that actually understands your holdings.
@@ -726,7 +726,7 @@ function Footer() {
     <footer className="border-t border-white/[0.04] py-10 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <span className="text-sm text-white/20" style={{ fontFamily: '"DM Mono", monospace' }}>
-          Accrue &copy; {new Date().getFullYear()}
+          Flolio &copy; {new Date().getFullYear()}
         </span>
         <div className="flex items-center gap-6">
           <Link to="/login" className="text-xs text-white/25 hover:text-white/50 transition-colors">
