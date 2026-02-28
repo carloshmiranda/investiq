@@ -236,8 +236,48 @@ function Hero() {
           </a>
         </div>
 
+        {/* Glass stat block — P2: live-looking portfolio preview */}
+        <div className="mt-10 mx-auto max-w-xs landing-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div
+            className="relative p-5 rounded-2xl border border-white/[0.1] text-left"
+            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+          >
+            {/* Header row */}
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1" style={{ fontFamily: '"DM Mono", monospace' }}>Total Portfolio</p>
+                <p className="text-2xl font-bold text-white" style={{ fontFamily: '"Cal Sans", "Inter", sans-serif' }}>€11,534</p>
+              </div>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <span className="text-xs text-emerald-400 font-medium" style={{ fontFamily: '"DM Mono", monospace' }}>+8.3% yield</span>
+              </div>
+            </div>
+            {/* Mini stats row */}
+            <div className="flex items-center gap-5 pt-3 border-t border-white/[0.07]">
+              {[
+                { label: 'Monthly', value: '€96/mo' },
+                { label: 'Holdings', value: '24' },
+                { label: 'Sources', value: '4 brokers' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="text-[9px] text-white/25 mb-0.5 uppercase tracking-wider">{s.label}</p>
+                  <p className="text-xs text-white/70 font-medium" style={{ fontFamily: '"DM Mono", monospace' }}>{s.value}</p>
+                </div>
+              ))}
+            </div>
+            {/* Corner glow */}
+            <div
+              className="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(124,92,252,0.2) 0%, transparent 70%)', filter: 'blur(10px)' }}
+            />
+          </div>
+        </div>
+
         {/* Social proof */}
-        <div className="mt-12 flex items-center justify-center gap-6 landing-fade-up" style={{ animationDelay: '0.4s' }}>
+        <div className="mt-8 flex items-center justify-center gap-6 landing-fade-up" style={{ animationDelay: '0.5s' }}>
           <div className="flex -space-x-2">
             {BROKERS.map((b) => (
               <div

@@ -69,18 +69,18 @@ body::before {
   background: #2a2a4a;
 }
 
-/* Glassmorphism card */
+/* Glassmorphism card — G1: true frosted glass */
 .glass-card {
-  background: rgba(12, 12, 20, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -259,22 +259,24 @@ body::before {
   background: #b8b7b3;
 }
 
-/* Cards: clean white with warm shadow instead of glassmorphism */
+/* Cards: frosted glass — G1: blur(12px) saturate(180%) with semi-transparent fill */
 [data-theme="light"] .glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.03),
-    0 4px 16px rgba(0, 0, 0, 0.04);
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="light"] .glass-card:hover {
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.7);
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06);
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 /* Gradient text — deeper purple for light bg contrast */
@@ -355,12 +357,17 @@ body::before {
 [data-theme="light"] .bg-\[\#050505\] { background-color: #F8F7F4; }
 [data-theme="light"] .bg-\[\#080808\]\/90 { background-color: rgba(255, 255, 255, 0.92); }
 
-/* Subtle surface tints */
+/* Subtle surface tints — L1: bumped from 0.025→0.05 so progress tracks are visible */
 [data-theme="light"] .bg-white\/5,
 [data-theme="light"] .bg-white\/\[0\.02\],
 [data-theme="light"] .bg-white\/\[0\.03\],
 [data-theme="light"] .bg-white\/\[0\.04\] {
-  background-color: rgba(0, 0, 0, 0.025);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* L1 — Progress bar track: Dashboard health bars use hardcoded #1f2937 */
+[data-theme="light"] .bg-\[\#1f2937\] {
+  background-color: #e5e7eb;
 }
 
 [data-theme="light"] .bg-white\/\[0\.06\] {
@@ -461,9 +468,10 @@ main {
   border-image: linear-gradient(to right, transparent, rgba(0,0,0,0.06) 20%, rgba(0,0,0,0.06) 80%, transparent) 1 !important;
 }
 
-/* Sidebar border on light */
+/* Sidebar border on light — D2: add shadow for visual separation */
 [data-theme="light"] aside {
-  border-right-color: rgba(0, 0, 0, 0.06);
+  border-right-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.05);
 }
 
 /* Sidebar collapse toggle — floating circle (collapsed state) */

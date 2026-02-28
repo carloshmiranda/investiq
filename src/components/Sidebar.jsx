@@ -125,7 +125,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         style={{ paddingTop: 'var(--safe-top)', paddingLeft: 'var(--safe-left)' }}
       >
         {/* Logo */}
-        <div className={`flex items-center h-16 ${showLabels ? 'px-4' : 'justify-center px-2'} border-b border-white/5 flex-shrink-0 relative`}>
+        <div className={`flex items-center h-16 ${showLabels ? 'px-4' : 'justify-center px-2'} border-b border-white/[0.08] flex-shrink-0 relative`}>
           <div className="flex items-center gap-3 min-w-0">
             <div className="sidebar-logo-icon w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#7C5CFC]/20">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

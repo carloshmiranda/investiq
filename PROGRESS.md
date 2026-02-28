@@ -206,6 +206,33 @@ https://github.com/carloshmiranda/accrue
 - [x] 18.6 — Dashboard empty states need actionable copy: both "No income data" and "No upcoming payments" empty states now include a `<Link to="/connections">` CTA button.
 - [x] 18.7 — Billing page dead space below pricing cards: added "Why upgrade?" section with three feature highlights (Unlimited AI, CSV Export, Auto Sync) that always render regardless of plan.
 
+### Light Theme Fixes — Broken (found 2026-02-28, live site review)
+- [x] L1 — Progress bar tracks render jet black in light mode: `bg-[#1f2937]` (Dashboard health/broker bars) now overrides to `#e5e7eb` in light; `bg-white/5` track override bumped from `0.025→0.05` opacity (Billing progress bars).
+- [ ] L2 — Sidebar has no visual separation from content in light mode: sidebar and main area share the same flat cream background with no border or shadow. Add `border-r border-black/[0.06]` and a subtle `box-shadow` on the sidebar element to define the edge. Solves independently, also resolved by G4.
+- [ ] L3 — KPI card accent bars disappear in light mode: left-edge accent bars (emerald, teal, amber, purple) are near-invisible because card and background contrast is too low. Keep accent colors vivid regardless of theme; only the card background should adapt.
+- [ ] L4 — Income chart bars invisible in light mode: bar fills on "Income Timeline — Last 12 Months" have near-zero contrast against white chart background. Apply theme-aware fill colors via CSS variable or Recharts fill prop computed from theme.
+- [ ] L5 — Currency switcher buttons styled for dark mode only: USD/EUR/GBP toggle in header has a dark background in light mode, clashing with the light header. Apply a light-mode variant: white/soft background, dark text, light border.
+
+### Glassmorphism / iOS Glass System (found 2026-02-28, design direction)
+- [x] G1 — Cards: true frosted glass: dark mode `.glass-card` updated to `rgba(255,255,255,0.04)` bg + `blur(16px) saturate(180%)` + `border rgba(255,255,255,0.08)` + layered shadow. Light mode upgraded to `rgba(255,255,255,0.70)` + `blur(12px) saturate(180%)` + inner top highlight `inset 0 1px 0 rgba(255,255,255,0.9)`.
+- [ ] G2 — Cards: layered soft shadows for depth: add `box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)` in light mode, `0 4px 24px rgba(0,0,0,0.25)` in dark. Cards should feel like floating panels, not painted rectangles.
+- [ ] G3 — Header: frosted glass navigation bar: apply `backdrop-filter: blur(20px)` + semi-transparent background to the header, matching iOS nav bar behaviour. Background gradient shows through subtly in both themes.
+- [ ] G4 — Sidebar: glass panel with blur: apply `backdrop-filter: blur(16px)` + semi-transparent background to the sidebar. In dark mode it picks up the deep background gradients. In light mode it creates natural separation from content (also fixes L2).
+- [ ] G5 — Background: ambient color glow in light mode: light mode background is flat cream with no atmosphere. Add very subtle radial color gradients matching dark mode's treatment — e.g. `radial-gradient(ellipse at 20% 50%, rgba(124,92,252,0.06) 0%, transparent 60%)` purple corner + soft emerald opposite. Low opacity, premium feel.
+- [ ] G6 — KPI cards: ambient glow behind accent color: each KPI card should emit a faint colored `box-shadow` matching its accent (e.g. emerald card gets `0 0 40px rgba(16,185,129,0.12)`). Subtle iOS/visionOS material detail — apply to all 4 KPI cards on Dashboard, Income, Holdings, Connections.
+- [ ] G7 — Modals and overlays: glass backdrop + glass card: broker connect modals (DeGiro, T212, Binance, Crypto.com) use a plain dark scrim. Replace with `backdrop-filter: blur(8px)` on the overlay and apply full G1 glass treatment to the modal card itself.
+- [ ] G8 — Input fields: glass style: form inputs in Settings, connect modals, Login/Register currently use solid fills. Replace with `bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-white/20 dark:border-white/10` — cohesive with card surfaces.
+
+### Dark Theme Refinements (found 2026-02-28, live site review)
+- [ ] D1 — Portfolio Health "Allocation by Type" donut not rendering on some load states: only legend dots show with blank space above. Add a `min-h-[120px]` and a loading skeleton so the space never collapses while chart data resolves.
+- [x] D2 — Sidebar logo zone: updated logo section border from `border-white/5` → `border-white/[0.08]` for stronger dark mode anchor. Light mode: `border-right-color rgba(0,0,0,0.08)` + `box-shadow: 2px 0 16px rgba(0,0,0,0.05)` for natural panel separation.
+
+### Landing Page (found 2026-02-28, live site review)
+- [ ] P1 — Landing page: no product screenshot or visual preview: the single highest-converting element on a SaaS landing page is showing the actual product. Add a hero section with a real browser mockup or framed screenshot of the Dashboard (dark mode). Use a glass frame treatment consistent with the new design direction.
+- [x] P2 — Landing page: glass stat block added to hero: frosted glass card (blur(20px), rgba(255,255,255,0.05) bg) showing "€11,534 portfolio · +8.3% yield · €96/mo · 24 holdings · 4 brokers" with emerald yield badge and purple corner glow. Positioned between CTA buttons and social proof row.
+- [ ] P3 — Landing page: pricing section may be out of sync with Billing page: audit and align features list — Free ($0, 5 AI queries/month) and Pro ($8/month, unlimited AI, CSV export, auto sync, full history) — to exactly match the Billing page.
+- [ ] P4 — Landing page: no social proof or trust signals: add a broker logo strip ("Works with DeGiro, Trading 212, Binance, Crypto.com"), a user count or "X portfolios connected", and a brief security callout (AES-256, read-only API keys). Essential for a fintech tool where trust drives conversion.
+
 ## Session Log
 | Date | Item | Notes |
 |------|------|-------|
@@ -253,3 +280,4 @@ https://github.com/carloshmiranda/accrue
 | 2026-02-28 | 17.1–17.9 | All 9 critical QA bugs fixed: Binance syncing indicator, Dashboard income chart keys, T212 NaN guard, Tracked Value now includes T212, Billing zero state, Calendar daily earn entries, diversification score clamped, "Projected Income" label, T212 sector/frequency null fixes. |
 | 2026-02-28 | 18.1–18.7 | All 7 UX issues fixed: Holdings filter labels ("Source:" / "Type:"), T212 frequency dash, column header tooltips (Safety + Projected Income), AI chat pill dedup + moved inside scroll area, Dashboard empty-state CTAs → /connections, Billing "Why upgrade?" section. |
 | 2026-02-28 | 15.1–16.4 | UI Design Polish sprint complete: Login/Register asymmetric desktop layout, Settings card title separator, Header gradient bottom fade, Sidebar active font-semibold, AI chat bubble left border opacity bump, Holdings row hover no-shift fix. 15.3 + 16.4 already done. |
+| 2026-02-28 | L1, G1, D2, P2 | Cross-category polish: progress bar tracks visible in light mode (#e5e7eb); glass-card upgraded to true frosted glass (saturate 180%); sidebar logo border strengthened + light-mode shadow; Landing hero glass stat block (portfolio preview card). |
