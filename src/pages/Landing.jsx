@@ -306,6 +306,145 @@ function Hero() {
   );
 }
 
+function AppPreview() {
+  const BARS = [28, 42, 35, 58, 50, 72, 65, 80, 61, 75, 88, 92];
+  const MONTHS = ['Mar', 'Jun', 'Sep', 'Feb'];
+  const HOLDINGS = [
+    { ticker: 'VWCE', pct: '38%', bar: 95, color: '#7C5CFC' },
+    { ticker: 'BTC',  pct: '22%', bar: 55, color: '#f59e0b' },
+    { ticker: 'AAPL', pct: '15%', bar: 38, color: '#10b981' },
+    { ticker: 'ETH',  pct: '12%', bar: 30, color: '#6366f1' },
+  ];
+
+  return (
+    <section className="relative py-6 pb-24 overflow-hidden">
+      {/* Fade edges into surrounding sections */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black to-transparent pointer-events-none z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black to-transparent pointer-events-none z-10" />
+
+      <div className="max-w-5xl mx-auto px-6 relative">
+        {/* Section label */}
+        <p className="text-center text-[10px] text-white/20 uppercase tracking-[0.25em] mb-10"
+           style={{ fontFamily: '"DM Mono", monospace' }}>
+          Dashboard Preview
+        </p>
+
+        {/* Perspective wrapper */}
+        <div style={{ perspective: '1200px' }}>
+          {/* Ambient glow behind the frame */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{
+              width: '75%', height: '55%', bottom: '-8%',
+              background: 'radial-gradient(ellipse at 50% 80%, rgba(124,92,252,0.2) 0%, transparent 65%)',
+              filter: 'blur(32px)',
+            }}
+          />
+
+          {/* Browser frame */}
+          <div
+            className="relative rounded-xl overflow-hidden border border-white/[0.12]"
+            style={{
+              transform: 'rotateX(5deg)',
+              transformOrigin: 'center bottom',
+              boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+            }}
+          >
+            {/* Chrome bar */}
+            <div className="flex items-center gap-3 px-4 h-9 bg-[#0d0d12] border-b border-white/[0.06] flex-shrink-0">
+              {/* Traffic lights */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+              </div>
+              {/* URL bar */}
+              <div className="flex-1 h-5 rounded bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-4">
+                <span className="text-[9px] text-white/20" style={{ fontFamily: '"DM Mono", monospace' }}>
+                  accrue-io.vercel.app/dashboard
+                </span>
+              </div>
+            </div>
+
+            {/* Dashboard content */}
+            <div className="bg-[#07070b] p-4 select-none">
+              {/* KPI cards row */}
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {[
+                  { label: 'Portfolio',      value: '€11,534',  accent: '#10b981' },
+                  { label: 'Monthly Income', value: '€47/mo',   accent: '#06b6d4' },
+                  { label: 'Avg. Yield',     value: '3.2%',     accent: '#f59e0b' },
+                  { label: 'Holdings',       value: '24 assets', accent: '#7C5CFC' },
+                ].map((k) => (
+                  <div key={k.label}
+                    className="rounded-lg p-2.5"
+                    style={{
+                      background: 'rgba(255,255,255,0.025)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderLeft: `2px solid ${k.accent}`,
+                    }}
+                  >
+                    <p className="text-[7px] text-white/30 uppercase tracking-wide mb-1">{k.label}</p>
+                    <p className="text-xs font-bold text-white" style={{ fontFamily: '"DM Mono", monospace' }}>{k.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Body: bar chart + holdings */}
+              <div className="grid grid-cols-5 gap-2">
+                {/* Bar chart — col-span-3 */}
+                <div className="col-span-3 rounded-lg p-3"
+                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  <p className="text-[7px] text-white/30 uppercase tracking-wide mb-3">Income Over Time</p>
+                  <div className="flex items-end gap-0.5 h-14">
+                    {BARS.map((h, i) => (
+                      <div key={i} className="flex-1 rounded-t-[2px]"
+                        style={{
+                          height: `${h}%`,
+                          background: i === BARS.length - 1
+                            ? 'linear-gradient(to top, #10b981, #34d399)'
+                            : `rgba(16,185,129,${0.22 + (h / 100) * 0.38})`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-between mt-1.5">
+                    {MONTHS.map((m) => (
+                      <span key={m} className="text-[7px] text-white/15">{m}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Holdings list — col-span-2 */}
+                <div className="col-span-2 rounded-lg p-3"
+                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  <p className="text-[7px] text-white/30 uppercase tracking-wide mb-3">Top Holdings</p>
+                  <div className="space-y-2">
+                    {HOLDINGS.map((h) => (
+                      <div key={h.ticker}>
+                        <div className="flex justify-between mb-0.5">
+                          <span className="text-[8px] text-white/55">{h.ticker}</span>
+                          <span className="text-[8px] text-white/30">{h.pct}</span>
+                        </div>
+                        <div className="h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                          <div className="h-full rounded-full"
+                            style={{ width: `${h.bar}%`, background: h.color, opacity: 0.72 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Features() {
   return (
     <section id="features" className="relative py-32 px-6">
@@ -615,6 +754,7 @@ export default function Landing() {
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       <Nav scrolled={scrolled} />
       <Hero />
+      <AppPreview />
       <Features />
       <About />
       <TrustBar />

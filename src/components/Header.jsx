@@ -74,7 +74,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
       </div>
 
       {/* Currency switcher */}
-      <div className="flex items-center rounded-lg border border-white/10 overflow-hidden flex-shrink-0">
+      <div className="currency-switcher flex items-center rounded-lg border border-white/10 overflow-hidden flex-shrink-0">
         {CURRENCIES.map((code) => (
           <button
             key={code}
