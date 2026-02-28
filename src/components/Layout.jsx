@@ -33,7 +33,7 @@ export default function Layout() {
   const marginLeft = isMobile ? '0' : collapsed ? '4rem' : '15rem';
 
   return (
-    <div className="min-h-screen bg-[#050505] transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#050505] transition-colors duration-300">
       <Sidebar
         collapsed={collapsed}
         setCollapsed={setCollapsed}
@@ -51,10 +51,10 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className="min-h-screen transition-all duration-300"
+        className="min-h-screen w-full overflow-x-hidden transition-all duration-300"
         style={{ marginLeft, paddingTop: 'calc(var(--safe-top) + 4rem)', paddingBottom: 'var(--safe-bottom)' }}
       >
-        <div className="p-3 sm:p-4 md:p-6 animate-fadeIn">
+        <div className="p-3 sm:p-4 md:p-6 animate-fadeIn min-w-0">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

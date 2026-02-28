@@ -192,7 +192,7 @@ export default function AIInsights() {
                   {msg.role === 'assistant' ? 'AI' : 'U'}
                 </div>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all ${msg.role === 'assistant'
-                  ? 'bg-white/[0.04] border border-white/5 rounded-tl-sm border-l-2 border-l-[#7C5CFC]/40'
+                  ? 'bg-white/[0.04] border border-white/5 rounded-tl-sm border-l-2 border-l-[#7C5CFC]/70'
                   : 'bg-[#7C5CFC]/15 border border-[#7C5CFC]/20 rounded-tr-sm'
                   }`}>
                   <MarkdownText text={msg.content} />
@@ -202,13 +202,30 @@ export default function AIInsights() {
             {isTyping && (
               <div className="flex gap-3 animate-fadeIn">
                 <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-[#7C5CFC] to-[#a78bfa] flex items-center justify-center text-[10px] font-bold text-white shadow-md shadow-[#7C5CFC]/20">AI</div>
-                <div className="bg-white/[0.04] border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 border-l-2 border-l-[#7C5CFC]/40">
+                <div className="bg-white/[0.04] border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3 border-l-2 border-l-[#7C5CFC]/70">
                   <div className="flex gap-1.5 items-center h-4">
                     {[0, 1, 2].map((i) => (
                       <div key={i} className="w-1.5 h-1.5 bg-[#7C5CFC]/60 rounded-full animate-bounce"
                         style={{ animationDelay: `${i * 0.15}s` }} />
                     ))}
                   </div>
+                </div>
+              </div>
+            )}
+            {/* Suggested prompts — anchored below welcome message */}
+            {messages.length < 3 && !isExhausted && (
+              <div className="animate-fadeIn">
+                <p className="text-[10px] text-gray-500 mb-1.5 uppercase tracking-wider">Suggested questions</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {SUGGESTED_PROMPTS.slice(0, 3).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => sendMessage(p)}
+                      className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/30"
+                    >
+                      {p}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -232,24 +249,6 @@ export default function AIInsights() {
                 >
                   Upgrade
                 </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Suggested prompts */}
-          {messages.length < 3 && !isExhausted && (
-            <div className="px-4 pb-2">
-              <p className="text-[10px] text-gray-500 mb-1.5 uppercase tracking-wider">Suggested questions</p>
-              <div className="flex flex-wrap gap-1.5">
-                {SUGGESTED_PROMPTS.slice(0, 3).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => sendMessage(p)}
-                    className="text-[11px] px-2.5 py-1.5 rounded-lg bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08] border border-white/5 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/30"
-                  >
-                    {p}
-                  </button>
-                ))}
               </div>
             </div>
           )}
@@ -303,22 +302,6 @@ export default function AIInsights() {
             </div>
           ))}
 
-          {/* All suggested prompts */}
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-[10px] font-semibold text-gray-400 mb-3 uppercase tracking-wider">Quick Questions</p>
-            <div className="space-y-1">
-              {SUGGESTED_PROMPTS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => sendMessage(p)}
-                  disabled={isExhausted}
-                  className="w-full text-left text-[11px] px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  → {p}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -82,8 +82,34 @@ vercel --prod
 
 The `vercel.json` includes SPA rewrite rules and API route mappings.
 
+## Recent Changes
+
+### 2026-02-28 — QA Pass (17 issues resolved)
+**Critical bug fixes:**
+- Dashboard income chart was always empty (wrong bucket key names after income classifier refactor)
+- Binance syncing indicator added to Dashboard KPI cards — shows "Updating…" during async fetch
+- T212 Portfolio value showed "NaN €" — added `Number.isFinite()` guard, shows "—" on bad data
+- Connections "Tracked Value" KPI now correctly sums T212 + Binance + Crypto.com
+- Billing AI usage meter shows graceful zero state instead of error when API call fails
+- Calendar now shows daily Binance Earn entries (synthetic tomorrow date for `frequency: 'Daily'`)
+- Diversification score clamped to [0, 100] — was returning negative values
+- T212 mapper: `sector` and `frequency` now `null` (were `'Unknown'`) — prevents false "Unknown" in UI
+
+**UX improvements:**
+- Holdings: "Annual Income" renamed to "Projected Income" (yield-based estimate, not received)
+- Holdings filter bar: "Source:" and "Type:" labels added before each button group
+- Holdings column headers: hover tooltips on Safety and Projected Income columns
+- AI Insights: duplicate "Quick Questions" right-panel removed; pills are the single entry point
+- AI Insights: suggested questions now anchor directly below welcome message (no dead space)
+- Dashboard empty states link to /connections instead of being dead ends
+- Billing page: "Why upgrade?" feature section added below plan cards
+
 ## Roadmap
 
 - [ ] **Capacitor iOS shell** — Native iOS wrapper for TestFlight/App Store (planned, not yet implemented)
 - [ ] Android support (deferred)
 - [ ] Native plugins (biometrics, haptics, push notifications)
+- [ ] Login/Register redesign (15.1)
+- [ ] Settings page polish (15.2)
+- [ ] Header polish — portfolio value pill, gradient fade (15.4)
+- [ ] Sidebar active state — pill indicator, glass tooltip (16.3)

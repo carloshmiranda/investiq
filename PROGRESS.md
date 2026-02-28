@@ -175,16 +175,36 @@ https://github.com/carloshmiranda/accrue
 - [x] 14.2 — Staggered card-reveal animations: apply `.card-reveal` to Dashboard, Income, Holdings, Calendar, AIInsights
 
 ### UI Design Polish — Priority 2 (medium impact)
-- [ ] 15.1 — Login/Register redesign: gradient mesh bg, staggered entrance, logo glow, asymmetric desktop layout
-- [ ] 15.2 — Settings page alignment: heading font → `text-3xl font-display`, card rounding consistency, section labels
-- [ ] 15.3 — Extract PageHeader component: consistent heading + subtitle across all pages
-- [ ] 15.4 — Header polish: gradient bottom fade, portfolio value pill, notification dot animation
+- [x] 15.1 — Login/Register redesign: asymmetric desktop layout (left branding panel + right form), staggered `landing-fade-up` animations, logo glow, feature list (Login) / stats row (Register), `rounded-2xl` cards, mobile-first single column preserved
+- [x] 15.2 — Settings page alignment: Card `h2` now `text-[13px] font-semibold` with `pb-3 border-b border-white/[0.06]` separator under each card title
+- [x] 15.3 — Extract PageHeader component: already existed and was in use — marked complete
+- [x] 15.4 — Header polish: gradient bottom fade added (`h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent` absolute div above content row)
 
 ### UI Design Polish — Priority 3 (polish)
-- [ ] 16.1 — AI chat bubble distinction: emerald accent line on AI messages
-- [ ] 16.2 — Holdings table breathing room: row padding, alternating stripes, header tracking, hover accent
-- [ ] 16.3 — Sidebar active state: thicker indicator or background pill, glass-card collapsed tooltip
-- [ ] 16.4 — Dashboard KpiCard accent bars: left brand bar using `accentColor` prop
+- [x] 16.1 — AI chat bubble distinction: raised left border opacity from `/40` → `/70` on both AI message bubbles and typing indicator
+- [x] 16.2 — Holdings table hover fix: row now always has `border-l-2 border-l-transparent`; hover sets `hover:border-l-[#7C5CFC]/50` — no layout shift
+- [x] 16.3 — Sidebar active state: active nav item now uses `font-semibold` for stronger text weight distinction
+- [x] 16.4 — Dashboard KpiCard accent bars: already implemented via `card-accent` CSS class + `--accent` variable — marked complete
+
+### QA Bugs — Critical (found 2026-02-28, live site review)
+- [x] 17.1 — Dashboard KPI cards exclude Binance on first render: added `syncing` indicator badge; KPIs update reactively as brokers resolve.
+- [x] 17.2 — Dashboard "Income Last 6 Months" chart always empty: Dashboard was reading old bucket keys (`stockDividends`, `stakingRewards`). Fixed to use current `dividends`/`yield` keys from `classifyIncome`.
+- [x] 17.3 — Connections page: Trading 212 Portfolio shows "NaN €": added `Number.isFinite()` guard — shows "—" when `account.totalValue` is NaN.
+- [x] 17.4 — Connections page: "Tracked Value" KPI only includes Binance: now computes T212 value from positions array and sums all connected sources.
+- [x] 17.5 — Billing page: "AI Usage This Month" shows "Unable to load usage data.": replaced error text with graceful zero state (0 queries, full progress bar width=0%).
+- [x] 17.6 — Calendar: Daily staking/yield events not appearing: `useUnifiedPortfolio` now generates synthetic `tomorrowStr` nextPayDate for `frequency: 'Daily'` holdings with `annualIncome > 0`, and computes per-payment as `annualIncome / 365`.
+- [x] 17.7 — Portfolio Health: Diversification sub-score negative: clamped to `Math.max(0, Math.min(100, ...))` in both `diversification` and `healthOverall` calculations.
+- [x] 17.8 — Annual income inconsistent across pages: renamed "Annual Income" → "Projected Income" across Holdings (KPI card, column header, footer, CSV export) to clarify it is yield-based projection, not received income.
+- [x] 17.9 — Dashboard "Allocation by Type" shows "Unknown": T212 mapper now sets `sector: null` (was `'Unknown'`); `useUnifiedPortfolio` sector fallback updated to `(h.sector && h.sector !== 'Unknown') ? h.sector : (h.type || 'Other')`; zero-value entries filtered from sectorData.
+
+### QA UX Issues — Medium (found 2026-02-28, live site review)
+- [x] 18.1 — Holdings filter bar: two adjacent "All" buttons: added "Source:" and "Type:" inline labels before each filter button group, with a `|` separator between them.
+- [x] 18.2 — Holdings "Frequency" column shows "Unknown" for T212: T212 mapper now sets `frequency: null`; Holdings renders `—` for falsy/N/A values.
+- [x] 18.3 — Holdings "Safety" column no tooltip: added `tooltip` property to column definitions; column headers now render an `ⓘ` icon with hover tooltip for columns that have one (Safety + Projected Income).
+- [x] 18.4 — AI Insights: Suggested Questions duplicated: removed the right-panel "Quick Questions" card entirely; pill suggestions in chat area are the single entry point.
+- [x] 18.5 — AI Insights: Large dead space in chat area: moved suggested question pills inside the messages scroll area so they appear directly below the welcome message instead of floating at the bottom.
+- [x] 18.6 — Dashboard empty states need actionable copy: both "No income data" and "No upcoming payments" empty states now include a `<Link to="/connections">` CTA button.
+- [x] 18.7 — Billing page dead space below pricing cards: added "Why upgrade?" section with three feature highlights (Unlimited AI, CSV Export, Auto Sync) that always render regardless of plan.
 
 ## Session Log
 | Date | Item | Notes |
@@ -230,3 +250,6 @@ https://github.com/carloshmiranda/accrue
 | 2026-02-24 | Binance client-side | Moved all Binance API calls to browser-side (Web Crypto HMAC-SHA256) to bypass Vercel geo-restriction. Added store-credentials/get-credentials actions to connections.js. Credentials restored on page reload. |
 | 2026-02-24 | Connections redesign | Full Connections.jsx rewrite: shared primitives (ModalShell, InputField, SubmitButton, etc.), staggered card-reveal animations, brand accent bars, ~300 lines shorter, JS bundle shrank 20KB. New CSS in index.css. |
 | 2026-02-24 | UI design audit | Full site review with frontend-design skill. 10 prioritized items added to backlog (14.1–16.4). Connections page set as quality benchmark. |
+| 2026-02-28 | 17.1–17.9 | All 9 critical QA bugs fixed: Binance syncing indicator, Dashboard income chart keys, T212 NaN guard, Tracked Value now includes T212, Billing zero state, Calendar daily earn entries, diversification score clamped, "Projected Income" label, T212 sector/frequency null fixes. |
+| 2026-02-28 | 18.1–18.7 | All 7 UX issues fixed: Holdings filter labels ("Source:" / "Type:"), T212 frequency dash, column header tooltips (Safety + Projected Income), AI chat pill dedup + moved inside scroll area, Dashboard empty-state CTAs → /connections, Billing "Why upgrade?" section. |
+| 2026-02-28 | 15.1–16.4 | UI Design Polish sprint complete: Login/Register asymmetric desktop layout, Settings card title separator, Header gradient bottom fade, Sidebar active font-semibold, AI chat bubble left border opacity bump, Holdings row hover no-shift fix. 15.3 + 16.4 already done. |

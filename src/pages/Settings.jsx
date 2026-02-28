@@ -207,7 +207,7 @@ function SessionsSection() {
 function Card({ title, children }) {
   return (
     <div className="glass-card rounded-xl p-5">
-      <h2 className="text-sm font-semibold text-white mb-4">{title}</h2>
+      <h2 className="text-[13px] font-semibold text-white pb-3 mb-4 border-b border-white/[0.06]">{title}</h2>
       {children}
     </div>
   )

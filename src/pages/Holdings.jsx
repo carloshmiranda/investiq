@@ -99,7 +99,7 @@ export default function Holdings() {
   const totalAnnualIncome = filtered.reduce((s, h) => s + (h.annualIncome || 0), 0);
 
   const exportCSV = () => {
-    const headers = ['Ticker', 'Name', 'Type', 'Quantity', 'Price', 'Value', 'Annual Income', 'Yield %', 'Frequency', 'Next Payment', 'Safety', 'Source'];
+    const headers = ['Ticker', 'Name', 'Type', 'Quantity', 'Price', 'Value', 'Projected Income', 'Yield %', 'Frequency', 'Next Payment', 'Safety', 'Source'];
     const rows = filtered.map((h) => [
       h.ticker, h.name, h.type, h.quantity, (h.price || 0).toFixed(2),
       (h.value || 0).toFixed(2), (h.annualIncome || 0).toFixed(2), (h.yieldPercent || 0).toFixed(2),
@@ -121,11 +121,11 @@ export default function Holdings() {
     { key: 'quantity', label: 'Qty' },
     { key: 'price', label: 'Price' },
     { key: 'value', label: 'Value' },
-    { key: 'annualIncome', label: 'Annual Income' },
+    { key: 'annualIncome', label: 'Projected Income', tooltip: 'Estimated annual income based on current holdings and yield — not actual received dividends.' },
     { key: 'yieldPercent', label: 'Yield %' },
     { key: 'frequency', label: 'Frequency' },
     { key: 'nextPayDate', label: 'Next Payment' },
-    { key: 'safetyRating', label: 'Safety' },
+    { key: 'safetyRating', label: 'Safety', tooltip: 'Dividend safety rating: A = Excellent (strong financials, consistent payouts), B = Good, C = Fair (high payout ratio or recent cuts), D = Weak, F = Danger (cut likely or suspended).' },
   ];
 
   if (isEmpty) {
@@ -194,7 +194,7 @@ export default function Holdings() {
         {[
           { label: 'Total Holdings', value: filtered.length, color: 'text-white' },
           { label: 'Total Value', value: formatMoney(totalValue, 0), color: 'text-emerald-400' },
-          { label: 'Annual Income', value: formatMoney(totalAnnualIncome, 0), color: 'text-cyan-400' },
+          { label: 'Projected Income', value: formatMoney(totalAnnualIncome, 0), color: 'text-cyan-400' },
           { label: 'Avg Yield', value: formatPercent(totalValue > 0 ? (totalAnnualIncome / totalValue) * 100 : 0), color: 'text-amber-400' },
         ].map((k, i) => (
           <div key={k.label} className="glass-card rounded-xl p-4 card-reveal" style={{ animationDelay: `${0.04 + i * 0.04}s` }}>
@@ -220,23 +220,30 @@ export default function Holdings() {
           />
         </div>
         {/* Source + Type filters */}
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap items-center">
           {/* Source filter — dynamic from connected brokers */}
-          {sourceOptions.length > 1 && sourceOptions.map((s) => {
-            const brokerInfo = BROKER_COLORS[s];
-            return (
-              <button key={s} onClick={() => setSourceFilter(s)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${
-                  sourceFilter === s
-                    ? brokerInfo ? `text-white border-current` : 'bg-[#7C5CFC] text-white border-[#7C5CFC]'
-                    : 'bg-navy-700 text-gray-400 hover:text-white border-white/5'
-                }`}
-                style={sourceFilter === s && brokerInfo ? { background: brokerInfo.color, borderColor: brokerInfo.color } : {}}
-              >
-                {brokerInfo ? brokerInfo.label : s}
-              </button>
-            );
-          })}
+          {sourceOptions.length > 1 && (
+            <>
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider pr-0.5">Source:</span>
+              {sourceOptions.map((s) => {
+                const brokerInfo = BROKER_COLORS[s];
+                return (
+                  <button key={s} onClick={() => setSourceFilter(s)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/40 ${
+                      sourceFilter === s
+                        ? brokerInfo ? `text-white border-current` : 'bg-[#7C5CFC] text-white border-[#7C5CFC]'
+                        : 'bg-navy-700 text-gray-400 hover:text-white border-white/5'
+                    }`}
+                    style={sourceFilter === s && brokerInfo ? { background: brokerInfo.color, borderColor: brokerInfo.color } : {}}
+                  >
+                    {brokerInfo ? brokerInfo.label : s}
+                  </button>
+                );
+              })}
+              <span className="text-gray-700 mx-1">|</span>
+            </>
+          )}
+          <span className="text-[10px] text-gray-500 uppercase tracking-wider pr-0.5">Type:</span>
           {types.map((t) => (
             <button
               key={t}
@@ -264,8 +271,20 @@ export default function Holdings() {
                     onClick={() => handleSort(col.key)}
                     className="group px-4 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-white transition-colors whitespace-nowrap"
                   >
-                    {col.label}
-                    <SortIcon field={col.key} sortField={sortField} sortDir={sortDir} />
+                    <span className="inline-flex items-center gap-1">
+                      {col.label}
+                      {col.tooltip && (
+                        <span className="relative group/tip">
+                          <svg className="w-3 h-3 text-gray-600 group-hover/tip:text-gray-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-[#0d1117] border border-white/10 text-white text-[10px] font-normal normal-case tracking-normal rounded-lg w-56 opacity-0 group-hover/tip:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl leading-relaxed">
+                            {col.tooltip}
+                          </span>
+                        </span>
+                      )}
+                      <SortIcon field={col.key} sortField={sortField} sortDir={sortDir} />
+                    </span>
                   </th>
                 ))}
               </tr>
@@ -277,7 +296,7 @@ export default function Holdings() {
                 return (
                   <tr
                     key={`${h.ticker}-${source}-${i}`}
-                    className={`table-row-hover border-b border-white/[0.03] transition-colors hover:border-l-2 hover:border-l-[#7C5CFC]/40 ${i % 2 === 0 ? '' : 'bg-white/[0.025]'}`}
+                    className={`table-row-hover border-b border-white/[0.03] border-l-2 border-l-transparent hover:border-l-[#7C5CFC]/50 transition-colors ${i % 2 === 0 ? '' : 'bg-white/[0.025]'}`}
                   >
                     {/* Asset */}
                     <td className="px-4 py-3.5">
@@ -363,7 +382,7 @@ export default function Holdings() {
           <span className="text-gray-500">{filtered.length} holdings shown</span>
           <div className="flex gap-6">
             <span className="text-gray-400">Total: <span className="text-white font-data font-medium">{formatMoney(totalValue, 0)}</span></span>
-            <span className="text-gray-400">Annual: <span className="text-emerald-400 font-data font-medium">{formatMoney(totalAnnualIncome, 0)}</span></span>
+            <span className="text-gray-400">Projected: <span className="text-emerald-400 font-data font-medium">{formatMoney(totalAnnualIncome, 0)}</span></span>
           </div>
         </div>
       </div>

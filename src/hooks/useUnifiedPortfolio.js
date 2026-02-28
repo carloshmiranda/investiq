@@ -128,24 +128,41 @@ export function useUnifiedPortfolio() {
 
     // ── Upcoming payments — holdings with nextPayDate in the future ──────
     const todayStr = now.toISOString().slice(0, 10);
+    const tomorrowStr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString().slice(0, 10);
+
     const upcomingPayments = holdings
-      .filter((h) => h.nextPayDate && h.nextPayDate !== 'N/A' && h.nextPayDate >= todayStr)
-      .map((h) => ({
-        date: h.nextPayDate,
-        ticker: h.ticker,
-        name: h.name,
-        amount: h.annualIncome ? h.annualIncome / (h.frequency === 'Monthly' ? 1 : h.frequency === 'Weekly' ? 1 / 4.33 : h.frequency === 'Daily' ? 1 / 30 : 4) : 0,
-        type: (h.type || '').includes('Stak') ? 'Staking' : (h.type || '').includes('Earn') ? 'Yield' : 'Dividend',
-        frequency: h.frequency || 'N/A',
-        source: h.source || h.broker,
-      }))
-      .filter((p) => p.amount > 0)
+      .map((h) => {
+        // For daily-frequency earn positions with no explicit nextPayDate,
+        // synthesize a next-day entry so they appear on the Calendar.
+        const effectiveDate = (h.nextPayDate && h.nextPayDate !== 'N/A')
+          ? h.nextPayDate
+          : (h.frequency === 'Daily' && h.annualIncome > 0 ? tomorrowStr : null);
+        if (!effectiveDate || effectiveDate < todayStr) return null;
+
+        const perPayment = h.annualIncome
+          ? h.annualIncome / (h.frequency === 'Monthly' ? 12 : h.frequency === 'Weekly' ? 52 : h.frequency === 'Daily' ? 365 : 4)
+          : 0;
+        if (perPayment <= 0) return null;
+
+        const earnSector = h.sector === 'Staking' || (h.broker || '').includes('Earn');
+        return {
+          date: effectiveDate,
+          ticker: h.ticker,
+          name: h.name,
+          amount: perPayment,
+          type: earnSector ? (h.earnType ? 'Yield' : 'Staking') : 'Dividend',
+          frequency: h.frequency || 'N/A',
+          source: h.source || h.broker,
+        };
+      })
+      .filter(Boolean)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // ── Health score — based on real data ────────────────────────────────
     const sectors = {};
     holdings.forEach((h) => {
-      const sector = h.sector || h.type || 'Other';
+      // Ignore 'Unknown' sector — fall back to asset type
+      const sector = (h.sector && h.sector !== 'Unknown') ? h.sector : (h.type || 'Other');
       sectors[sector] = (sectors[sector] || 0) + (h.value || 0);
     });
     const sectorCount = Object.keys(sectors).length;
@@ -162,12 +179,13 @@ export function useUnifiedPortfolio() {
 
     const safetyScore = 70; // Neutral default — real safety ratings not consistently available across brokers
     const healthOverall = holdings.length > 0
-      ? Math.round((diversificationScore + brokerBonus) * 0.35 + safetyScore * 0.4 + yieldScore * 0.25)
+      ? Math.round(Math.max(0, (diversificationScore + brokerBonus) * 0.35) + safetyScore * 0.4 + yieldScore * 0.25)
       : 0;
 
     const healthScore = {
       overall: healthOverall,
-      diversification: Math.round(Math.min(100, diversificationScore + brokerBonus)),
+      // Clamp diversification to [0, 100] — formula can go negative with high concentration
+      diversification: Math.round(Math.max(0, Math.min(100, diversificationScore + brokerBonus))),
       safety: safetyScore,
       yield: Math.round(yieldScore),
       sectors,

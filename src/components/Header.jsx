@@ -33,6 +33,8 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
         borderBottom: '1px solid',
       }}
     >
+    {/* Gradient bottom fade */}
+    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent pointer-events-none" />
     <div className="h-16 flex items-center px-3 sm:px-4 gap-2 sm:gap-4 w-full">
       {/* Mobile hamburger */}
       <button

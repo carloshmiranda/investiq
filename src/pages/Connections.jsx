@@ -753,7 +753,7 @@ function Trading212Card({ onOpenModal, onTest, testing, testResult }) {
 
       {connected ? (
         <div className="mb-4 space-y-2">
-          {account && <DataRow label="Portfolio" value={formatMoney(account.totalValue, 0)} valueClass="text-emerald-400 font-data" />}
+          {account && <DataRow label="Portfolio" value={Number.isFinite(account.totalValue) ? formatMoney(account.totalValue, 0) : '—'} valueClass="text-emerald-400 font-data" />}
           <DataRow label="Positions" value={positionCount} valueClass="text-emerald-400 font-data" />
           <DataRow label="Last sync" value={lastSync ? timeAgo(lastSync) : '—'} valueClass="text-gray-400" />
           <DataRow label="Status" value={
@@ -881,7 +881,7 @@ function CryptocomCard({ onOpenModal, onTest, testing, testResult }) {
 export default function Connections() {
   const { formatMoney } = useCurrency();
   const { connected: degiroConnected, positionCount } = useDegiro();
-  const { connected: t212Connected, positionCount: t212PositionCount } = useTrading212();
+  const { connected: t212Connected, positionCount: t212PositionCount, positions: t212Positions } = useTrading212();
   const { connected: binanceConnected, assetCount: binanceAssetCount, totalValue: binanceTotalValue } = useBinance();
   const { connected: cryptocomConnected, assetCount: cryptocomAssetCount, totalValue: cryptocomTotalValue } = useCryptocom();
   const { test: testConn, testing: testingMap, results: testResults } = useTestConnection();
@@ -892,7 +892,9 @@ export default function Connections() {
 
   const liveSourceCount = (degiroConnected ? 1 : 0) + (t212Connected ? 1 : 0) + (binanceConnected ? 1 : 0) + (cryptocomConnected ? 1 : 0);
   const totalLivePositions = (degiroConnected ? positionCount : 0) + (t212Connected ? t212PositionCount : 0) + (binanceConnected ? binanceAssetCount : 0) + (cryptocomConnected ? cryptocomAssetCount : 0);
-  const totalTrackedValue = (binanceTotalValue || 0) + (cryptocomTotalValue || 0);
+  // Compute T212 total from positions (avoids NaN from undefined account.total)
+  const t212TotalValue = t212Connected ? t212Positions.reduce((s, p) => s + (p.value || 0), 0) : 0;
+  const totalTrackedValue = t212TotalValue + (binanceTotalValue || 0) + (cryptocomTotalValue || 0);
 
   return (
     <div className="space-y-8">

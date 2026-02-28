@@ -126,26 +126,26 @@ export default function Dashboard() {
   const {
     totalValue, annualIncome, monthlyIncome, overallYield,
     incomeHistory, upcomingPayments, healthScore, isEmpty,
-    allocationByType, connectedBrokers,
+    allocationByType, connectedBrokers, syncing,
   } = useUnifiedPortfolio();
   const { formatMoney, formatLocal, convert } = useCurrency();
 
-  // Sector allocation for pie chart
+  // Sector allocation for pie chart — only show when data is ready
   const sectorData = useMemo(() =>
-    Object.entries(healthScore.sectors).map(([name, value]) => ({
-      name,
-      value: Math.round(convert(value)),
-    })),
+    Object.entries(healthScore.sectors)
+      .filter(([, v]) => v > 0)
+      .map(([name, value]) => ({
+        name,
+        value: Math.round(convert(value)),
+      })),
   [healthScore.sectors, convert]);
 
-  // Last 6 months for mini chart
+  // Last 6 months for mini chart — use dividends/yield keys from classifyIncome
   const recentIncome = useMemo(() =>
     incomeHistory.slice(-6).map((m) => ({
       month: m.month,
-      stockDividends: convert(m.stockDividends),
-      stakingRewards: convert(m.stakingRewards),
-      earnYield: convert(m.earnYield),
-      interest: convert(m.interest),
+      dividends: convert(m.dividends || 0),
+      yield: convert(m.yield || 0),
     })),
   [incomeHistory, convert]);
 
@@ -183,7 +183,7 @@ export default function Dashboard() {
 
       {/* Connected brokers badges */}
       {connectedBrokers.length > 0 && (
-        <div className="flex items-center gap-2 card-reveal">
+        <div className="flex items-center gap-2 flex-wrap card-reveal">
           <span className="text-xs text-gray-500">Live data from:</span>
           {connectedBrokers.map((b) => (
             <span key={b.label} className="text-[10px] font-bold px-2 py-1 rounded-md border"
@@ -191,6 +191,9 @@ export default function Dashboard() {
               {b.abbr} {b.positions}
             </span>
           ))}
+          {syncing && (
+            <span className="text-[10px] text-gray-500 animate-pulse ml-1">Updating…</span>
+          )}
         </div>
       )}
 
@@ -261,8 +264,9 @@ export default function Dashboard() {
             <h3 className="text-sm font-semibold text-white">Income Last 6 Months</h3>
             <span className="text-xs text-gray-500">All sources</span>
           </div>
-          {recentIncome.some((m) => m.stockDividends + m.stakingRewards + m.earnYield + m.interest > 0) ? (
+          {recentIncome.some((m) => (m.dividends || 0) + (m.yield || 0) > 0) ? (
             <>
+              <div style={{ width: '100%', overflowX: 'hidden' }}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={recentIncome} barSize={20}>
                   <ChartGradients />
@@ -271,14 +275,13 @@ export default function Dashboard() {
                   <YAxis tick={{ fill: '#6b7280', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false}
                     tickFormatter={(v) => formatLocal(v, 0)} />
                   <Tooltip content={<CustomTooltip formatMoney={(v) => formatLocal(v)} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                  <Bar dataKey="stockDividends" name="Stock Dividends" stackId="a" fill="url(#gradStockDividends)" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="stakingRewards" name="Staking Rewards" stackId="a" fill="url(#gradStakingRewards)" />
-                  <Bar dataKey="earnYield" name="Earn/Yield" stackId="a" fill="url(#gradEarnYield)" />
-                  <Bar dataKey="interest" name="Interest" stackId="a" fill="url(#gradInterest)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="dividends" name="Dividends" stackId="a" fill="url(#gradStockDividends)" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="yield" name="Yield / Staking" stackId="a" fill="url(#gradEarnYield)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </div>
               <div className="flex flex-wrap gap-4 mt-3">
-                {[['Stock Dividends', '#10b981'], ['Staking Rewards', '#06b6d4'], ['Earn/Yield', '#f59e0b'], ['Interest', '#8b5cf6']].map(([label, color]) => (
+                {[['Dividends', '#10b981'], ['Yield / Staking', '#f59e0b']].map(([label, color]) => (
                   <div key={label} className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
                     <span className="text-xs text-gray-400">{label}</span>
@@ -287,8 +290,11 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[220px] text-gray-500 text-sm">
-              No income data yet — dividends and rewards will appear here
+            <div className="flex flex-col items-center justify-center h-[220px] gap-3">
+              <p className="text-gray-500 text-sm">No income data yet</p>
+              <Link to="/connections" className="text-xs text-[#a78bfa] hover:text-[#7C5CFC] transition-colors">
+                Connect a broker to start tracking income →
+              </Link>
             </div>
           )}
         </div>
@@ -389,8 +395,11 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[180px] text-gray-500 text-sm">
-              No upcoming payments scheduled
+            <div className="flex flex-col items-center justify-center h-[180px] gap-3">
+              <p className="text-gray-500 text-sm">No upcoming payments scheduled</p>
+              <Link to="/connections" className="text-xs text-[#a78bfa] hover:text-[#7C5CFC] transition-colors">
+                Connect a broker to track income →
+              </Link>
             </div>
           )}
         </div>

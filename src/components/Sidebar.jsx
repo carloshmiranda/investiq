@@ -172,7 +172,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
                     flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                     transition-all duration-200 group relative
                     ${isActive
-                      ? 'bg-[#7C5CFC]/10 text-[#a78bfa] border-l-[3px] border-[#7C5CFC] shadow-[inset_0_0_20px_rgba(124,92,252,0.05)]'
+                      ? 'bg-[#7C5CFC]/10 text-[#a78bfa] font-semibold border-l-[3px] border-[#7C5CFC] shadow-[inset_0_0_20px_rgba(124,92,252,0.05)]'
                       : 'text-gray-400 hover:text-white hover:bg-white/[0.04] border-l-[3px] border-transparent'
                     }
                   `}
