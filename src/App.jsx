@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { isNative } from './lib/platform'
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { CurrencyProvider } from './context/CurrencyContext'
@@ -66,7 +67,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <DebugOverlay />
-          <Analytics />
+          {!isNative && <Analytics />}
         </BrowserRouter>
         </CryptocomProvider>
         </BinanceProvider>

@@ -1,6 +1,6 @@
 # Accrue — Watch Your Passive Income Grow
 
-A full-stack fintech SPA for tracking and forecasting income from stocks, crypto, and DeFi in one unified dashboard.
+A full-stack fintech SPA for tracking and forecasting passive income from stocks, crypto, and DeFi in one unified dashboard.
 
 ## Features
 
@@ -8,16 +8,21 @@ A full-stack fintech SPA for tracking and forecasting income from stocks, crypto
 - **Income Intelligence** — Timeline, 12-month forecasts, DRIP simulator, 5/10/20yr projections
 - **Holdings Terminal** — Unified sortable table (stocks + crypto), CSV export, safety ratings
 - **Dividend Calendar** — Monthly calendar view with payment tracking
-- **Connections** — Broker/exchange/wallet integration cards (IBKR, Alpaca, Coinbase, Binance, MetaMask, Phantom, Plaid)
-- **AI Insights** — Chat interface with portfolio-aware AI advisor, news sentiment feed
+- **Connections** — Live broker integrations (DeGiro, Trading 212, Binance, Crypto.com)
+- **AI Insights** — Chat interface with portfolio-aware AI advisor (Claude, quota-managed)
+- **Billing** — Stripe-powered subscription management
+- **Light/Dark Theme** — Full theme toggle with warm ivory light mode
 
 ## Tech Stack
 
-- React 18 + Vite
-- TailwindCSS (dark fintech theme)
+- React 19 + Vite 7
+- TailwindCSS (dark fintech theme + light "Warm Ivory Editorial" theme)
 - Recharts (all charts)
 - React Router v6
 - Axios
+- Prisma (PostgreSQL)
+- Vercel Hobby deployment (12 serverless function limit)
+- Stripe (billing)
 
 ## Getting Started
 
@@ -28,43 +33,44 @@ npm run dev
 npm run build
 ```
 
-## Environment Variables
+## Architecture
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_ANTHROPIC_API_KEY` | Anthropic Claude API key for AI Insights |
-| `VITE_PLAID_CLIENT_ID` | Plaid client ID for bank/broker connections |
-| `VITE_ALPACA_KEY` | Alpaca API key for broker data |
-| `VITE_COINBASE_KEY` | Coinbase Advanced Trade API key |
-| `VITE_BINANCE_KEY` | Binance API key (read-only) |
-| `VITE_IBKR_CLIENT_ID` | Interactive Brokers Web API client ID |
+### Serverless Functions (9/12 used)
 
-## Adding Real Broker Connections
+| File                | Routes handled                                      |
+|---------------------|-----------------------------------------------------|
+| `api/health.js`     | `GET /api/health`                                   |
+| `api/rates.js`      | `GET /api/rates`                                    |
+| `api/auth.js`       | `/api/auth/*` (register, login, refresh, logout)    |
+|                     | `/api/user/*` (profile, password, sessions, currency)|
+| `api/portfolio.js`  | `GET/POST /api/portfolio`                           |
+| `api/income.js`     | `GET/POST /api/income`                              |
+| `api/connections.js` | `/api/degiro/*`, `/api/trading212/*`, `/api/binance/*`, `/api/cryptocom/*` |
+| `api/brokers.js`    | `/api/brokers/*` (reserved for future proxy routes) |
+| `api/ai.js`         | `POST /api/ai/chat` (quota enforced, usage tracked) |
+| `api/billing.js`    | `/api/billing/*` (checkout, portal, status, webhook)|
 
-### Interactive Brokers (IBKR)
-Enable the IBKR Web API in TWS/Gateway, generate a Client Portal API token, and call `/v1/api/portfolio` REST endpoints.
+### Design System
 
-### Alpaca
-Create API keys at alpaca.markets (read-only), set `VITE_ALPACA_KEY` + `VITE_ALPACA_SECRET`, call `https://paper-api.alpaca.markets`.
+- Deep black base (`#050505`), glassmorphism cards with `white/6%` borders
+- Primary accent: Purple `#7C5CFC`
+- Fonts: Cal Sans (display), Inter (body), DM Mono (data/numbers)
+- Shared CSS: `.glass-card`, `.card-reveal`, `.card-accent`, `.gradient-text`
 
-### Coinbase Advanced Trade
-Create API keys with "View" permissions at coinbase.com/settings/api, use the REST API at `https://api.coinbase.com/api/v3`.
+## Project Structure
 
-### MetaMask / On-Chain Wallets
-User enters wallet address → use `ethers.js` + Alchemy RPC to fetch balances. Query Lido Finance subgraph for staking yield data.
+```
+src/
+├── components/   Shared UI (Layout, Sidebar, Header, KpiCard, PageHeader)
+├── context/      React contexts (Auth, Theme, Currency, Debug, broker providers)
+├── hooks/        Custom hooks (useUnifiedPortfolio, useBinanceData, etc.)
+├── lib/          Utilities (formatters, exchange rates, broker adapters)
+├── pages/        Route pages (Dashboard, Income, Holdings, Calendar, Connections, AIInsights, Settings, Billing)
+└── App.jsx       Router setup
 
-### Plaid
-Get credentials at dashboard.plaid.com, use Plaid Link for OAuth, request the `investments` product for dividend/holdings data.
-
-### Claude AI (Real Integration)
-```js
-import Anthropic from '@anthropic-ai/sdk';
-const client = new Anthropic({ apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY });
-const msg = await client.messages.create({
-  model: 'claude-sonnet-4-20250514',
-  max_tokens: 1024,
-  messages: [{ role: 'user', content: prompt }],
-});
+api/              Vercel serverless functions (9 files)
+lib/              Server-side shared code (apiHandler, auth middleware, Prisma, JWT, rate limiting)
+prisma/           Schema and migrations
 ```
 
 ## Deployment
@@ -74,15 +80,10 @@ npm i -g vercel
 vercel --prod
 ```
 
-The `vercel.json` includes SPA rewrite rules for all routes.
+The `vercel.json` includes SPA rewrite rules and API route mappings.
 
-## Project Structure
+## Roadmap
 
-```
-src/
-├── components/   Shared UI (Layout, Sidebar, Header, KpiCard)
-├── data/         Mock portfolio data layer
-├── pages/        Route pages (Dashboard, Income, Holdings, Calendar, Connections, AIInsights)
-├── utils/        Formatters and helpers
-└── App.jsx       Router setup
-```
+- [ ] **Capacitor iOS shell** — Native iOS wrapper for TestFlight/App Store (planned, not yet implemented)
+- [ ] Android support (deferred)
+- [ ] Native plugins (biometrics, haptics, push notifications)

@@ -51,8 +51,8 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className="pt-16 min-h-screen transition-all duration-300"
-        style={{ marginLeft }}
+        className="min-h-screen transition-all duration-300"
+        style={{ marginLeft, paddingTop: 'calc(var(--safe-top) + 4rem)', paddingBottom: 'var(--safe-bottom)' }}
       >
         <div className="p-3 sm:p-4 md:p-6 animate-fadeIn">
           <ErrorBoundary>

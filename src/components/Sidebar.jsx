@@ -122,6 +122,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
           transition-all duration-300 ease-in-out
           ${sidebarWidth} ${sidebarTranslate}
         `}
+        style={{ paddingTop: 'var(--safe-top)', paddingLeft: 'var(--safe-left)' }}
       >
         {/* Logo */}
         <div className={`flex items-center h-16 ${showLabels ? 'px-4' : 'justify-center px-2'} border-b border-white/5 flex-shrink-0 relative`}>
@@ -201,7 +202,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
         </nav>
 
         {/* Bottom: user info */}
-        <div className="p-3 border-t border-white/5 flex-shrink-0">
+        <div className="p-3 border-t border-white/5 flex-shrink-0" style={{ paddingBottom: 'calc(var(--safe-bottom) + 0.75rem)' }}>
           <div className="flex items-center gap-3">
             <NavLink to="/settings" className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold flex-shrink-0 hover:ring-2 hover:ring-purple-400/40 transition-all shadow-md shadow-purple-500/20">
               {initials}

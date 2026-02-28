@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react'
 import axios from 'axios'
+import { API_BASE_URL } from '../lib/platform'
 
 const AuthContext = createContext(null)
 
@@ -15,7 +16,7 @@ export function AuthProvider({ children }) {
 
   // On mount: try to restore session from httpOnly refresh cookie
   useEffect(() => {
-    axios.post('/api/auth/refresh', {}, { withCredentials: true })
+    axios.post(`${API_BASE_URL}/api/auth/refresh`, {}, { withCredentials: true })
       .then(({ data }) => {
         setUser(data.user)
         setAccessToken(data.accessToken)
@@ -32,7 +33,7 @@ export function AuthProvider({ children }) {
   // - On 401: silently refreshes token and retries the original request once
   // - On refresh failure: clears auth state (session fully expired)
   const authAxios = useMemo(() => {
-    const instance = axios.create({ withCredentials: true })
+    const instance = axios.create({ baseURL: API_BASE_URL, withCredentials: true })
 
     instance.interceptors.request.use(config => {
       if (tokenRef.current) {
@@ -49,7 +50,7 @@ export function AuthProvider({ children }) {
         if (err.response?.status === 401 && !original._retry) {
           original._retry = true
           try {
-            const { data } = await axios.post('/api/auth/refresh', {}, { withCredentials: true })
+            const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {}, { withCredentials: true })
             setUser(data.user)
             setAccessToken(data.accessToken)
             tokenRef.current = data.accessToken
@@ -73,7 +74,7 @@ export function AuthProvider({ children }) {
   async function register(name, email, password) {
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/auth/register', { name, email, password }, { withCredentials: true })
+      const { data } = await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password }, { withCredentials: true })
       setUser(data.user)
       setAccessToken(data.accessToken)
     } finally {
@@ -84,7 +85,7 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password }, { withCredentials: true })
+      const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password }, { withCredentials: true })
       setUser(data.user)
       setAccessToken(data.accessToken)
     } finally {
@@ -98,7 +99,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await axios.post('/api/auth/logout', {}, { withCredentials: true })
+      await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true })
     } catch {
       // clear state regardless
     }

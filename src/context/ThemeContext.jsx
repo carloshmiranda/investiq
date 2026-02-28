@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { isNative } from '../lib/platform';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 const ThemeContext = createContext(null);
 
@@ -22,6 +24,9 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    if (isNative) {
+      StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light }).catch(() => {});
+    }
   }, [theme]);
 
   return (

@@ -39,7 +39,9 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-4 relative overflow-hidden"
+      style={{ paddingTop: 'var(--safe-top)', paddingBottom: 'var(--safe-bottom)' }}
+    >
       {/* Animated gradient orbs */}
       <div className="absolute top-[-20%] left-[50%] -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[#7C5CFC]/[0.07] blur-[120px] animate-pulse" style={{ animationDuration: '6s' }} />
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full bg-[#a78bfa]/[0.04] blur-[100px] animate-pulse" style={{ animationDuration: '8s', animationDelay: '2s' }} />

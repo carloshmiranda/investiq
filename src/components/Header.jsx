@@ -25,15 +25,15 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
   const headerLeft = isMobile ? '0' : collapsed ? '4rem' : '15rem';
 
   return (
-    <header className="fixed top-0 right-0 z-20 h-16 flex items-center px-3 sm:px-4 gap-2 sm:gap-4
-      bg-[#080808]/90 backdrop-blur-md
-      transition-all duration-300"
+    <header className="fixed top-0 right-0 z-20 flex flex-col bg-[#080808]/90 backdrop-blur-md transition-all duration-300"
       style={{
         left: headerLeft,
+        paddingTop: 'var(--safe-top)',
         borderImage: 'linear-gradient(to right, transparent, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.06) 80%, transparent) 1',
         borderBottom: '1px solid',
       }}
     >
+    <div className="h-16 flex items-center px-3 sm:px-4 gap-2 sm:gap-4 w-full">
       {/* Mobile hamburger */}
       <button
         className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
@@ -92,6 +92,7 @@ export default function Header({ collapsed, setCollapsed, mobileOpen, setMobileO
         <p className="text-xs text-gray-400">{formattedDate}</p>
         <p className="text-sm font-data text-gray-300">{formattedTime}</p>
       </div>
+    </div>
     </header>
   );
 }

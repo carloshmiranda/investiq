@@ -21,19 +21,23 @@ function parseCookie(header, name) {
   return match ? decodeURIComponent(match[1]) : null
 }
 
-function setRefreshCookie(res, token) {
-  const secure = process.env.VERCEL_ENV === 'production' ? 'Secure; ' : ''
+function setRefreshCookie(res, token, origin) {
+  const isCapacitor = origin === 'capacitor://localhost'
+  const secure = (process.env.VERCEL_ENV === 'production' || isCapacitor) ? 'Secure; ' : ''
+  const sameSite = isCapacitor ? 'None' : 'Strict'
   res.setHeader(
     'Set-Cookie',
-    `refreshToken=${token}; HttpOnly; ${secure}SameSite=Strict; Path=/api/auth; Max-Age=${SEVEN_DAYS_S}`
+    `refreshToken=${token}; HttpOnly; ${secure}SameSite=${sameSite}; Path=/api/auth; Max-Age=${SEVEN_DAYS_S}`
   )
 }
 
-function clearRefreshCookie(res) {
-  const secure = process.env.VERCEL_ENV === 'production' ? 'Secure; ' : ''
+function clearRefreshCookie(res, origin) {
+  const isCapacitor = origin === 'capacitor://localhost'
+  const secure = (process.env.VERCEL_ENV === 'production' || isCapacitor) ? 'Secure; ' : ''
+  const sameSite = isCapacitor ? 'None' : 'Strict'
   res.setHeader(
     'Set-Cookie',
-    `refreshToken=; HttpOnly; ${secure}SameSite=Strict; Path=/api/auth; Max-Age=0`
+    `refreshToken=; HttpOnly; ${secure}SameSite=${sameSite}; Path=/api/auth; Max-Age=0`
   )
 }
 
@@ -84,7 +88,7 @@ async function handleRegister(req, res) {
     },
   })
 
-  setRefreshCookie(res, refreshToken)
+  setRefreshCookie(res, refreshToken, req.headers.origin)
   return res.status(201).json({ accessToken, user })
 }
 
@@ -126,7 +130,7 @@ async function handleLogin(req, res) {
     },
   })
 
-  setRefreshCookie(res, refreshToken)
+  setRefreshCookie(res, refreshToken, req.headers.origin)
   return res.status(200).json({
     accessToken,
     user: { id: user.id, name: user.name, email: user.email, currencyCode: user.currencyCode, plan: user.plan },
@@ -176,7 +180,7 @@ async function handleRefresh(req, res) {
     },
   })
 
-  setRefreshCookie(res, newRefreshToken)
+  setRefreshCookie(res, newRefreshToken, req.headers.origin)
   return res.status(200).json({ accessToken: newAccessToken, user })
 }
 
@@ -185,7 +189,7 @@ async function handleLogout(req, res) {
   if (token) {
     await prisma.session.deleteMany({ where: { refreshToken: hashToken(token) } })
   }
-  clearRefreshCookie(res)
+  clearRefreshCookie(res, req.headers.origin)
   return res.status(200).json({ ok: true })
 }
 
