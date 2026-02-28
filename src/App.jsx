@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { isNative } from './lib/platform'
@@ -24,8 +25,10 @@ import Connections from './pages/Connections'
 import AIInsights from './pages/AIInsights'
 import Settings from './pages/Settings'
 import Billing from './pages/Billing'
-import Blog from './pages/Blog'
-import BlogPost from './pages/BlogPost'
+
+// Blog pages are code-split so the markdown parser never runs in the main bundle
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
 
 function DebugOverlay() {
   const debug = useDebugContext()
@@ -67,8 +70,8 @@ export default function App() {
             </Route>
 
             {/* Blog routes — open to everyone, no auth gate */}
-            <Route path="blog" element={<Blog />} />
-            <Route path="blog/:slug" element={<BlogPost />} />
+            <Route path="blog" element={<Suspense fallback={<div className="min-h-screen bg-[#050505]" />}><Blog /></Suspense>} />
+            <Route path="blog/:slug" element={<Suspense fallback={<div className="min-h-screen bg-[#050505]" />}><BlogPost /></Suspense>} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
