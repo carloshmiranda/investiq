@@ -233,8 +233,23 @@ https://github.com/carloshmiranda/accrue
 - [x] P3 — Landing pricing synced with Billing: replaced single beta "$0 all-features" card with two-tier Free ($0, 5 AI queries, no CSV/auto-sync/full-history) + Pro ($8/mo, $80/yr, unlimited AI + CSV + auto sync + full history + priority support) — exact match to Billing page.
 - [x] P4 — Landing trust section: added `TrustBar` between About and Pricing — broker logo strip (DeGiro · Trading 212 · Binance · Crypto.com with brand colors) + 3 security callouts (AES-256 Encrypted, Read-Only API Access, Private By Default) in glass-border cards.
 
+### Rebrand: Accrue → Flolio (2026-02-28)
+- [x] R1 — Global rebrand to "Flolio". Find and replace every user-visible instance of "Accrue" with "Flolio" across the codebase. Specific targets:
+  - `index.html`: `<title>`, meta description, OG title/description tags
+  - `src/pages/Landing.jsx`: hero headline, product name references, any "Accrue" in copy
+  - `src/components/` (Sidebar, Header, Layout): logo text, any brand name strings
+  - `src/pages/Login.jsx`, `Register.jsx`: any "Accrue" in headings or copy
+  - `src/pages/Billing.jsx`: plan names, any product references
+  - `README.md`: header and all references
+  - `package.json`: update `"name"` field if set to "accrue" or "investiq"
+  - Do NOT rename Tailwind utility classes, git history, env var names, or Vercel/Neon config keys — these are infrastructure, not brand
+  - After replacing: run `grep -r "Accrue" src/` and `grep "Accrue" index.html` to confirm clean. Build must pass.
+  - **flolio.app has been purchased by Carlos. R2 and R3 can proceed immediately.**
+- [ ] R2 — Add flolio.app as custom domain via Vercel CLI: run `vercel domains add flolio.app`. Then run `vercel domains ls` to confirm and print the DNS records Carlos needs to set at his registrar (A record / CNAME). Commit nothing — this is a Vercel project setting only.
+- [ ] R3 — Rename GitHub repo: run `gh repo rename flolio --yes` (GitHub CLI). Then update the local git remote: `git remote set-url origin https://github.com/carloshmiranda/flolio.git`. Verify with `git remote -v`. GitHub auto-redirects the old URL so existing Vercel git integration stays live.
+
 ### Blog & Newsletter Infrastructure (CMO growth — 2026-02-28)
-- [ ] B1 — Build /blog route in Vercel: React Router entry at `/blog` and `/blog/:slug`. Articles stored as `.md` files in `/src/blog/posts/`. Use `gray-matter` for frontmatter (title, date, description, slug, readTime). Use `react-markdown` + `remark-gfm` for rendering. Blog index page: card grid with title, description, date, read time. Single article page: full-width readable prose layout. Apply Accrue's glass card aesthetic throughout. No new serverless functions needed — fully static.
+- [ ] B1 — Build /blog route in Vercel: React Router entry at `/blog` and `/blog/:slug`. Articles stored as `.md` files in `/src/blog/posts/`. Use `gray-matter` for frontmatter (title, date, description, slug, readTime). Use `react-markdown` + `remark-gfm` for rendering. Blog index page: card grid with title, description, date, read time. Single article page: full-width readable prose layout. Apply Flolio's glass card aesthetic throughout. No new serverless functions needed — fully static.
 - [ ] B2 — Email capture on landing page: Add a simple email input + "Get the Digest" button to Landing.jsx (between TrustBar and Pricing, or in the Hero area). On submit, call POST /api/newsletter/subscribe which validates the email and stores it in a new `newsletter_subscribers` table (email, createdAt, confirmed). Use Resend SDK to send a welcome email. Add `newsletter_subscribers` to Prisma schema and run migration. Resend free tier handles 3,000 emails/month — add RESEND_API_KEY to Vercel env vars.
 
 ## Session Log
@@ -289,3 +304,4 @@ https://github.com/carloshmiranda/accrue
 | 2026-02-28 | L2, L4, G4, P4 | L4: chart bar bottom stopOpacity 0.7→0.85 + area bottom stops 0.01-0.02→0.08-0.12 (Income.jsx + Dashboard.jsx). G4: Sidebar upgraded to bg/75 + blur(16px) saturate(180%) glass; light mode rgba(248,247,244,0.85) — resolves L2. P4: Landing TrustBar section (broker logo strip + 3 security callout cards: AES-256 / read-only / private). |
 | 2026-02-28 | L5, G5, G6, P1 | L5: currency-switcher CSS class — light mode button dividers + soft bg. G5: body bg-image expanded to 4-stop ambient gradient (purple/emerald/cyan). G6: per-accent hover glow (emerald/cyan/amber/purple) in dark (0.09 opacity) and light (0.14 opacity). P1: AppPreview() browser mockup with macOS chrome, perspective tilt, mini dashboard (KPI cards + chart + holdings). |
 | 2026-02-28 | G2, G7, G8 | G2: glass-card shadow expanded to 3-layer stack (contact+mid+far) in both themes. G7: ModalShell overlay → blur(12px) frosted scrim + new .modal-glass card class (blur(24px) saturate(200%)). G8: all inputs get backdrop-filter: blur(8px); light mode inputs upgraded to rgba(255,255,255,0.72) glass fill + blur(12px). ENTIRE POLISH BACKLOG COMPLETE (L1–L5, G1–G8, D1–D2, P1–P4). |
+| 2026-02-28 | R1 | Global rebrand: "Accrue" → "Flolio" across entire codebase. Files updated: index.html (title), package.json (name), Sidebar (logo), Login/Register (logos ×2 each), AIInsights (AI name), Landing (logo + 3 copy instances + mockup URL + footer), Connections (2 security copy lines), Holdings (CSV filename), Blog/BlogPost (all instances), README.md (header). grep confirms zero remaining occurrences. Build passes clean in 1.69s. |
