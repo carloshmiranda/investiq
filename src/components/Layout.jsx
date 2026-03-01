@@ -49,10 +49,16 @@ export default function Layout() {
         isMobile={isMobile}
       />
 
-      {/* Main content area */}
+      {/* Main content area — width excludes the sidebar so content never renders
+          wider than the visible viewport (fixes horizontal overflow at 1024-1280px) */}
       <main
-        className="min-h-screen w-full overflow-x-hidden transition-all duration-300"
-        style={{ marginLeft, paddingTop: 'calc(var(--safe-top) + 4rem)', paddingBottom: 'var(--safe-bottom)' }}
+        className="min-h-screen overflow-x-hidden transition-all duration-300"
+        style={{
+          marginLeft,
+          width: `calc(100% - ${marginLeft})`,
+          paddingTop: 'calc(var(--safe-top) + 4rem)',
+          paddingBottom: 'var(--safe-bottom)',
+        }}
       >
         <div className="p-3 sm:p-4 md:p-6 animate-fadeIn min-w-0">
           <ErrorBoundary>
