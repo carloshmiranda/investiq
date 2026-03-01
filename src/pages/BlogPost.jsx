@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { posts, getPost, formatDate } from '../blog/index.js'
@@ -127,6 +128,18 @@ export default function BlogPost() {
       className="min-h-screen bg-[#050505] relative overflow-x-hidden"
       style={{ paddingTop: 'var(--safe-top)', paddingBottom: 'var(--safe-bottom)' }}
     >
+      <Helmet>
+        <title>{post.title} — Flolio</title>
+        <meta name="description" content={post.description} />
+        <link rel="canonical" href={`https://flolio.app/blog/${post.slug}`} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.description} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://flolio.app/blog/${post.slug}`} />
+        <meta property="og:site_name" content="Flolio" />
+        <meta property="article:published_time" content={post.date} />
+        <meta property="article:author" content="Flolio Team" />
+      </Helmet>
       {/* Background atmosphere */}
       <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[#7C5CFC]/[0.05] blur-[130px] pointer-events-none" />
 
