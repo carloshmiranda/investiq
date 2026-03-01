@@ -79,7 +79,7 @@ export default function AIInsights() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hello! I'm your Flolio AI advisor powered by Claude. I can analyze your connected portfolios across all brokers and exchanges.\n\nWhat would you like to know about your investments?`,
+      content: `Hello! I'm your Flolio AI advisor. I can analyze your connected portfolios across all brokers and exchanges.\n\nWhat would you like to know about your investments?`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -144,7 +144,7 @@ export default function AIInsights() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="AI Insights" subtitle="Your intelligent investment advisor powered by Claude" />
+      <PageHeader title="AI Insights" subtitle="Your intelligent investment advisor" />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 card-reveal" style={{ animationDelay: '0.08s' }}>
         {/* Chat interface */}
@@ -177,7 +177,6 @@ export default function AIInsights() {
                   {quota.used}/{quota.limit} queries
                 </span>
               )}
-              <span className="text-[10px] font-data text-gray-500">claude-sonnet-4-6</span>
             </div>
           </div>
 

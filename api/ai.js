@@ -1,12 +1,12 @@
 // api/ai.js
-// POST /api/ai/chat — Claude claude-sonnet-4-6, portfolio context injected, quota enforced
+// POST /api/ai/chat — AI chat, portfolio context injected, quota enforced
 import { createProtectedHandler } from '../lib/apiHandler.js'
 import { getCache } from '../lib/cache.js'
 import { prisma } from '../lib/prisma.js'
 import { getPlan } from '../lib/plans.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-const MODEL = 'claude-sonnet-4-6'
+const MODEL = process.env.AI_MODEL || 'claude-sonnet-4-6'
 const MAX_TOKENS = 1024
 
 // ─── Build portfolio context for the system prompt ─────────────────────────
@@ -138,8 +138,8 @@ export default createProtectedHandler({
     const portfolioContext = buildPortfolioContext(portfolio, income)
     const systemPrompt = `${SYSTEM_PROMPT}\n\n---\n\n${portfolioContext}`
 
-    // Build messages for Claude API (only user/assistant roles)
-    const claudeMessages = messages
+    // Build messages for AI API (only user/assistant roles)
+    const aiMessages = messages
       .filter((m) => m.role === 'user' || m.role === 'assistant')
       .map((m) => ({ role: m.role, content: m.content }))
 
@@ -155,14 +155,14 @@ export default createProtectedHandler({
         model: MODEL,
         max_tokens: MAX_TOKENS,
         system: systemPrompt,
-        messages: claudeMessages,
+        messages: aiMessages,
       }),
     })
 
     if (!response.ok) {
       let errBody
       try { errBody = await response.json() } catch { errBody = {} }
-      const msg = errBody.error?.message || `Claude API returned ${response.status}`
+      const msg = errBody.error?.message || `AI API returned ${response.status}`
       return res.status(502).json({ error: msg })
     }
 
