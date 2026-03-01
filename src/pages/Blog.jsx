@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { posts, formatDate } from '../blog/index.js'
 
 // ── Category badge colour map ─────────────────────────────────────────────
@@ -114,16 +113,14 @@ export default function Blog() {
       className="min-h-screen bg-[#050505] relative overflow-x-hidden"
       style={{ paddingTop: 'var(--safe-top)', paddingBottom: 'var(--safe-bottom)' }}
     >
-      <Helmet>
-        <title>The Digest — Passive Income &amp; Dividend Investing | Flolio</title>
-        <meta name="description" content="Guides, strategies, and insights on dividend investing, staking rewards, and building passive income with a multi-broker portfolio. From the Flolio team." />
-        <link rel="canonical" href="https://flolio.app/blog" />
-        <meta property="og:title" content="The Digest — Passive Income & Dividend Investing | Flolio" />
-        <meta property="og:description" content="Guides, strategies, and insights on dividend investing, staking rewards, and building passive income with a multi-broker portfolio." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://flolio.app/blog" />
-        <meta property="og:site_name" content="Flolio" />
-      </Helmet>
+      <title>The Digest — Passive Income &amp; Dividend Investing | Flolio</title>
+      <meta name="description" content="Guides, strategies, and insights on dividend investing, staking rewards, and building passive income with a multi-broker portfolio. From the Flolio team." />
+      <link rel="canonical" href="https://flolio.app/blog" />
+      <meta property="og:title" content="The Digest — Passive Income & Dividend Investing | Flolio" />
+      <meta property="og:description" content="Guides, strategies, and insights on dividend investing, staking rewards, and building passive income with a multi-broker portfolio." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://flolio.app/blog" />
+      <meta property="og:site_name" content="Flolio" />
       {/* Background atmosphere */}
       <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[#7C5CFC]/[0.06] blur-[140px] pointer-events-none" />
 

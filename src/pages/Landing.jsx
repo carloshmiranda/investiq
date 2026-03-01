@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import ParticleBackground from '../components/ParticleBackground';
 
 const NAV_LINKS = [
@@ -771,19 +770,17 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <Helmet>
-        <title>Flolio — Track Dividends &amp; Staking Rewards in One Dashboard</title>
-        <meta name="description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
-        <link rel="canonical" href="https://flolio.app/" />
-        <meta property="og:title" content="Flolio — Track Dividends & Staking Rewards in One Dashboard" />
-        <meta property="og:description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://flolio.app/" />
-        <meta property="og:site_name" content="Flolio" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Flolio — Track Dividends & Staking Rewards in One Dashboard" />
-        <meta name="twitter:description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
-      </Helmet>
+      <title>Flolio — Track Dividends &amp; Staking Rewards in One Dashboard</title>
+      <meta name="description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
+      <link rel="canonical" href="https://flolio.app/" />
+      <meta property="og:title" content="Flolio — Track Dividends & Staking Rewards in One Dashboard" />
+      <meta property="og:description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://flolio.app/" />
+      <meta property="og:site_name" content="Flolio" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Flolio — Track Dividends & Staking Rewards in One Dashboard" />
+      <meta name="twitter:description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
       <Nav scrolled={scrolled} />
       <Hero />
       <AppPreview />

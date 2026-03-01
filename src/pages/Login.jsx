@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../context/AuthContext'
 
 const FEATURES = [
@@ -57,10 +56,8 @@ export default function Login() {
     <div className="min-h-screen bg-[#050505] flex relative overflow-hidden"
       style={{ paddingTop: 'var(--safe-top)', paddingBottom: 'var(--safe-bottom)' }}
     >
-      <Helmet>
-        <title>Sign In — Flolio</title>
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
+      <title>Sign In — Flolio</title>
+      <meta name="robots" content="noindex, nofollow" />
       {/* ── Left branding panel (desktop only) ── */}
       <div className="hidden lg:flex flex-col justify-between w-[460px] xl:w-[520px] flex-shrink-0 relative p-12 border-r border-white/[0.04]">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#7C5CFC]/[0.09] blur-[120px] pointer-events-none" />
