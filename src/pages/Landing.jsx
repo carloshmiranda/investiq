@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ParticleBackground from '../components/ParticleBackground';
+import { posts, formatDate } from '../blog/index.js';
 
 const NAV_LINKS = [
   { label: 'Features', href: '#features' },
@@ -739,6 +740,64 @@ function Pricing() {
   );
 }
 
+// ── Category colour map (mirrors Blog.jsx) ───────────────────────────────
+const BLOG_CATEGORY_COLORS = {
+  'Investing Basics':     { bg: 'bg-[#7C5CFC]/10', text: 'text-[#a78bfa]',  border: 'border-[#7C5CFC]/20' },
+  'Portfolio Management': { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
+  'Income Investing':     { bg: 'bg-amber-500/10',   text: 'text-amber-400',   border: 'border-amber-500/20' },
+  'DeFi & Crypto':        { bg: 'bg-cyan-500/10',    text: 'text-cyan-400',    border: 'border-cyan-500/20' },
+  'General':              { bg: 'bg-white/5',         text: 'text-gray-400',    border: 'border-white/10' },
+}
+
+function FromTheBlog() {
+  const latest = posts.slice(0, 3)
+  return (
+    <section className="py-20 px-6 relative">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-xs font-semibold text-[#7C5CFC] uppercase tracking-widest mb-2">The Digest</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">From the Blog</h2>
+          </div>
+          <Link
+            to="/blog"
+            className="text-sm text-[#a78bfa] hover:text-white transition-colors flex items-center gap-1"
+          >
+            All articles
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-5">
+          {latest.map((post) => {
+            const cs = BLOG_CATEGORY_COLORS[post.category] ?? BLOG_CATEGORY_COLORS['General']
+            return (
+              <Link
+                key={post.slug}
+                to={`/blog/${post.slug}`}
+                className="glass-card group block rounded-2xl p-6 hover:border-[#7C5CFC]/25 transition-all duration-300 focus:outline-none"
+              >
+                <span className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border mb-4 ${cs.bg} ${cs.text} ${cs.border}`}>
+                  {post.category}
+                </span>
+                <p className="text-sm font-semibold text-white leading-snug group-hover:text-[#a78bfa] transition-colors line-clamp-2 mb-3">
+                  {post.title}
+                </p>
+                <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">{post.description}</p>
+                <p className="text-[11px] text-gray-600">{formatDate(post.date)} · {post.readTime}</p>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function Footer() {
   return (
     <footer className="border-t border-white/[0.04] py-10 px-6">
@@ -781,11 +840,23 @@ export default function Landing() {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="Flolio — Track Dividends & Staking Rewards in One Dashboard" />
       <meta name="twitter:description" content="Flolio is a free passive income tracker for multi-broker investors. Connect DeGiro, Trading 212, Binance and Crypto.com to track dividends, staking rewards, and yield in one place." />
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Flolio",
+        "url": "https://flolio.app",
+        "description": "Free passive income tracker for multi-broker investors. Track dividends, staking rewards, and yield in one unified dashboard.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+        "publisher": { "@type": "Organization", "name": "Flolio", "url": "https://flolio.app" }
+      })}</script>
       <Nav scrolled={scrolled} />
       <Hero />
       <AppPreview />
       <Features />
       <About />
+      <FromTheBlog />
       <TrustBar />
       <Pricing />
       <Footer />

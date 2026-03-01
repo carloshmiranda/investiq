@@ -1,9 +1,10 @@
 ---
 title: "How to Track Your Portfolio Across Multiple Brokers"
-description: "Managing investments across DeGiro, Trading 212, Binance, and other platforms is complex. Here's how to get a unified view of your entire portfolio without the spreadsheet chaos."
+description: "Managing investments across multiple brokers and exchanges is complex. Here's how to get a unified view of your entire portfolio — without the spreadsheet chaos."
 date: "2026-02-18"
 readTime: "5 min read"
 category: "Portfolio Management"
+author: "Flolio Team"
 ---
 
 ## The Multi-Broker Problem
@@ -96,10 +97,10 @@ The goal is to spend 30 minutes per month on a structured review, rather than co
 
 ## The Flolio Approach
 
-Flolio connects directly to DeGiro, Trading 212, Binance, and Crypto.com — the four platforms most used by European retail investors. All balances, positions, and income events are pulled together into a single dashboard, updated hourly.
+Flolio connects directly to the brokers and exchanges most used by European retail investors — including stock platforms, crypto exchanges, and staking providers. All balances, positions, and income events are pulled together into a single dashboard, updated hourly.
 
-You see one total portfolio value, one monthly income figure, one allocation chart — and one dividend calendar showing every upcoming payment across every broker.
+You see one total portfolio value, one monthly income figure, one allocation chart — and one dividend calendar showing every upcoming payment across every connected account.
 
-The currency switcher lets you view everything in USD, EUR, or GBP with live exchange rates. No more mental arithmetic when comparing a GBP dividend to a EUR ETF position.
+The currency switcher lets you view everything in USD, EUR, or GBP with live exchange rates. No more mental arithmetic when comparing dividends and positions held across different platforms.
 
-Start with free — connect all four brokers, track your income, use the AI assistant. No credit card required.
+Start for free — connect your brokers, track your income, use the AI assistant. No credit card required.

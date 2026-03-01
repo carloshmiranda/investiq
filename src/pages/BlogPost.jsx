@@ -142,6 +142,21 @@ export default function BlogPost() {
       <meta property="og:site_name" content="Flolio" />
       <meta property="article:published_time" content={post.date} />
       <meta property="article:author" content="Flolio Team" />
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": post.title,
+        "description": post.description,
+        "datePublished": post.date,
+        "author": { "@type": "Organization", "name": "Flolio Team" },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Flolio",
+          "logo": { "@type": "ImageObject", "url": "https://flolio.app/favicon.svg" }
+        },
+        "url": `https://flolio.app/blog/${post.slug}`,
+        "mainEntityOfPage": { "@type": "WebPage", "@id": `https://flolio.app/blog/${post.slug}` }
+      })}</script>
       {/* Background atmosphere */}
       <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[#7C5CFC]/[0.05] blur-[130px] pointer-events-none" />
 
@@ -185,6 +200,17 @@ export default function BlogPost() {
         >
           {post.title}
         </h1>
+
+        {/* Author chip */}
+        <div className="flex items-center gap-2.5 mb-5 landing-fade-up" style={{ animationDelay: '0.10s' }}>
+          <div className="w-7 h-7 rounded-full bg-[#7C5CFC]/20 border border-[#7C5CFC]/30 flex items-center justify-center flex-shrink-0">
+            <span className="text-[10px] font-bold text-[#a78bfa]">FT</span>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-white/80">{post.author}</p>
+            <p className="text-[11px] text-gray-500">Passive income &amp; dividend investing</p>
+          </div>
+        </div>
 
         {/* Description / lead */}
         <p

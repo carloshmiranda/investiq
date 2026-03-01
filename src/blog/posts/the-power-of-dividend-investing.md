@@ -4,6 +4,7 @@ description: "Dividend investing is one of the most reliable ways to build a str
 date: "2026-02-10"
 readTime: "6 min read"
 category: "Investing Basics"
+author: "Flolio Team"
 ---
 
 ## What Is Dividend Investing?

@@ -48,6 +48,7 @@ export const posts = Object.entries(rawFiles)
       date: data.date ?? '2026-01-01',
       readTime: data.readTime ?? '5 min read',
       category: data.category ?? 'General',
+      author: data.author ?? 'Flolio Team',
       content,
     }
   })

@@ -4,6 +4,7 @@ description: "The Dividend Reinvestment Plan (DRIP) is one of the most powerful 
 date: "2026-02-24"
 readTime: "7 min read"
 category: "Income Investing"
+author: "Flolio Team"
 ---
 
 ## What Is DRIP?
