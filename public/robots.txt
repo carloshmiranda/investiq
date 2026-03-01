@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /blog
+Allow: /blog/
+
+Disallow: /dashboard
+Disallow: /portfolio
+Disallow: /holdings
+Disallow: /dividends
+Disallow: /crypto
+Disallow: /settings
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://flolio.app/sitemap.xml
